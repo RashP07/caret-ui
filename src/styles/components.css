@@ -1,0 +1,74 @@
+/* =========================================================
+   Component CSS that utilities can't express cleanly:
+   counters and masks. Everything else is
+   Tailwind utilities in the component files. Tokens only.
+   ========================================================= */
+
+@layer components {
+  /* ---------- Code: numbered lines ---------- */
+  .code-lines { counter-reset: ln var(--start, 0); }
+  .code-lines > .ln { display: block; padding: 0 14px 0 0; white-space: pre; }
+  .code-lines > .ln::before {
+    counter-increment: ln; content: counter(ln);
+    display: inline-block; width: 3.2em; padding-right: 1.2em; text-align: right;
+    color: var(--ink-3); user-select: none;
+  }
+
+  /* ---------- Context meter ring ---------- */
+  .ctx-ring {
+    width: 14px; height: 14px; border-radius: 50%; flex: none;
+    background: conic-gradient(var(--ring, var(--ink)) calc(var(--p, 0) * 1%), var(--line-strong) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  }
+
+  /* ---------- Spec canvas registration marks (drafting-sheet corners) ---------- */
+  .reg-marks::before,
+  .reg-marks::after {
+    content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none; opacity: .9;
+    background:
+      linear-gradient(var(--line-strong), var(--line-strong)) center / 100% 1px no-repeat,
+      linear-gradient(var(--line-strong), var(--line-strong)) center / 1px 100% no-repeat;
+  }
+  .reg-marks::before { top: 12px; left: 12px; }
+  .reg-marks::after { bottom: 12px; right: 12px; }
+
+  /* ---------- Scroll area: vertical edge fades ----------
+     Base UI writes how far the viewport is from each edge (px); the fade grows
+     with it up to --fade, so an edge you're sitting on is never faded. */
+  .scroll-fade-y {
+    --fade: 28px;
+    --fade-mask: linear-gradient(
+      to bottom,
+      transparent,
+      #000 min(var(--fade), var(--scroll-area-overflow-y-start, 0px)),
+      #000 calc(100% - min(var(--fade), var(--scroll-area-overflow-y-end, 0px))),
+      transparent
+    );
+    -webkit-mask-image: var(--fade-mask);
+    mask-image: var(--fade-mask);
+  }
+
+  /* ---------- Tab list: horizontal edge fades ----------
+     Same idea sideways: TabList writes --scroll-x-start/end (px from each
+     edge), so tabs past an edge show faded instead of cut off, and an edge
+     you're at is never faded. Without the vars, nothing fades. */
+  .scroll-fade-x {
+    --fade: 32px;
+    --fade-mask: linear-gradient(
+      to right,
+      transparent,
+      #000 min(var(--fade), var(--scroll-x-start, 0px)),
+      #000 calc(100% - min(var(--fade), var(--scroll-x-end, 0px))),
+      transparent
+    );
+    -webkit-mask-image: var(--fade-mask);
+    mask-image: var(--fade-mask);
+  }
+}
+
+/* ---------- Progress: indeterminate stripe (structure group) ---------- */
+@keyframes caret-progress-slide {
+  from { translate: -100% 0; }
+  to { translate: 250% 0; }
+}
