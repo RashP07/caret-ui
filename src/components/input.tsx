@@ -32,7 +32,8 @@ export const wellClass = cn(
   "flex items-stretch overflow-hidden rounded-control border-stroke border-border-control",
   "bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))] shadow-[inset_0_1px_2px_var(--well-shadow)]",
   "transition-[border-color,box-shadow,background-color] duration-quick",
-  "hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
+  // Hover darkens the edge only while unfocused; focus owns the border.
+  "not-focus-within:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
   // Focus: the border turns the brand color and thickens (no offset ring on text fields).
   "has-[[data-focus-proxy]:focus-visible]:outline-none",
   "focus-within:border-accent-strong focus-within:bg-surface focus-within:shadow-[0_0_0_1px_var(--accent-strong)]",

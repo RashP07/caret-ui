@@ -74,7 +74,7 @@ export function OTPField({
                 "mono size-9 min-w-8 shrink rounded-control border-stroke border-border-control p-0 text-center text-input-touch text-ink outline-none sm:text-control touch:size-11",
                 "bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))] shadow-[inset_0_1px_2px_var(--well-shadow)]",
                 "transition-[border-color,box-shadow,background-color] duration-quick",
-                "hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
+                "not-focus:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
                 "focus:border-accent-strong focus:bg-surface focus:shadow-[0_0_0_1px_var(--accent-strong)]",
                 "data-filled:bg-surface",
                 "group-data-invalid/field:border-danger-line data-invalid:border-danger-line",
