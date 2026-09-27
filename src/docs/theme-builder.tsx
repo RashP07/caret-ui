@@ -95,11 +95,10 @@ async function copy(text: string, done: string) {
 
 const CHART = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5", "bg-chart-6"];
 
-/** Real components on the candidate theme's tokens, scoped by inline style, so the page itself doesn't change. */
-function Preview({ style, mode }: { style: CSSProperties; mode: "light" | "dark" }) {
+/** A small settings screen made of real components: what a theme looks like in use. Shared with the home page. */
+export function SampleSettings({ className }: { className?: string }) {
   return (
-    <div data-theme="custom" data-mode={mode} style={style} className="flex min-w-0 flex-col gap-3 rounded-card border border-line bg-page p-4 text-ink">
-      <span className="text-caption text-ink-3">{mode === "light" ? "Light" : "Dark"}</span>
+    <div className={cn("flex min-w-0 flex-col gap-3", className)}>
       <Card>
         <CardBody className="flex flex-col gap-3">
           <CardTitle>Deploy settings</CardTitle>
@@ -126,13 +125,23 @@ function Preview({ style, mode }: { style: CSSProperties; mode: "light" | "dark"
         <Badge tone="info">Info</Badge>
       </div>
       <p className="m-0 text-small text-pretty text-ink-2">
-        Read the <a className="link" href="#theme-builder">deploy guide</a> before you ship.
+        Read the <a className="link" href="#top">deploy guide</a> before you ship.
       </p>
       <div aria-hidden className="flex h-12 items-end gap-1.5">
         {[70, 45, 90, 55, 30, 65].map((h, i) => (
           <span key={i} className={cn("w-full rounded-t-[3px]", CHART[i])} style={{ height: `${h}%` }} />
         ))}
       </div>
+    </div>
+  );
+}
+
+/** The sample on the candidate theme's tokens, scoped by inline style, so the page itself doesn't change. */
+function Preview({ style, mode }: { style: CSSProperties; mode: "light" | "dark" }) {
+  return (
+    <div data-theme="custom" data-mode={mode} style={style} className="flex min-w-0 flex-col gap-3 rounded-card border border-line bg-page p-4 text-ink">
+      <span className="text-caption text-ink-3">{mode === "light" ? "Light" : "Dark"}</span>
+      <SampleSettings />
     </div>
   );
 }

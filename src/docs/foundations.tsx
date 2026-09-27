@@ -56,8 +56,8 @@ export function Hero({ pressB }: { pressB: boolean }) {
             <Button variant="primary" kbd="B" pressed={pressB} nativeButton={false} render={<Link to="/components" />}>
               Browse components
             </Button>
-            <Button variant="secondary" nativeButton={false} render={<Link to="/foundations/$slug" params={{ slug: "color" }} />}>
-              Read the tokens
+            <Button variant="secondary" nativeButton={false} render={<Link to="/foundations/$slug" params={{ slug: "theme-builder" }} />}>
+              Make a theme
             </Button>
           </div>
         </div>
@@ -66,9 +66,9 @@ export function Hero({ pressB }: { pressB: boolean }) {
 
       <div className="grid grid-cols-3 border-b border-line max-[860px]:grid-cols-1">
         {[
-          ["State is visible", "Every specimen below carries a live readout, like an editor status bar. If a component can't explain what it's doing, it isn't done."],
-          ["Tokens are typed, not guessed", "Colors, spacing, radii and motion are named values. A design decision you can't reference by name is a decision that will drift."],
-          ["One proportion, finished", "Controls are 36px, tuned until they feel right and hold up with a keyboard. A smaller size exists only where dense chrome needs it."],
+          ["State is visible", "Every component page carries a live readout, like an editor status bar. If a component can't explain what it's doing, it isn't done."],
+          ["Contrast is solved, not checked", "Every color is computed against the grounds it sits on, in every theme and both modes. Text, borders, focus and charts clear their targets by construction."],
+          ["Tokens are typed, not guessed", "Colors, spacing, radii and motion are named by role. A design decision you can't reference by name is a decision that will drift."],
         ].map(([t, d], i) => (
           <div
             key={t}
