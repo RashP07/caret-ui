@@ -13,7 +13,7 @@ const merge = extendTailwindMerge({
       "font-weight": ["control", "heading"],
       radius: ["inline", "button", "control", "card", "dialog", "pill"],
       shadow: ["float", "modal"],
-      ease: ["out", "spring"],
+      ease: ["out", "spring", "spring-soft", "gooey"],
     },
     classGroups: {
       "border-w": ["border-stroke"],

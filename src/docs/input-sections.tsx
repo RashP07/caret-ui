@@ -71,17 +71,22 @@ export function SwitchSection() {
    ========================================================= */
 
 const usd = { style: "currency", currency: "USD", maximumFractionDigits: 0 } as const;
+const EFFORT = ["Low", "Medium", "High"];
 const hour = (h: number) => `${String(h).padStart(2, "0")}:00`;
 
 export function SliderSection() {
   const [budget, setBudget] = useState(120);
   const [quiet, setQuiet] = useState<number[]>([22, 30]);
   const [creativity, setCreativity] = useState(70);
+  const [volume, setVolume] = useState(62);
+  const [effort, setEffort] = useState(1);
   const [committed, setCommitted] = useState<string | null>(null);
   const state: Pairs = [
     ["budget", `$${budget}`],
     ["quietHours", `${hour(quiet[0] % 24)}–${hour(quiet[1] % 24)}`],
     ["creativity", String(creativity)],
+    ["volume", `${volume}%`],
+    ["reasoning", EFFORT[effort]],
     ...(committed ? ([["committed", committed]] as Pairs) : []),
   ];
 
@@ -89,7 +94,7 @@ export function SliderSection() {
     <Section
       id="slider"
       title="Slider"
-      lede="Use a slider when the rough position matters more than the exact number. The value is still printed beside the label. Arrows step, Shift+Arrow takes large steps; two thumbs make a range. The fill variant suits settings where the amount itself is the point."
+      lede="Use a slider when the rough position matters more than the exact number. The value is still printed beside the label. Arrows step, Shift+Arrow takes large steps; two thumbs make a range. The fill variant suits settings where the amount itself is the point; the scrubber puts its label and value inside the bar for one compact row."
     >
       <Spec name="single, range, disabled" state={state} layout="left" canvasClassName="gap-8 [&>*]:max-w-[340px]">
         <Slider
@@ -127,7 +132,28 @@ export function SliderSection() {
           disabled
         />
       </Spec>
-      <Spec name="fill variant: dotted steps, bar handle" state={state} layout="left" canvasClassName="gap-8 [&>*]:max-w-[420px]">
+      <Spec name="scrubber variant: label and value inside the bar" state={state} layout="left" canvasClassName="gap-8 [&>*]:max-w-[340px]">
+        <Slider
+          variant="scrubber"
+          label="Volume"
+          value={volume}
+          onValueChange={setVolume}
+          onValueCommitted={(v) => setCommitted(`volume ${v}%`)}
+          renderValue={(f) => `${f[0]}%`}
+        />
+        <Slider
+          variant="scrubber"
+          label="Reasoning"
+          value={effort}
+          onValueChange={setEffort}
+          onValueCommitted={(v) => setCommitted(`reasoning ${EFFORT[v]}`)}
+          min={0}
+          max={EFFORT.length - 1}
+          renderValue={(_, v) => EFFORT[v[0]]}
+        />
+        <Slider variant="scrubber" label="Parallel tool calls" hint="Fixed at 4 on your plan." value={4} onValueChange={() => {}} min={1} max={8} disabled />
+      </Spec>
+      <Spec name="fill variant: label and value above the bar" state={state} layout="left" canvasClassName="gap-8 [&>*]:max-w-[340px]">
         <Slider
           variant="fill"
           label="Creativity"

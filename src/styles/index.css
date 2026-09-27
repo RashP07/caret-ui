@@ -174,6 +174,10 @@
   --ease-hover: ease;
   /* small arrivals with a little life: ticks, radio dots */
   --ease-spring: cubic-bezier(.34, 1.4, .5, 1);
+  /* a damped spring (damping 0.7, ~5% overshoot) for things that travel to a new value: slider thumbs and fills */
+  --ease-spring-soft: linear(0, 0.028, 0.098, 0.195, 0.306, 0.42, 0.531, 0.634, 0.726, 0.805, 0.871, 0.924, 0.965, 0.996, 1.018, 1.033, 1.042, 1.045, 1.046, 1.044, 1.04, 1.035, 1.03, 1.025, 1.02, 1.015, 1.011, 1.008, 1.005, 1.003, 1.001, 1, 1);
+  /* a bouncier spring (damping 0.4) for squash-and-pop on press: gooey handles */
+  --ease-gooey: linear(0, 0.053, 0.191, 0.378, 0.584, 0.783, 0.956, 1.092, 1.186, 1.238, 1.254, 1.24, 1.204, 1.156, 1.104, 1.054, 1.01, 0.976, 0.952, 0.939, 0.936, 0.939, 0.948, 0.961, 0.974, 0.987, 0.998, 1.006, 1.012, 1.015, 1.016, 1.015, 1);
 }
 
 /* Keyframes live in @theme so `animate-*` utilities exist for them. */
