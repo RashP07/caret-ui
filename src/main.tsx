@@ -4,9 +4,12 @@ import { MotionConfig } from "motion/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ToastProvider, TooltipProvider } from "@/components";
+import { initAnalytics } from "@/lib/analytics";
 import { settle } from "@/lib/motion";
 import { routeTree } from "./routeTree.gen";
 import "@/styles/index.css";
+
+initAnalytics();
 
 const router = createRouter({
   routeTree,

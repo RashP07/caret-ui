@@ -37,6 +37,7 @@ import {
   type ThemeSpec,
 } from "@/lib/palette";
 import { THEME_INFO, THEMES, type PresetName } from "@/lib/theme";
+import { track } from "@/lib/analytics";
 import { useDocs } from "./docs-context";
 import { Section } from "./spec";
 
@@ -214,6 +215,7 @@ export function ThemeBuilderSection() {
 
   const apply = () => {
     const previous = pageTheme;
+    track("custom_theme_applied", { hue: Math.round(spec.hue), vibrancy: spec.vibrancy, tint: spec.tint, contrast: spec.contrast, radius: spec.radius, primary: spec.primary, mono: !!spec.mono });
     setCustom({ ...spec, label: "Custom" });
     toast("Custom theme applied to the site", {
       tone: "success",
@@ -341,10 +343,16 @@ export function ThemeBuilderSection() {
             <Button variant="primary" onClick={apply}>
               Use this theme
             </Button>
-            <Button variant="secondary" onClick={() => copy(exportCss(), "CSS copied")}>
+            <Button variant="secondary" onClick={() => {
+                track("theme_css_copied");
+                copy(exportCss(), "CSS copied");
+              }}>
               Copy CSS
             </Button>
-            <Button variant="ghost" onClick={() => copy(`${location.origin}/foundations/theme-builder?${specToQuery(spec)}`, "Link copied")}>
+            <Button variant="ghost" onClick={() => {
+                track("theme_link_copied");
+                copy(`${location.origin}/foundations/theme-builder?${specToQuery(spec)}`, "Link copied");
+              }}>
               Copy link
             </Button>
             <Button variant="ghost" onClick={() => setSpec(DEFAULT_SPEC)}>
