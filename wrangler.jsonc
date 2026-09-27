@@ -1,0 +1,12 @@
+// Cloudflare Worker serving the built docs site (npm run build → dist/).
+{
+  "name": "caret-ui",
+  "compatibility_date": "2026-09-27",
+  "assets": {
+    "directory": "./dist",
+    // Pages like /components/button exist only in the client router. Without this, a refresh or
+    // a shared link asks for a file that isn't there and gets an empty 404; with it, unknown
+    // paths serve index.html and the router takes over (and shows its own not-found page).
+    "not_found_handling": "single-page-application"
+  }
+}
