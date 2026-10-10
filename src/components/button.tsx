@@ -20,9 +20,15 @@ export type ButtonSize = "default" | "sm";
  * Per-variant material lives in local custom properties (--bg, --fg, --bd,
  * --ledge, --hl); the per-theme strength comes from material tokens. Solid
  * fills darken with relative color (oklch from a token), never a mix with black.
+ *
+ * Optical spacing (DESIGN.md §3 Space): the side with an icon, chevron or key cap
+ * gets less padding than the text side, because a 16px icon box carries its own
+ * whitespace and lighter mass than a word. --pad is the text side, --pad-icon the
+ * icon side; [data-lead] / [data-trail] pick it. Logical sides, so RTL mirrors.
  */
 const base = [
-  "relative inline-flex min-w-0 max-w-full items-center justify-center gap-2 px-3.5 rounded-button",
+  "relative inline-flex min-w-0 max-w-full items-center justify-center gap-2 rounded-button",
+  "[--pad:--spacing(3.5)] [--pad-icon:--spacing(2.5)] px-(--pad) data-lead:ps-(--pad-icon) data-trail:pe-(--pad-icon)",
   "border border-(--bd) bg-(--bg) text-(--fg) text-control font-control tracking-[-.005em] whitespace-nowrap no-underline select-none",
   "[-webkit-tap-highlight-color:transparent] mb-(--btn-ledge) [--lift:var(--btn-ledge)]",
   "shadow-[inset_0_1px_0_var(--hl),0_var(--lift)_0_0_var(--ledge)]",
@@ -123,7 +129,7 @@ const sizes: Record<ButtonSize, { ghost: string; ledged: string; square: string;
     ledged: "h-[calc(1.75rem_-_var(--btn-ledge))]",
     square: "w-7",
     ledgedSquare: "w-[calc(1.75rem_-_var(--btn-ledge))]",
-    rest: "gap-1.5 px-2.5 text-small",
+    rest: "gap-1.5 [--pad:--spacing(2.5)] [--pad-icon:--spacing(1.5)] text-small",
   },
 };
 
@@ -140,7 +146,8 @@ export function buttonClass(
     opts.pressed && v.pressed,
     ghost ? z.ghost : z.ledged,
     z.rest,
-    opts.icon && cn(ghost ? z.square : z.ledgedSquare, "px-0"),
+    // Icon-only faces are square: no side padding, so no optical offset either.
+    opts.icon && cn(ghost ? z.square : z.ledgedSquare, "[--pad:0px] [--pad-icon:0px]"),
   );
 }
 
@@ -150,6 +157,8 @@ export interface ButtonProps extends ComponentProps<typeof BaseButton> {
   size?: ButtonSize;
   /** Leading icon (a Phosphor icon element). Hidden while loading. */
   icon?: ReactNode;
+  /** Trailing icon, e.g. a menu trigger's chevron. Takes the icon-side padding. */
+  trail?: ReactNode;
   /** Shortcut printed on the control, e.g. "⌘↵". */
   kbd?: string;
   /** Busy: sets aria-busy, shows a spinner, keeps the width. */
@@ -167,6 +176,7 @@ export function Button({
   variant = "secondary",
   size,
   icon,
+  trail,
   kbd,
   loading,
   pressed = false,
@@ -187,6 +197,9 @@ export function Button({
   const button = (
     <BaseButton
       aria-busy={loading || undefined}
+      // Optical spacing: the icon side and the trailing side (key cap, chevron) take --pad-icon.
+      data-lead={(icon != null && !isIconOnly) || undefined}
+      data-trail={(kbd != null || trail != null) || undefined}
       className={(state) =>
         cn(
           buttonClass(variant, { icon: isIconOnly, pressed: pressed || keyDown, size }),
@@ -222,7 +235,8 @@ export function Button({
         {/* Long or localized labels truncate instead of blowing out the row. */}
         {children != null && <span className="min-w-0 truncate">{children}</span>}
         {/* The key hint takes the face's text color (Kbd tints from currentColor), so it suits every variant. */}
-        {kbd && <Kbd keys={kbd} size={size === "sm" ? "sm" : "default"} className={size === "sm" ? "-mr-1" : "-mr-1.5"} />}
+        {kbd && <Kbd keys={kbd} size={size === "sm" ? "sm" : "default"} />}
+        {trail}
       </span>
       {loading !== undefined && (
         <CircleNotchIcon
@@ -295,8 +309,8 @@ export function ButtonGroup({ className, ...props }: ComponentProps<"div">) {
     <div
       role="group"
       className={cn(
-        "inline-flex [&>*]:rounded-none [&>*:first-child]:rounded-l-button [&>*:last-child]:rounded-r-button",
-        "[&>*:not(:first-child)]:-ml-px [&>*:focus-visible]:z-10",
+        "inline-flex [&>*]:rounded-none [&>*:first-child]:rounded-s-button [&>*:last-child]:rounded-e-button",
+        "[&>*:not(:first-child)]:-ms-px [&>*:focus-visible]:z-10",
         className,
       )}
       {...props}

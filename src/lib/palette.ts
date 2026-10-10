@@ -276,6 +276,13 @@ export function buildMode(spec: ThemeSpec, mode: Mode, extraGrounds: RGB[] = [])
       : solveL((L) => [L, vib * maxChroma(L, h), h], bg(INDICATOR_GROUNDS), 3, text);
   const focusFromAccent = high && dark ? (accentPasses ? t.accent : t.ink) : t["accent-strong"];
   t.focus = [...(!dark && (spec.focusLight === "ink" || high) ? t.ink : focusFromAccent)];
+  // A mono theme's accent is its ink, so focus would be the full-strength text color. Take it
+  // halfway to the control edge instead: still far past 3:1, but a hairline, not a black bar.
+  if (spec.mono && !high) {
+    const [il, ic, ih2] = t.ink;
+    const [bl, bc] = t["border-control"];
+    t.focus = clampGamut([(il + bl) / 2, (ic + bc) / 2, ih2]);
+  }
   t.caret = [...(dark ? t["accent-strong"] : t.ink)];
 
   const lh = linkHue(h, spec.mono);
@@ -401,9 +408,10 @@ export function themeVars(theme: Theme, { radius = theme.spec.radius !== "defaul
     "e-float": `0 6px 16px -6px ${ld(ink("light", 0.12), "oklch(0 0 0 / 0.45)")}`,
     // Dialogs have no border: in dark mode the 1px ring is their only edge.
     "e-modal": `0 0 0 1px ${ld("oklch(0 0 0 / 0)", "oklch(1 0 0 / 0.06)")}, 0 16px 40px -12px ${ld(ink("light", 0.2), "oklch(0 0 0 / 0.5)")}, 0 4px 12px -4px ${ld(ink("light", 0.1), "oklch(0 0 0 / 0.3)")}`,
-    stroke: high ? "1.5px" : "1px",
-    "stroke-bold": high ? "2px" : "1.5px",
-    "focus-width": high ? "3px" : "2px",
+    // Whole pixels only: a 1.5px line smears across two device pixels at 100%, 125% and 150%.
+    stroke: high ? "2px" : "1px",
+    "stroke-bold": "2px",
+    "focus-width": high ? "2px" : "1px",
     pattern: "radial-gradient(var(--dot) 1px, transparent 1.2px)",
     "pattern-size": "16px 16px",
   });
@@ -422,7 +430,7 @@ const base = { contrast: "standard", radius: "default", primary: "ink" } as cons
 
 /** The curated themes: starting points in the builder, static blocks in tokens.css. */
 export const PRESETS: Record<string, ThemeSpec> = {
-  neutral: { ...base, label: "Neutral", hue: 78, vibrancy: 0.95, tint: 0.2, neutralHue: 95, inkHue: 260, focusLight: "ink" },
+  neutral: { ...base, label: "Neutral", hue: 78, vibrancy: 0.95, tint: 0.2, neutralHue: 95, inkHue: 260 },
   zinc: { ...base, label: "Zinc", hue: 286, vibrancy: 0, tint: 0.07, mono: true },
   stone: { ...base, label: "Stone", hue: 55, vibrancy: 0.35, tint: 0.23, neutralHue: 70 },
   slate: { ...base, label: "Slate", hue: 259, vibrancy: 0.9, tint: 0.37, neutralHue: 250 },

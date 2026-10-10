@@ -104,7 +104,7 @@ export function CopyButton({ text, label = "Copy code", className }: { text: () 
         tip={message || label}
         className={className}
         // State is visible on the control: the icon morphs copy → check, then back.
-        icon={<Morph swapKey={copied ? "check" : "copy"}>{copied ? <CheckIcon size={15} /> : <CopyIcon size={15} />}</Morph>}
+        icon={<Morph swapKey={copied ? "check" : "copy"}>{copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}</Morph>}
         onClick={() => copy(text())}
       />
       {announcer}
@@ -131,7 +131,7 @@ export function Code({ lang, name, lines, start = 0, stat, className }: CodeProp
     <div className={cn("min-w-0 overflow-hidden rounded-card border border-line bg-surface", className)}>
       <CodeHead lang={lang} name={name} stat={stat} copy={() => lines.join("\n")} />
       <pre
-        className="code-lines mono m-0 overflow-x-auto py-2.5 text-code leading-[1.85] text-ink"
+        className="code-lines mono m-0 overflow-x-auto py-2.5 text-code leading-6 text-ink"
         style={{ "--start": start } as React.CSSProperties}
       >
         {lines.map((l, i) => (
@@ -217,7 +217,7 @@ export function Diff({ lang, path, lines, hunk, className }: DiffProps) {
       <pre
         tabIndex={0}
         aria-label={`Diff of ${path}`}
-        className="mono m-0 min-h-0 flex-1 overflow-auto pt-2 pb-4 text-code leading-[1.8] text-ink"
+        className="mono m-0 min-h-0 flex-1 overflow-auto pt-2 pb-4 text-code leading-5.5 text-ink"
       >
         {hunk && <div className="mb-1 border-b border-line bg-sunken px-3.5 py-1.5 whitespace-pre text-ink-3">{hunk}</div>}
         {lines.map(([sign, text], i) => {

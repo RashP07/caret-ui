@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CheckIcon, GitBranchIcon, PauseIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, CheckIcon, GitBranchIcon, PauseIcon, PlayIcon } from "@phosphor-icons/react";
 import { Fragment, useLayoutEffect, useState } from "react";
 import {
   Badge,
@@ -48,7 +48,7 @@ export function Hero({ pressB }: { pressB: boolean }) {
               </span>
             </span>
           </h1>
-          <p className="m-0 mb-6 max-w-[46ch] text-title leading-[1.55] font-normal tracking-normal text-pretty text-ink-2">
+          <p className="m-0 mb-6 max-w-[46ch] text-title leading-7 font-normal tracking-normal text-pretty text-ink-2">
             Caret is a design system for tools where people and agents build software together. Every control makes
             its state legible, every value has a token name you can type, and nothing ships without its keyboard story.
           </p>
@@ -87,7 +87,7 @@ export function Hero({ pressB }: { pressB: boolean }) {
 }
 
 /** Hero composition: an agent run, built from Caret parts. */
-function RunCard() {
+export function RunCard() {
   const steps: { label: string; t: string; s: "done" | "now" | "todo" }[] = [
     { label: "Read 14 route handlers", t: "0:12", s: "done" },
     { label: "Draft migration plan", t: "0:41", s: "done" },
@@ -115,19 +115,19 @@ function RunCard() {
           <li
             key={st.label}
             className={cn(
-              "relative grid grid-cols-[18px_1fr_auto] items-center gap-2.5 py-[7px] text-control",
+              "relative grid grid-cols-[18px_1fr_auto] items-center gap-2.5 py-2 text-control",
               st.s === "done" && "text-ink",
               st.s === "now" && "font-control text-ink",
               st.s === "todo" && "text-ink-3",
-              i > 0 && "before:absolute before:-top-[7px] before:left-[8.5px] before:h-3.5 before:w-px before:bg-line-strong before:content-['']",
+              i > 0 && "before:absolute before:-top-2 before:left-2 before:h-4 before:w-px before:bg-line-strong before:content-['']",
             )}
           >
             <span
               className={cn(
                 "relative z-[1] grid size-[18px] place-items-center rounded-full bg-surface",
                 st.s === "done" && "bg-ink text-on-ink",
-                st.s === "todo" && "border-[1.5px] border-dashed border-line-strong",
-                st.s === "now" && "border-[1.5px] border-accent",
+                st.s === "todo" && "border-2 border-dashed border-line-strong",
+                st.s === "now" && "border-2 border-accent",
               )}
             >
               {st.s === "done" && <CheckIcon size={10} weight="bold" />}
@@ -349,14 +349,14 @@ export function TypeSection() {
   // Each specimen is set with the utility it documents.
   const scale: [string, string, string, string][] = [
     ["display", "clamp(2.75rem, 7vw, 4.75rem) / .98 / −4.5%", "Ship it", "text-display font-heading"],
-    ["h1", "2.5rem (40) / 1.1 / −3.5%", "Agent settings", "text-h1 font-heading"],
-    ["h2", "1.75rem (28) / 1.1 / −3%", "Scheduled runs", "text-h2 font-heading"],
-    ["title", "1.125rem (18) / 1.3 / −1.5%", "Connected tools", "text-title font-heading"],
-    ["body", ".9375rem (15) / 1.55", "The agent keeps its state between runs, so it can pick up where it left off when a reply arrives hours later.", "text-body text-ink-2 whitespace-normal text-pretty"],
-    ["control", ".875rem (14) / 1.4", "Deploy agent", "text-control font-control"],
-    ["small", ".8125rem (13) / 1.45", "Last deployed 12 minutes ago by Priya", "text-small text-ink-2"],
-    ["caption", ".75rem (12) / 1.4", "3 files changed · 34 minutes ago", "text-caption text-ink-3 tabular-nums"],
-    ["code", ".78125rem (12.5) / 1.7, mono", 'this.schedule("weekdays at 11:30", "chooseLunch")', "mono text-code"],
+    ["h1", "2.5rem (40) / 44px / −3.5%", "Agent settings", "text-h1 font-heading"],
+    ["h2", "1.75rem (28) / 32px / −3%", "Scheduled runs", "text-h2 font-heading"],
+    ["title", "1.125rem (18) / 24px / −1.5%", "Connected tools", "text-title font-heading"],
+    ["body", ".9375rem (15) / 24px", "The agent keeps its state between runs, so it can pick up where it left off when a reply arrives hours later.", "text-body text-ink-2 whitespace-normal text-pretty"],
+    ["control", ".875rem (14) / 20px", "Deploy agent", "text-control font-control"],
+    ["small", ".8125rem (13) / 20px", "Last deployed 12 minutes ago by Priya", "text-small text-ink-2"],
+    ["caption", ".75rem (12) / 16px", "3 files changed · 34 minutes ago", "text-caption text-ink-3 tabular-nums"],
+    ["code", ".78125rem (12.5) / 22px, mono", 'this.schedule("weekdays at 11:30", "chooseLunch")', "mono text-code"],
   ];
   const weights: [string, string, string][] = [
     ["font-normal", "400", "Reading text, descriptions"],
@@ -448,7 +448,7 @@ export function SpaceSection() {
         <div className="grid grid-cols-[repeat(auto-fill,minmax(124px,1fr))] gap-3">
           {radii.map(([n, v, u, r]) => (
             <div key={n} className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-              <div className={cn("h-16 border-t-[1.5px] border-l-[1.5px] border-ink bg-sunken", r)} />
+              <div className={cn("h-16 border-t-2 border-l-2 border-ink bg-sunken", r)} />
               <b className="text-control font-control">
                 {n} <span className="font-normal text-ink-3 tabular-nums">{v}</span>
               </b>
@@ -475,6 +475,35 @@ export function SpaceSection() {
             <div className="rounded-card border border-line bg-sunken px-4 py-3 text-caption text-ink-2">16 = 12 + 4</div>
           </div>
         </div>
+      </div>
+      <div className="mt-4">
+        <Spec
+          name="optical spacing: equal vs balanced"
+          state={[["text side", "14px"], ["icon side", "10px"], ["sm", "10 / 6px"], ["sides", "logical (ps / pe)"]]}
+          layout="stack"
+        >
+          {/* Top row: --pad-icon pinned to --pad, i.e. mathematically equal padding. Bottom row: the default. */}
+          {[
+            ["Equal", "[--pad-icon:var(--pad)]", "data-lead:ps-2.5"],
+            ["Optical", undefined, undefined],
+          ].map(([label, btn, badge]) => (
+            <div key={label} className="flex flex-wrap items-center justify-center gap-3">
+              <span className="w-16 text-caption text-ink-3">{label}</span>
+              <Button variant="secondary" icon={<PlayIcon />} className={btn}>
+                Run
+              </Button>
+              <Button variant="secondary" kbd="⌘↵" className={btn}>
+                Send
+              </Button>
+              <Button variant="secondary" trail={<CaretDownIcon size={14} className="text-ink-3" />} className={btn}>
+                Actions
+              </Button>
+              <Badge tone="ok" dot className={badge}>
+                Passing
+              </Badge>
+            </div>
+          ))}
+        </Spec>
       </div>
     </Section>
   );
@@ -608,7 +637,7 @@ export function FocusSection() {
         {[
           ["Keyboard, not pointer", "The ring follows :focus-visible. Tab shows it; clicking a button doesn't. Text fields always show it, since focus there means you're about to type."],
           ["On what you can see", "A hidden or inset control (data-focus-proxy) hands the ring to the box around it (data-focus-target): the checkbox row, the radio card. Text fields wear the same ring, with their border turned the focus color beneath it. Other buttons inside keep their own ring."],
-          ["Follows the state", "Invalid fields ring in the danger color. The Contrast theme thickens the ring to 3px (--focus-width)."],
+          ["Follows the state", "Invalid fields ring in the danger color. The Contrast theme thickens the ring to 2px (--focus-width)."],
         ].map(([t, d]) => (
           <Card key={t}>
             <CardBody>

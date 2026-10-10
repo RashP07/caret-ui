@@ -110,7 +110,8 @@ export interface NavigationMenuGroupProps {
 export function NavigationMenuGroup({ value, label, links, columns = 2, onNavigate }: NavigationMenuGroupProps) {
   return (
     <BaseNav.Item value={value}>
-      <BaseNav.Trigger className={topItem}>
+      {/* Optical spacing: the chevron side sits 4px closer to the edge than the text side. */}
+      <BaseNav.Trigger className={cn(topItem, "pe-2")}>
         {label}
         <BaseNav.Icon className="flex text-ink-3 transition-transform duration-quick ease-out data-popup-open:rotate-180">
           <CaretDownIcon size={14} aria-hidden />

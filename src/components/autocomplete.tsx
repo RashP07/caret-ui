@@ -4,7 +4,7 @@ import { XIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { usePortalTheme } from "@/lib/theme";
-import { FieldMessage, fieldLabelClass, fieldRootClass, hintClass, wellClass, wellInputClass, wellLeadClass } from "./input";
+import { FieldMessage, fieldLabelClass, fieldRootClass, hintClass, wellClass, wellInputAfterLeadClass, wellInputClass, wellLeadClass } from "./input";
 import { keyboardInstant, menuDescriptionClass, menuItemClass, menuMetaClass, menuPopupClass } from "./select";
 import { Tooltip } from "./tooltip";
 
@@ -84,7 +84,7 @@ export function Autocomplete({
       >
         <BaseAutocomplete.InputGroup data-focus-target className={cn(wellClass, "h-9 touch:h-11")}>
           {lead != null && <span className={wellLeadClass}>{lead}</span>}
-          <BaseAutocomplete.Input data-focus-proxy placeholder={placeholder} className={cn(wellInputClass, lead != null && "pl-2")} />
+          <BaseAutocomplete.Input data-focus-proxy placeholder={placeholder} className={cn(wellInputClass, lead != null && wellInputAfterLeadClass)} />
           <Tooltip label="Clear">
             <BaseAutocomplete.Clear
               aria-label={typeof label === "string" ? `Clear ${label}` : "Clear"}

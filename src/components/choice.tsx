@@ -3,7 +3,7 @@ import { CheckboxGroup as BaseCheckboxGroup } from "@base-ui/react/checkbox-grou
 import { Fieldset } from "@base-ui/react/fieldset";
 import { Radio as BaseRadio } from "@base-ui/react/radio";
 import { RadioGroup as BaseRadioGroup } from "@base-ui/react/radio-group";
-import { CheckIcon, MinusIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { LayoutGroup, motion } from "motion/react";
 import { useId, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
@@ -110,18 +110,44 @@ export interface CheckboxProps extends Omit<ComponentProps<typeof BaseCheckbox.R
   className?: string;
 }
 
+/**
+ * The mark is drawn, not swapped in: the tick traces itself short leg to long leg on check
+ * (settle, on the drawer ease: fast out, gentle landing) and erases quickly on uncheck; the
+ * indeterminate dash grows from its centre. It's a path rather than a Phosphor glyph because
+ * Phosphor draws filled outlines, which can't be traced. Reduced motion drops the dash and scale
+ * transitions (base styles), so the mark simply appears. 12px on a 2px stroke, centred in the
+ * 14px face.
+ */
+function CheckMark({ checked, indeterminate }: { checked: boolean; indeterminate: boolean }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      {indeterminate ? (
+        <path d="M3 6h6" className="origin-center [transform-box:fill-box] animate-[dash-grow_var(--d-settle)_var(--ease-drawer)_both]" />
+      ) : (
+        <path
+          d="M2.5 6.25 5 8.75 9.5 3.5"
+          pathLength={1}
+          className={cn(
+            "[stroke-dasharray:1] transition-[stroke-dashoffset]",
+            checked ? "[stroke-dashoffset:0] duration-settle ease-drawer" : "[stroke-dashoffset:1] duration-quick ease-out",
+          )}
+        />
+      )}
+    </svg>
+  );
+}
+
 /** The bare box. Wrap in <CheckboxChoice> for a labelled row. */
 export function Checkbox({ className, ...props }: CheckboxProps) {
   return (
     <BaseCheckbox.Root className={cn(boxClass, className)} {...props}>
       <BaseCheckbox.Indicator
         keepMounted
-        className={cn(
-          "flex transition-[opacity,scale] duration-quick ease-spring",
-          "data-unchecked:not-data-indeterminate:scale-[.9] data-unchecked:not-data-indeterminate:opacity-0",
-        )}
+        className="flex"
         render={(p, state) => (
-          <span {...p}>{state.indeterminate ? <MinusIcon size={10} weight="bold" /> : <CheckIcon size={12} weight="bold" />}</span>
+          <span {...p}>
+            <CheckMark checked={state.checked} indeterminate={state.indeterminate} />
+          </span>
         )}
       />
     </BaseCheckbox.Root>
@@ -158,10 +184,11 @@ export function CheckboxGroup({ className, ...props }: Omit<ComponentProps<typeo
 
 /**
  * Children of a parent checkbox, hung from a hairline under the parent's box: the row's
- * 8px padding + half the 18px box puts its centre 17px in, so the 1px line starts at 16.5px.
+ * 8px padding + half the 18px box puts its centre 17px in; the 1px line takes 16–17px, so it
+ * stays on whole pixels and ends on the centre.
  */
 export function Nested({ className, ...props }: ComponentProps<"div">) {
-  return <div className={cn("ml-[16.5px] flex flex-col gap-0.5 border-l border-line pl-2", className)} {...props} />;
+  return <div className={cn("ml-4 flex flex-col gap-0.5 border-l border-line pl-2", className)} {...props} />;
 }
 
 /* ---------- Radio ---------- */
@@ -183,7 +210,7 @@ function RadioDot() {
     <BaseRadio.Indicator
       keepMounted
       className={cn(
-        "block size-[7px] rounded-full bg-ink data-disabled:bg-ink-disabled",
+        "block size-1.5 rounded-full bg-ink data-disabled:bg-ink-disabled",
         "transition-[opacity,scale] duration-quick ease-spring",
         "data-unchecked:scale-[.9] data-unchecked:opacity-0",
       )}
@@ -318,12 +345,13 @@ export function Seg<V extends string = string>({ value, onValueChange, options, 
               value={o.value}
               aria-label={o.iconOnly ? o.label : undefined}
               className={cn(
-                "relative isolate inline-flex min-h-7 min-w-0 cursor-pointer items-center gap-1.5 rounded-[calc(var(--r-control)-4px)] px-2.5 text-small font-control text-ink-3",
+                // Centered, so a Seg stretched to fill its row keeps each label in the middle of its pill.
+                "relative isolate inline-flex min-h-7 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-[calc(var(--r-control)-4px)] px-2.5 text-small font-control text-ink-2",
                 // Label color on the hover curve at --d-quick, arriving with the pill.
                 "transition-[color,scale] duration-quick [transition-timing-function:var(--ease-hover),var(--ease-out)]",
                 "hover:text-ink data-checked:text-ink",
                 pressClass,
-                o.iconOnly && "w-8 justify-center px-0",
+                o.iconOnly && "w-8 px-0",
               )}
               render={(radioProps, state) => (
                 <span {...radioProps}>
@@ -332,7 +360,13 @@ export function Seg<V extends string = string>({ value, onValueChange, options, 
                       aria-hidden
                       layoutId="seg-pill"
                       transition={transition()}
-                      className="absolute inset-0 -z-10 rounded-[calc(var(--r-control)-4px)] bg-surface"
+                      className={cn(
+                        "absolute inset-0 -z-10 rounded-[calc(var(--r-control)-4px)]",
+                        // Surface lifts off the sunken track in light; in dark the surface is barely lighter
+                        // than the track, so the pill takes the pressed fill. Its own hairline (inside it,
+                        // 3px clear of the track's border) gives the edge in both.
+                        "bg-[light-dark(var(--surface),var(--pressed))] shadow-[inset_0_0_0_1px_var(--line-strong)]",
+                      )}
                     />
                   )}
                   {radioProps.children}

@@ -49,8 +49,14 @@ export const wellInputClass = cn(
   "disabled:cursor-not-allowed disabled:text-ink-disabled disabled:placeholder:text-ink-disabled",
 );
 
-/** A leading icon inside a well. */
-export const wellLeadClass = "flex flex-none items-center pl-3 text-ink-3";
+/**
+ * A leading icon inside a well. Optical spacing: text sits 12px in (wellInputClass), an icon
+ * 8px, since its box carries its own whitespace. The trail and the trailing buttons match (8px).
+ */
+export const wellLeadClass = "flex flex-none items-center ps-2 text-ink-3";
+
+/** The input after a lead: the lead's 8px gap replaces the text inset. */
+export const wellInputAfterLeadClass = "ps-2";
 
 /**
  * The line under a control inside a Base UI Field. Shows the hint; an explicit `error`
@@ -154,7 +160,7 @@ export function Input({ lead, affix, trail, valid, className, ...props }: InputP
       {lead != null && <span className={wellLeadClass}>{lead}</span>}
       <BaseInput
         data-focus-proxy
-        className={cn(wellInputClass, lead != null && "pl-2")}
+        className={cn(wellInputClass, lead != null && wellInputAfterLeadClass)}
         {...props}
       />
       {(trail != null || valid) && (

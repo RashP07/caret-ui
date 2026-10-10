@@ -202,7 +202,7 @@ export function ScrollAreaSection() {
         <ScrollArea
           aria-label="Run log"
           className="h-[220px] w-full max-w-[380px] rounded-control border border-line bg-sunken"
-          contentClassName="mono pt-2 pr-5 pb-4 pl-3 text-code leading-[1.9] whitespace-pre text-ink-2"
+          contentClassName="mono pt-2 pr-5 pb-4 pl-3 text-code leading-6 whitespace-pre text-ink-2"
           onScroll={(e) => {
             const el = e.currentTarget;
             const max = el.scrollHeight - el.clientHeight;
@@ -217,7 +217,7 @@ export function ScrollAreaSection() {
         <ScrollArea
           aria-label="Wide diff line"
           className="w-full max-w-[380px] rounded-control border border-line bg-surface"
-          contentClassName="mono px-3 pt-2 pb-4 text-code leading-[1.9] whitespace-pre text-ink"
+          contentClassName="mono px-3 pt-2 pb-4 text-code leading-6 whitespace-pre text-ink"
         >
           {`+ const ruling = await agent.tools.menuLookup({ restaurants: votes.map((v) => v.restaurant), cutoff: env.LUNCH_CUTOFF });`}
         </ScrollArea>

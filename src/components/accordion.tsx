@@ -44,7 +44,7 @@ export function AccordionItem({ value, title, meta, disabled, children, classNam
       <BaseAccordion.Header className="m-0 text-[inherit] font-[inherit]">
         <BaseAccordion.Trigger
           className={cn(
-            "group/acc flex min-h-12 w-full items-center gap-3 border-0 bg-transparent px-4 py-3 text-left text-control font-control text-ink",
+            "group/acc flex min-h-12 w-full items-center gap-3 border-0 bg-transparent ps-4 pe-3 py-3 text-start text-control font-control text-ink",
             // A full-width row: hover and press answer in color only, never scale.
             "transition-[background-color] duration-instant ease-hover",
             "not-data-disabled:hover:bg-hover not-data-disabled:active:bg-pressed",
@@ -64,7 +64,7 @@ export function AccordionItem({ value, title, meta, disabled, children, classNam
         </BaseAccordion.Trigger>
       </BaseAccordion.Header>
       <BaseAccordion.Panel className={cn(panelHeightClass, "h-(--accordion-panel-height)")}>
-        <div className={cn(panelContentClass, "px-4 pb-4 text-control leading-normal text-pretty text-ink-2")}>{children}</div>
+        <div className={cn(panelContentClass, "px-4 pb-4 text-control leading-5.5 text-pretty text-ink-2")}>{children}</div>
       </BaseAccordion.Panel>
     </BaseAccordion.Item>
   );

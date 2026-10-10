@@ -72,7 +72,7 @@ export function ThemeSwatch({ theme, mode, form = "dots", className }: ThemeSwat
       className={cn("inline-flex flex-none rounded-pill bg-page p-0.5 shadow-[0_0_0_1px_var(--line-strong)]", className)}
     >
       {DOTS.map((d, i) => (
-        <i key={d} className={cn("size-2.5 rounded-full shadow-[0_0_0_1.5px_var(--page)]", d, i > 0 && "-ml-[3px]")} />
+        <i key={d} className={cn("size-2.5 rounded-full shadow-[0_0_0_2px_var(--page)]", d, i > 0 && "-ml-0.5")} />
       ))}
     </ThemeScope>
   );

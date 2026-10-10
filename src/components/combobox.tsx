@@ -4,7 +4,7 @@ import { CaretDownIcon, CheckIcon, XIcon } from "@phosphor-icons/react";
 import { useMemo, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { usePortalTheme } from "@/lib/theme";
-import { FieldMessage, fieldLabelClass, fieldRootClass, hintClass, wellClass, wellInputClass, wellLeadClass } from "./input";
+import { FieldMessage, fieldLabelClass, fieldRootClass, hintClass, wellClass, wellInputAfterLeadClass, wellInputClass, wellLeadClass } from "./input";
 import { keyboardInstant, menuDescriptionClass, menuItemClass, menuMetaClass, menuPopupClass, selectedTickClass, type SelectOption } from "./select";
 import { Tooltip } from "./tooltip";
 
@@ -139,7 +139,7 @@ export function Combobox<V extends string = string>({
       >
         <BaseCombobox.InputGroup data-focus-target className={cn(wellClass, "h-9 touch:h-11")}>
           {lead != null && <span className={wellLeadClass}>{lead}</span>}
-          <BaseCombobox.Input data-focus-proxy placeholder={placeholder} className={cn(wellInputClass, lead != null && "pl-2")} />
+          <BaseCombobox.Input data-focus-proxy placeholder={placeholder} className={cn(wellInputClass, lead != null && wellInputAfterLeadClass)} />
           <TrailingButtons label={label} />
         </BaseCombobox.InputGroup>
         <ComboboxPopup<V> emptyText={emptyText} />

@@ -466,8 +466,8 @@ export function AgentWorkspace({ className }: { className?: string }) {
             value={segMode}
             onValueChange={setScopeMode}
             options={[
-              { value: "light", label: "Light", icon: <SunIcon size={15} />, iconOnly: true },
-              { value: "dark", label: "Dark", icon: <MoonIcon size={15} />, iconOnly: true },
+              { value: "light", label: "Light", icon: <SunIcon size={14} />, iconOnly: true },
+              { value: "dark", label: "Dark", icon: <MoonIcon size={14} />, iconOnly: true },
             ]}
           />
           <NavItem icon={<QuestionIcon />}>Help</NavItem>
@@ -493,7 +493,7 @@ export function AgentWorkspace({ className }: { className?: string }) {
           {/* One shared tooltip for the header's icon row. */}
           <TooltipGroup side="bottom">
           {(narrow || sideHidden) && <IconButton label="Show sidebar" icon={<SidebarSimpleIcon />} onClick={toggleSide} />}
-          <Crumbs icon={<FolderIcon size={15} />} items={["agent-console", thread ?? "New thread"]} />
+          <Crumbs icon={<FolderIcon size={14} />} items={["agent-console", thread ?? "New thread"]} />
           <div className="flex-1" />
           <IconButton label="Share thread" icon={<ExportIcon />} />
           <IconButton label="More thread actions" icon={<DotsThreeIcon weight="bold" />} />

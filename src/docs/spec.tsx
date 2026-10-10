@@ -4,8 +4,8 @@ import { cn } from "@/lib/cn";
 
 /*
  * Docs chrome. Every specimen sits on a drafting-sheet canvas (dot grid,
- * registration marks) and carries a live state readout, like an editor
- * status bar.
+ * registration marks) and carries its live state as a row of hairline tags
+ * under it.
  */
 
 export type Pairs = [string, string][];
@@ -35,7 +35,7 @@ export function PageHeading({ children, id }: { children: string; id?: string })
   );
 }
 
-/** Readout state that flashes the accent dot whenever it changes. */
+/** Readout state; a tag whose value changes answers with an accent line. */
 export function useReadout(initial: Pairs) {
   return useState<Pairs>(initial);
 }
@@ -99,50 +99,73 @@ export function useAnimating<T extends HTMLElement>(): [RefObject<T | null>, boo
   return [ref, animating];
 }
 
+/**
+ * The live state, as hairline tags: one `key │ value` cell per pair, drawn with a single line.
+ * When a value changes, only its tag answers: the line and the value turn the accent and
+ * settle back (the stroke is the only highlight; no dot, no fill).
+ */
 export function StateReadout({ pairs, className }: { pairs: Pairs; className?: string }) {
-  const [flash, setFlash] = useState(false);
+  const [changed, setChanged] = useState<ReadonlySet<string>>(new Set());
+  const prev = useRef<Map<string, string> | null>(null);
   const key = JSON.stringify(pairs);
-  const first = useRef(true);
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    setFlash(true);
-    const t = setTimeout(() => setFlash(false), 700);
+    const before = prev.current;
+    prev.current = new Map(pairs);
+    if (!before) return;
+    const next = new Set(pairs.filter(([k, v]) => before.get(k) !== v).map(([k]) => k));
+    if (!next.size) return;
+    setChanged(next);
+    const t = setTimeout(() => setChanged(new Set()), 700);
     return () => clearTimeout(t);
   }, [key]);
 
   return (
     <code
       role="status"
-      data-flash={flash || undefined}
       className={cn(
-        "ml-auto flex min-w-0 items-center gap-2 overflow-hidden text-caption text-ellipsis whitespace-nowrap text-ink-2 max-[600px]:ml-0",
-        "before:size-1.5 before:flex-none before:rounded-full before:bg-line-strong before:transition-colors before:duration-quick before:content-['']",
-        "data-flash:before:bg-accent",
+        "ms-auto flex min-w-0 flex-wrap items-center justify-end gap-1.5 text-caption leading-none max-[600px]:ms-0 max-[600px]:justify-start",
         className,
       )}
     >
-      {pairs.map(([k, v]) => (
-        <span key={k} className="contents">
-          <span className="text-ink-3">{k}:</span>
-          <span className="text-ink">{v}</span>
-        </span>
-      ))}
+      {pairs.map(([k, v]) => {
+        const on = changed.has(k);
+        return (
+          <span
+            key={k}
+            data-changed={on || undefined}
+            className={cn(
+              "inline-flex h-5 items-stretch overflow-hidden rounded-inline border-stroke border-line whitespace-nowrap",
+              // Out slowly on the hairline ease; in at once, so the change is read where it happens.
+              "transition-colors duration-700 ease-drawer data-changed:border-accent-strong data-changed:duration-0",
+            )}
+          >
+            <span className="flex items-center px-1.5 font-ui text-ink-3">{k}</span>
+            <span
+              className={cn(
+                "mono flex items-center border-l border-[inherit] px-1.5 text-ink-2",
+                "transition-colors duration-700 ease-drawer",
+                on && "text-accent-strong duration-0",
+              )}
+            >
+              {v}
+            </span>
+          </span>
+        );
+      })}
     </code>
   );
 }
 
+/** The specimen's caption line: its name on the left, its live state on the right. One hairline above, no band. */
 export function SpecBar({ name, state, className }: { name: string; state: Pairs; className?: string }) {
   return (
     <figcaption
-      className={cn(
-        "flex min-h-[34px] items-center gap-3 border-t border-line bg-surface pr-3 pl-4 text-caption text-ink-3",
-        className,
-      )}
+      className={cn("flex min-h-10 items-center gap-3 border-t border-line px-3 py-2 text-caption", className)}
     >
-      <span className="font-control whitespace-nowrap text-ink-2 max-[600px]:hidden">{name}</span>
+      <span className="flex items-center gap-2 font-control whitespace-nowrap text-ink-3 max-[600px]:hidden">
+        <span aria-hidden className="h-px w-3 bg-line-strong" />
+        {name}
+      </span>
       <StateReadout pairs={state} />
     </figcaption>
   );

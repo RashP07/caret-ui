@@ -8,7 +8,7 @@ import { ChoiceRow, ChoiceText, controlHoverClass, controlPressClass } from "./c
 /*
  * Switch. For a setting that takes effect the moment it flips — no Save
  * button. The checkbox's sibling: a squared track (--r-inline, the same
- * 1.5px stroke) with a square thumb, never a pill. On, the track fills with
+ * 2px stroke) with a square thumb, never a pill. On, the track fills with
  * ink and the thumb springs 16px across (a transform, nothing else moves). Space toggles it. If the change needs
  * confirming, use a Checkbox in a form instead.
  */
@@ -40,7 +40,7 @@ export function Switch({ className, ...props }: SwitchProps) {
     >
       <BaseSwitch.Thumb
         // A transform on the thumb alone (not a layout animation), so nothing
-        // around it is measured or moved: 31px lane − 15px thumb = 16px of travel.
+        // around it is measured or moved: 30px lane − 14px thumb = 16px of travel.
         render={(thumbProps, state) => (
           <motion.span
             {...(thumbProps as ComponentProps<typeof motion.span>)}
@@ -50,9 +50,9 @@ export function Switch({ className, ...props }: SwitchProps) {
           />
         )}
         className={cn(
-          // 20×36 track − 1.5px stroke − 1px inset leaves a 31×15 lane for a 15px square.
-          // 4px outer − 1.5 stroke − 1 inset = 1.5px, so the thumb's corner is concentric.
-          "block size-[15px] rounded-[1.5px] bg-ink-3",
+          // 20×36 track − 2px stroke − 1px inset leaves a 30×14 lane for a 14px square (even in even).
+          // Outer radius − stroke − inset, so the thumb's corner is concentric (4 − 2 − 1 = 1px by default).
+          "block size-3.5 rounded-[max(0px,calc(var(--r-inline)-var(--stroke-bold)-1px))] bg-ink-3",
           "transition-[background-color] duration-quick ease-out",
           "data-checked:bg-on-ink data-disabled:not-data-checked:bg-ink-disabled",
         )}

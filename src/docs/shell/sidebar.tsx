@@ -53,8 +53,8 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             </CollapsibleTrigger>
             <CollapsiblePanel>
               {/* The thread hangs from the caret: its centre is 8px padding + 7px (half the
-                  14px icon) = 15px in, so the 1px line starts at 14.5px. */}
-              <Threads className="ml-[14.5px] py-px pr-px">
+                  14px icon) = 15px in; the 1px line takes 14–15px, whole pixels ending on the centre. */}
+              <Threads className="ml-3.5 py-px pr-px">
                 {g.pages.map((p) => (
                   <NavItem
                     key={p.slug}

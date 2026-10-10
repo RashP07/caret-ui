@@ -44,11 +44,11 @@ export interface TooltipProps {
 /* ---------- the popup, shared by single tooltips and groups ---------- */
 
 const popupClass = [
-  "flex max-w-[260px] items-center gap-2 rounded-control bg-ink px-[9px] py-1.5 text-small leading-[1.35] font-control text-on-ink",
+  "flex max-w-[260px] items-center gap-2 rounded-control bg-ink px-2.5 py-1.5 text-small leading-4.5 font-control text-on-ink",
   // Enter 160ms from the trigger's side; exit faster than it arrived.
   "origin-(--transform-origin) transition-[opacity,scale,translate] duration-quick ease-out",
   "data-starting-style:scale-[.97] data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-instant",
-  "data-[side=top]:data-starting-style:translate-y-[3px] data-[side=bottom]:data-starting-style:-translate-y-[3px]",
+  "data-[side=top]:data-starting-style:translate-y-1 data-[side=bottom]:data-starting-style:-translate-y-1",
   // Neighbours open instantly: no delay, no animation.
   "data-instant:transition-none",
 ].join(" ");
@@ -60,7 +60,7 @@ function TooltipContent({ label, kbd }: { label: ReactNode; kbd?: string }) {
   return (
     <>
       <span>{label}</span>
-      {kbd && <Kbd keys={kbd} size="sm" className="ml-0.5" />}
+      {kbd && <Kbd keys={kbd} size="sm" className="ms-0.5" />}
     </>
   );
 }
@@ -78,15 +78,15 @@ const groupPositionerClass = cn(
 );
 
 const groupPopupClass = cn(
-  "relative h-(--popup-height,auto) w-(--popup-width,auto) max-w-[260px] rounded-control bg-ink text-small leading-[1.35] font-control text-on-ink",
+  "relative h-(--popup-height,auto) w-(--popup-width,auto) max-w-[260px] rounded-control bg-ink text-small leading-4.5 font-control text-on-ink",
   "origin-(--transform-origin) transition-[width,height,opacity,scale,translate] duration-quick ease-out",
   "data-starting-style:scale-[.97] data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-instant",
-  "data-[side=top]:data-starting-style:translate-y-[3px] data-[side=bottom]:data-starting-style:-translate-y-[3px]",
+  "data-[side=top]:data-starting-style:translate-y-1 data-[side=bottom]:data-starting-style:-translate-y-1",
   "data-instant:transition-none",
 );
 
 const groupViewportClass = cn(
-  "relative block h-full w-full overflow-clip px-[9px] py-1.5 [--vp-pad:9px]",
+  "relative block h-full w-full overflow-clip px-2.5 py-1.5 [--vp-pad:10px]",
   // Both labels keep the popup's width while they cross, so neither reflows mid-fade.
   "[&_[data-current]]:w-[calc(var(--popup-width)-2*var(--vp-pad))] [&_[data-previous]]:w-[calc(var(--popup-width)-2*var(--vp-pad))]",
   "[&_[data-current]]:flex [&_[data-current]]:items-center [&_[data-current]]:gap-2 [&_[data-previous]]:flex [&_[data-previous]]:items-center [&_[data-previous]]:gap-2",

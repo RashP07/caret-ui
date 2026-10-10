@@ -2,12 +2,14 @@ import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AccentPicker, Button, Code, Hint, NavItem, Seg, ThemeSwatch } from "@/components";
+import { cn } from "@/lib/cn";
 import { buildTheme, checkTheme, PRESETS } from "@/lib/palette";
 import { THEME_INFO, THEMES, ThemeScope, type Accent, type PresetName, type ResolvedMode } from "@/lib/theme";
-import { Hero } from "../foundations";
+import { RunCard } from "../foundations";
 import { GROUPS, PAGES, type DocPage } from "../registry";
 import { SampleSettings } from "../theme-builder";
 import { PageCard } from "./components-index";
+import { ConstructionArc, Crosshair, Diagonal, Frame, Guides, Node, Rule, Ruler, SHEET } from "./construction";
 import { Brand, SearchButton } from "./sidebar";
 import { ThemePanelButton } from "./theme-panel";
 import { pageLink } from "./links";
@@ -23,13 +25,100 @@ function count(kind: DocPage["kind"], one: string, other: string) {
 /** Promised pairings per theme and mode, straight from the engine, so the claim can't drift from the truth. */
 const PAIRINGS = checkTheme(buildTheme(PRESETS.neutral)).length / 2;
 
+/* The drafting sheet: a 1132px framed column (even, so its centre is a whole px) in a 24px
+   gutter, 16px on phones. Sections pad inside the frame; GUIDE_INSET matches that padding. */
+const GUTTER = "px-6 max-[600px]:px-4";
+const COLUMN = "mx-auto max-w-[1132px]";
+const PAD = "px-12 max-[1000px]:px-8 max-[600px]:px-4";
+const GUIDE_INSET = "inset-x-12 max-[1000px]:inset-x-8 max-[600px]:inset-x-4";
+
+/** The hero: centered type over a compass arc, with a crosshair resting on the arc's centre. */
+function HomeHero() {
+  return (
+    <section
+      aria-labelledby="hero-h"
+      className={cn(
+        PAD,
+        "relative flex flex-col items-center justify-center py-16 text-center min-[1001px]:h-[576px] min-[601px]:max-[1000px]:h-[600px]",
+      )}
+    >
+      {/* A fixed, whole-px height: the fluid display type would otherwise leave every rule below on a fraction. */}
+      <ConstructionArc />
+      <Crosshair rest={{ x: 0.5, y: 1 }} track />
+      <Diagonal className="max-[720px]:hidden" />
+
+      <div className="relative flex flex-col items-center">
+        <p className="mono m-0 mb-6 text-small text-ink-3">a design system for people and agents</p>
+        <h1 id="hero-h" className="m-0 mb-6 text-display font-normal text-balance max-[600px]:leading-[44px]">
+          <span className="block overflow-hidden pb-[.06em] max-[600px]:pb-[2px]">
+            <span className="rm-fade inline-block animate-rise">Components that</span>
+          </span>
+          <span className="block overflow-hidden pb-[.06em] max-[600px]:pb-[2px]">
+            <span className="rm-fade inline-block animate-rise [animation-delay:.08s]">
+              show their work
+              <i
+                aria-hidden
+                className="ml-[.06em] inline-block h-[.82em] w-[.09em] animate-blink rounded-[1px] bg-accent align-[-.04em] [animation-delay:.9s]"
+              />
+            </span>
+          </span>
+        </h1>
+        <p className="m-0 mb-8 max-w-[52ch] text-title leading-7 font-normal tracking-normal text-pretty text-ink-2">
+          Caret is a design system for tools where people and agents build software together. Every control makes its
+          state legible, every value has a token name you can type, and nothing ships without its keyboard story.
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <Button variant="primary" kbd="B" nativeButton={false} render={<Link to="/components" />}>
+            Browse components
+          </Button>
+          <Button variant="secondary" nativeButton={false} render={<Link to="/foundations/$slug" params={{ slug: "theme-builder" }} />}>
+            Make a theme
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const PRINCIPLES = [
+  ["State is visible", "Every component page carries a live readout, like an editor status bar. If a component can't explain what it's doing, it isn't done."],
+  ["Contrast is solved, not checked", "Every color is computed against the grounds it sits on, in every theme and both modes. Text, borders, focus and charts clear their targets by construction."],
+  ["Tokens are typed, not guessed", "Colors, spacing, radii and motion are named by role. A design decision you can't reference by name is a decision that will drift."],
+];
+
+/** The three principles stacked beside the hero's live specimen, split by one frame line with nodes at its ends. */
+function Principles() {
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] max-[1000px]:grid-cols-1">
+      <div className="flex flex-col">
+        {PRINCIPLES.map(([t, d], i) => (
+          <div
+            key={t}
+            className={cn(PAD, "flex-1 py-8 text-control text-pretty text-ink-2", i > 0 && "border-t border-(--rule)")}
+          >
+            <strong className="mb-1 block text-body font-heading text-ink">{t}</strong>
+            {d}
+          </div>
+        ))}
+      </div>
+      <div className="relative grid place-items-center border-l border-(--rule) bg-pattern px-12 py-12 max-[1000px]:border-t max-[1000px]:border-l-0 max-[600px]:px-4">
+        <Node className="-top-[5px] -left-[5px] max-[1000px]:hidden" />
+        <Node className="-bottom-[5px] -left-[5px] max-[1000px]:hidden" />
+        <div className="w-full max-w-[480px]">
+          <RunCard />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Try a theme, mode and primary color on a scoped sample; the page itself doesn't change. */
 function MakeItYours() {
   const [theme, setTheme] = useState<PresetName>("slate");
   const [mode, setMode] = useState<ResolvedMode>("light");
   const [accent, setAccent] = useState<Accent>("default");
   return (
-    <section aria-labelledby="h-yours" className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] items-center gap-12 pt-16 max-[1000px]:grid-cols-1">
+    <section aria-labelledby="h-yours" className={cn(PAD, "grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] items-center gap-12 py-16 max-[1000px]:grid-cols-1")}>
       <div className="flex flex-col gap-5">
         <div>
           <h2 id="h-yours" className="m-0 text-h2 font-heading text-balance">
@@ -110,8 +199,9 @@ function MakeItYours() {
 /** Three steps from nothing to a themed app. */
 function QuickStart() {
   return (
-    <section aria-labelledby="h-start" className="pt-16">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <section aria-labelledby="h-start" className={cn(PAD, "relative py-16")}>
+      <Guides columns={3} className={cn(GUIDE_INSET, "max-[1000px]:hidden")} />
+      <div className="relative mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 id="h-start" className="m-0 text-h2 font-heading text-balance">
             Copy it in. Own it.
@@ -125,7 +215,7 @@ function QuickStart() {
           Installation guide
         </Button>
       </div>
-      <ol className="m-0 grid list-none grid-cols-3 gap-4 p-0 max-[1000px]:grid-cols-1">
+      <ol className="relative m-0 grid list-none grid-cols-3 gap-4 p-0 max-[1000px]:grid-cols-1">
         <li className="flex min-w-0 flex-col gap-2">
           <span className="text-small font-control text-ink-2">1. Add the dependencies</span>
           <Code lang="SH" name="terminal" lines={["pnpm add @base-ui/react motion \\", "  @phosphor-icons/react clsx tailwind-merge"]} />
@@ -146,12 +236,15 @@ function QuickStart() {
 /** Every page, by group: the whole system at a glance. */
 function Index() {
   return (
-    <section aria-labelledby="h-index" className="pt-16">
-      <h2 id="h-index" className="m-0 mb-6 text-h2 font-heading text-balance">
+    <section aria-labelledby="h-index" className={cn(PAD, "relative pt-16 pb-8")}>
+      <Guides columns={4} gap={24} className={cn(GUIDE_INSET, "max-[1000px]:hidden")} />
+      <Guides columns={3} gap={24} className={cn(GUIDE_INSET, "hidden max-[1000px]:grid max-[700px]:hidden")} />
+      <Guides columns={2} gap={24} className={cn(GUIDE_INSET, "hidden max-[700px]:grid")} />
+      <h2 id="h-index" className="relative m-0 mb-6 text-h2 font-heading text-balance">
         Every page
       </h2>
       {/* Columns, not a grid: long groups flow on, so short ones don't leave holes beside them. */}
-      <div className="columns-4 gap-x-6 max-[1000px]:columns-3 max-[700px]:columns-2">
+      <div className="relative columns-4 gap-x-6 max-[1000px]:columns-3 max-[700px]:columns-2">
         {GROUPS.map((g) => (
           <nav key={g.name} aria-label={g.name} className="mb-8 flex min-w-0 break-inside-avoid flex-col gap-2">
             <h3 className="m-0 text-small font-heading text-ink">
@@ -182,9 +275,10 @@ export function Home() {
   const workspace = PAGES.find((p) => p.slug === "agent-workspace")!;
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-line bg-[color-mix(in_srgb,var(--page)_86%,transparent)] backdrop-blur-[10px]">
-        <div className="mx-auto flex h-14 max-w-[1180px] items-center gap-2 px-6 max-[600px]:px-4">
+    // overflow-x-clip trims the full-bleed rules and the diagonal at the viewport without breaking the sticky header.
+    <div className="min-h-screen overflow-x-clip" style={SHEET}>
+      <header className={cn(GUTTER, "sticky top-0 z-20 border-b border-(--rule) bg-[color-mix(in_srgb,var(--page)_86%,transparent)] backdrop-blur-[10px]")}>
+        <Frame nodes="bottom" className={cn(COLUMN, "flex h-14 items-center gap-2 px-4 max-[600px]:px-2")}>
           <Brand />
           <nav aria-label="Primary" className="ml-4 flex items-center gap-1 max-[860px]:hidden">
             <NavItem render={<Link to="/components" />} className="w-auto">
@@ -203,65 +297,85 @@ export function Home() {
           <div className="flex-1" />
           <SearchButton className="max-[860px]:hidden" />
           <ThemePanelButton />
-        </div>
+        </Frame>
       </header>
 
-      <div className="mx-auto max-w-[1180px] px-6 pb-24 max-[600px]:px-4">
-        <Hero pressB={false} />
+      <div className={GUTTER}>
+        <Frame className={COLUMN}>
+          <Ruler className="max-[720px]:hidden" />
 
-        <MakeItYours />
+          <HomeHero />
+          <Rule />
+          <Principles />
+          <Rule />
 
-        <section aria-labelledby="h-inside" className="pt-16">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h2 id="h-inside" className="m-0 text-h2 font-heading text-balance">
-                Everything in the box
-              </h2>
-              <p className="mt-2 mb-0 text-body text-ink-2">
-                {count("component", "component", "components")}, {count("foundation", "foundation", "foundations")},{" "}
-                {count("template", "template", "templates")}. Each has a page with live specimens and a state readout.
-              </p>
+          <MakeItYours />
+          <Rule />
+
+          <section aria-labelledby="h-inside" className={cn(PAD, "relative py-16")}>
+            <Guides columns={3} className={cn(GUIDE_INSET, "max-[1000px]:hidden")} />
+            <Guides columns={2} className={cn(GUIDE_INSET, "hidden max-[1000px]:grid max-[640px]:hidden")} />
+            <div className="relative mb-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 id="h-inside" className="m-0 text-h2 font-heading text-balance">
+                  Everything in the box
+                </h2>
+                <p className="mt-2 mb-0 text-body text-ink-2">
+                  {count("component", "component", "components")}, {count("foundation", "foundation", "foundations")},{" "}
+                  {count("template", "template", "templates")}. Each has a page with live specimens and a state readout.
+                </p>
+              </div>
+              <Button variant="secondary" nativeButton={false} render={<Link to="/components" />} kbd="B">
+                Browse all components
+              </Button>
             </div>
-            <Button variant="secondary" nativeButton={false} render={<Link to="/components" />} kbd="B">
-              Browse all components
-            </Button>
-          </div>
-          <div className="grid grid-cols-3 gap-4 max-[1000px]:grid-cols-2 max-[640px]:grid-cols-1">
-            {featured.map((p) => (
-              <PageCard key={p.slug} page={p} />
-            ))}
-          </div>
-        </section>
+            <div className="relative grid grid-cols-3 gap-4 max-[1000px]:grid-cols-2 max-[640px]:grid-cols-1">
+              {featured.map((p) => (
+                <PageCard key={p.slug} page={p} />
+              ))}
+            </div>
+          </section>
+          <Rule />
 
-        <section aria-labelledby="h-template" className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-center gap-12 pt-16 max-[1000px]:grid-cols-1">
-          <div>
-            <h2 id="h-template" className="m-0 text-h2 font-heading text-balance">
-              A template, built only from the parts
-            </h2>
-            <p className="mt-3 mb-6 max-w-[48ch] text-body text-pretty text-ink-2">
-              {workspace.description} Send a message to watch a run, filter threads, read the diffs, and switch it between light
-              and dark on its own.
-            </p>
-            <Button
-              variant="secondary"
-              nativeButton={false}
-              render={<Link to="/templates/$slug" params={{ slug: "agent-workspace" }} />}
-              icon={<ArrowRightIcon />}
-            >
-              Open the workspace
-            </Button>
-          </div>
-          <PageCard page={workspace} />
-        </section>
+          <section
+            aria-labelledby="h-template"
+            className={cn(PAD, "grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-center gap-12 py-16 max-[1000px]:grid-cols-1")}
+          >
+            <div>
+              <h2 id="h-template" className="m-0 text-h2 font-heading text-balance">
+                A template, built only from the parts
+              </h2>
+              <p className="mt-3 mb-6 max-w-[48ch] text-body text-pretty text-ink-2">
+                {workspace.description} Send a message to watch a run, filter threads, read the diffs, and switch it between
+                light and dark on its own.
+              </p>
+              <Button
+                variant="secondary"
+                nativeButton={false}
+                render={<Link to="/templates/$slug" params={{ slug: "agent-workspace" }} />}
+                icon={<ArrowRightIcon />}
+              >
+                Open the workspace
+              </Button>
+            </div>
+            <PageCard page={workspace} />
+          </section>
+          <Rule />
 
-        <QuickStart />
+          <QuickStart />
+          <Rule />
 
-        <Index />
+          <Index />
+          <Rule />
 
-        <footer className="mt-24 flex flex-wrap justify-between gap-4 border-t border-line pt-6">
-          <Hint>Caret v0.1</Hint>
-          <Hint>React · Tailwind CSS v4 · Base UI · Motion</Hint>
-        </footer>
+          <footer className={cn(PAD, "flex flex-wrap justify-between gap-4 py-6")}>
+            <Hint>Caret v0.1</Hint>
+            <Hint>React · Tailwind CSS v4 · Base UI · Motion</Hint>
+          </footer>
+          <Rule />
+          {/* The frame runs on past the last rule, like the margin of a sheet. */}
+          <div aria-hidden className="h-24" />
+        </Frame>
       </div>
     </div>
   );

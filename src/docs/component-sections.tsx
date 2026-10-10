@@ -595,7 +595,7 @@ export function TabsSection() {
             </dl>
           </TabPanel>
           <TabPanel value="logs">
-            <pre className="mono m-0 overflow-x-auto rounded-control border border-line bg-sunken px-3 py-2 text-code leading-[1.9] text-ink-2">
+            <pre className="mono m-0 overflow-x-auto rounded-control border border-line bg-sunken px-3 py-2 text-code leading-6 text-ink-2">
               <span className="text-ink-3">11:30:00</span>  schedule fired  chooseLunch{"\n"}
               <span className="text-ink-3">11:30:01</span>  read 9 votes from state{"\n"}
               <span className="text-ink-3">11:30:02</span>  <span className="text-danger">tool timeout</span>  menu-lookup (retrying 1/3){"\n"}

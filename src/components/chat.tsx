@@ -79,9 +79,9 @@ export function MsgAgent({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "flex min-w-0 flex-col gap-3 text-body leading-[1.6] text-ink",
+        "flex min-w-0 flex-col gap-3 text-body leading-6 text-ink",
         "[&_p]:m-0 [&_p]:max-w-[68ch]",
-        "[&_p_code]:rounded-inline [&_p_code]:border [&_p_code]:border-line [&_p_code]:bg-sunken [&_p_code]:px-[5px] [&_p_code]:py-px [&_p_code]:text-caption",
+        "[&_p_code]:rounded-inline [&_p_code]:border [&_p_code]:border-line [&_p_code]:bg-sunken [&_p_code]:px-1 [&_p_code]:py-px [&_p_code]:text-caption",
         className,
       )}
       {...props}
@@ -94,7 +94,7 @@ export function StreamCaret() {
   return (
     <span
       aria-hidden
-      className="ml-px inline-block h-[1.05em] w-0.5 animate-blink rounded-[1px] bg-accent align-[-.18em]"
+      className="ml-px inline-block h-4 w-0.5 animate-blink rounded-[1px] bg-accent align-[-3px]"
     />
   );
 }
@@ -130,14 +130,14 @@ export function Trace({ steps, live, summary, open, onOpenChange, defaultOpen }:
     <Collapsible.Root open={open} onOpenChange={(o) => onOpenChange?.(o)} defaultOpen={defaultOpen} className="flex flex-col gap-3">
       <Collapsible.Trigger
         className={cn(
-          "-ml-1 inline-flex min-h-6 items-center gap-1.5 self-start rounded-button border-0 bg-transparent pr-2 pl-1 text-small text-ink-3 touch:min-h-11",
+          "-ms-1 inline-flex min-h-6 items-center gap-1.5 self-start rounded-button border-0 bg-transparent ps-1 pe-2 text-small text-ink-3 touch:min-h-11",
           "hover:bg-hover hover:text-ink",
           "[&>svg]:transition-transform [&>svg]:duration-quick [&>svg]:ease-out data-panel-open:[&>svg]:rotate-90",
         )}
       >
         <CaretRightIcon size={14} aria-hidden />
         {live ? (
-          <span className="inline-flex items-center gap-1.5 text-ink before:size-[7px] before:animate-pulse-dot before:rounded-full before:bg-accent before:content-['']">
+          <span className="inline-flex items-center gap-1.5 text-ink before:size-1.5 before:animate-pulse-dot before:rounded-full before:bg-accent before:content-['']">
             Working
           </span>
         ) : (
@@ -159,9 +159,9 @@ export function Trace({ steps, live, summary, open, onOpenChange, defaultOpen }:
             )}
           >
             {s.state === "now" ? (
-              <CircleNotchIcon size={13} className="mt-[.2em] flex-none animate-spin text-ink-3" aria-label="In progress" />
+              <CircleNotchIcon size={12} className="mt-1 flex-none animate-spin text-ink-3" aria-label="In progress" />
             ) : (
-              <CheckIcon size={13} className="mt-[.2em] flex-none text-success" aria-label="Done" />
+              <CheckIcon size={12} className="mt-1 flex-none text-success" aria-label="Done" />
             )}
             <span className="min-w-0 flex-1 break-words">{s.label}</span>
             {s.time && <span className="flex-none text-caption leading-[inherit] text-ink-3 tabular-nums">{s.time}</span>}
@@ -191,7 +191,7 @@ export function MsgActions({ vote, onVote, onCopy, copyText }: MsgActionsProps) 
   const pressed = "aria-pressed:[--bg:var(--pressed)]";
   return (
     <TooltipGroup>
-      <div className="-ml-1.5 flex gap-0.5">
+      <div className="-ms-1.5 flex gap-0.5">
         <ToggleGroup
           value={vote ? [vote] : []}
           onValueChange={(v) => onVote?.((v[0] as Vote) ?? null)}
@@ -200,11 +200,11 @@ export function MsgActions({ vote, onVote, onCopy, copyText }: MsgActionsProps) 
         >
           <Toggle
             value="good"
-            render={<IconButton label="Good response" className={pressed} icon={<ThumbsUpIcon size={15} weight={vote === "good" ? "fill" : "regular"} />} />}
+            render={<IconButton label="Good response" className={pressed} icon={<ThumbsUpIcon size={16} weight={vote === "good" ? "fill" : "regular"} />} />}
           />
           <Toggle
             value="bad"
-            render={<IconButton label="Bad response" className={pressed} icon={<ThumbsDownIcon size={15} weight={vote === "bad" ? "fill" : "regular"} />} />}
+            render={<IconButton label="Bad response" className={pressed} icon={<ThumbsDownIcon size={16} weight={vote === "bad" ? "fill" : "regular"} />} />}
           />
         </ToggleGroup>
         <IconButton
@@ -212,7 +212,7 @@ export function MsgActions({ vote, onVote, onCopy, copyText }: MsgActionsProps) 
           tip={message || "Copy response"}
           icon={
             <Morph swapKey={copied ? "check" : "copy"}>
-              {copied ? <CheckIcon size={15} /> : <CopyIcon size={15} />}
+              {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
             </Morph>
           }
           onClick={() => copy(copyText?.() ?? "")}
@@ -244,7 +244,7 @@ export function ContextMeter({ value, onClick, hotText, className }: ContextMete
   const hot = p >= 85;
   const tip = hot ? (hotText ?? `Context ${p}% full`) : `Context used: ${p}% of the window`;
   const cls = cn(
-    "inline-flex min-h-6.5 items-center gap-1.5 rounded-pill border border-line bg-sunken py-0.5 pr-2 pl-1.5 text-caption text-ink tabular-nums",
+    "inline-flex min-h-6.5 items-center gap-1.5 rounded-pill border border-line bg-sunken py-0.5 ps-1.5 pe-2 text-caption text-ink tabular-nums",
     hot && "border-danger-line bg-danger-soft text-danger",
     onClick ? "cursor-pointer hover:bg-hover" : "cursor-default",
     className,

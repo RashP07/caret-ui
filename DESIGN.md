@@ -179,19 +179,83 @@ every theme. Never hard-code syntax colors.
 | Step | Size / line-height / tracking | Use |
 |---|---|---|
 | display | `clamp(2.75rem,7vw,4.75rem)` / .98 / −4.5% | hero |
-| h1 | 2.5rem / 1.1 / −3.5% | page title |
-| h2 | 1.75rem / 1.1 / −3% | section title |
-| title | 1.125rem (18) / 1.3 / −1.5% | dialog, drawer, card group titles |
-| body | .9375rem (15) / 1.55 | reading text, chat |
-| control | .875rem (14) / 1.4 | buttons, inputs, menu items |
-| small | .8125rem (13) / 1.45 | labels, hints, descriptions |
-| caption | .75rem (12) / 1.4 | meta, counts, kbd, badges |
-| code | .78125rem (12.5) / 1.7, mono | code blocks |
+| h1 | 2.5rem (40) / 2.75rem (44) / −3.5% | page title |
+| h2 | 1.75rem (28) / 2rem (32) / −3% | section title |
+| title | 1.125rem (18) / 1.5rem (24) / −1.5% | dialog, drawer, card group titles |
+| body | .9375rem (15) / 1.5rem (24) | reading text, chat |
+| control | .875rem (14) / 1.25rem (20) | buttons, inputs, menu items |
+| small | .8125rem (13) / 1.25rem (20) | labels, hints, descriptions |
+| caption | .75rem (12) / 1rem (16) | meta, counts, kbd, badges |
+| code | .78125rem (12.5) / 1.375rem (22), mono | code blocks |
+
+Line heights are rem, not ratios, so every line box is a whole even pixel (13px text on a
+20px line, not 18.85px) and rows stack on the pixel grid. Only display, whose size is fluid,
+keeps a ratio. Override with a `leading-*` step (`leading-5` = 20px), never a bare ratio.
 
 ### Space
 
 4px base: `--s-1` 4 · `--s-2` 8 · `--s-3` 12 · `--s-4` 16 · `--s-5` 24 · `--s-6` 32 ·
 `--s-7` 48 · `--s-8` 64 · `--s-9` 96.
+
+### Pixel grid: whole pixels, even where it's centered
+
+**Every edge lands on a whole pixel.** Windows runs at 100%, 125% and 150%; a 1.5px stroke, a
+`size-[15px]` box or a 0.5px offset falls between device pixels there and smears into a soft
+two-pixel line. Whole CSS pixels in even steps stay sharp at all three.
+
+- **Whole px only** for strokes, borders, radii, padding, margins, gaps, sizes, offsets, insets
+  and translate distances. No `1.5px`, no `*-[0.5px]`, no `calc()` that halves an odd number.
+- **Even, on the 4px grid (then 2px), for anything centered**: a control's height, an icon in
+  its box, a thumb on its track, a dot in a pill. Box and content are both even (16 in 20,
+  6 in 14) so the leftover splits into whole pixels. An odd box (`size-[15px]`) or an odd
+  content box (a 17px key-cap face) puts the child on a half pixel; fix the box, or pad it even.
+- **Strokes are 1px or 2px.** `--stroke` is 1px (2px in Contrast); `--stroke-bold`, the edge of
+  the 18px checkbox and radio, the switch and the slider thumb, is 2px in every theme, so a 12px
+  tick or a 6px dot sits in a 14px face with whole pixels around it; `--focus-width` is 1px (2px
+  in Contrast).
+- **Icons are even**: 10, 12, 14, 16, 20. 16 in a 36px icon button, 14 in a 28px one or beside
+  13px text, 12 in a key cap; never 11, 13 or 15.
+- **Line boxes are whole px** (Typography): rem line heights, not ratios.
+- **Allowed odd values**, each a whole px: a 1px hairline and anything that centers on one (a
+  3px thread marker over a 1px thread; a thread line at 15px so it ends on a 16px centre); the
+  3px inset of Seg and toolbars that makes nested radii work (8 − 1 − 3 = 4, and 28 + 6 + 2 =
+  36); half of an even box used as an offset (a 10px arrow 5px out); a single-px nudge with no
+  centering (`align-[1px]`). Rotated marks, fluid em-sized carets and gradient stops are exempt:
+  they are antialiased whatever their size.
+
+### Optical spacing: balanced, not equal
+
+**The side with an icon gets less padding than the side with text.** A 16px icon box carries
+its own whitespace and less visual weight than a word, so equal padding makes the icon side
+look loose. Take about 4px off that side (two-thirds to three-quarters of the text side), and do
+the same at the end for a trailing icon, chevron or key cap. Material 3 does the same (16 / 24dp).
+
+| Control | Text side | Icon side |
+|---|---|---|
+| Button, Toggle | 14px | 10px |
+| Button `sm` | 10px | 6px |
+| Input, Combobox, Autocomplete well; Select trigger | 12px | 8px |
+| Select `compact` / `xs` | 10px / 8px | 6px / 4px |
+| Accordion, navigation menu trigger (chevron) | 16px / 12px | 12px / 8px |
+
+Rules:
+- **Mark the side, don't hand-tune it.** A control with a leading icon carries `data-lead`; one
+  with a trailing key cap or chevron carries `data-trail`. Button reads them through `--pad` and
+  `--pad-icon`; pass `icon`, `trail` or `kbd` and it sets them. Don't fake the padding with a
+  negative margin on the icon or cap; a negative margin only nudges ink (below).
+- **Logical sides only**: `ps-`/`pe-`, `ms-`/`me-`, `rounded-s-`/`rounded-e-`, never `pl`/`pr`,
+  so RTL mirrors for free.
+- **Icon-only controls are exempt.** They're square; the icon is centered.
+- **Pills need more room at the ends.** The curve eats into the text: a Badge sits text 10px in,
+  not 8. A dot or ring at a pill's end is centered in the end cap (Badge dot 8px in on a 22px
+  pill; the context meter's ring 6px in on a 26px pill).
+- **Align ink, not boxes.** A glyph that sits inside its box (a 14px caret) is nudged so its ink
+  lines up with the hard edges around it: the submenu caret takes `-me-1` to meet the shortcut
+  caps above and below.
+- **A box inside a box is concentric.** A button inside a toast sits as far from the edge as
+  outer radius less inner radius (toast with an action: 12 − 4 = 8px).
+- **Rows keep one edge.** In menus and the command palette the icon column holds a 16px
+  slot, empty when a row has no icon, so labels line up whether or not a row has one.
 
 ### Radius: by hierarchy, never one-size
 
@@ -303,7 +367,7 @@ its variant. Components never contain theme-specific overrides.
 | Indigo | Cool grey, indigo accent; modern product tools |
 | Teal | Cool neutral, muted teal accent |
 | Sand | Warm sand, brown ink, terracotta accent; long sessions |
-| Contrast | Black and white, 1.5px strokes, 3px focus ring, AAA text everywhere |
+| Contrast | Black and white, 2px strokes, 2px focus ring, AAA text everywhere |
 
 - `data-theme="neutral|zinc|stone|slate|indigo|teal|sand|contrast"` picks the palette; `data-mode="light|dark"` picks
   the variant. With no `data-mode` the page follows the OS. Both **scope to any element**
@@ -358,10 +422,13 @@ the face drops 2px and the ledge shrinks to 0, so the bottom edge never moves. K
 (`aria-busy`) keeps the width. Disabled goes to a sunken face with `--ink-disabled` text and stays
 up: it never drops onto its ledge. `size="sm"` is a 28px row (toast actions, table rows, dense
 toolbars) with the same ledge and states. Icon-only buttons are `<IconButton label>`: the label is
-both the accessible name and the tooltip. Ghost buttons have no ledge.
+both the accessible name and the tooltip. Ghost buttons have no ledge. Padding is optical (§3):
+14px on a text side, 10px beside `icon`, `trail` (a chevron) or `kbd` (10px / 6px at `sm`);
+`ButtonGroup` joins with logical corners, so it mirrors in RTL.
 
 **Input.** The label always sits above and stays visible. The hint explains the rule *before* it's broken;
-the error says exactly what to change. At rest the field is a tinted well. On focus it sits flush
+the error says exactly what to change. Text sits 12px in; a `lead` icon and the trail sit 8px in
+(§3, optical spacing). At rest the field is a tinted well. On focus it sits flush
 and its one border line turns the focus color. No glow. The text caret is `--caret`, set once on `body`. Editable text is 16px
 below `sm` (`text-input-touch`) so iOS doesn't zoom on focus.
 
@@ -369,7 +436,8 @@ below `sm` (`text-input-touch`) so iOS doesn't zoom on focus.
 system, like `Input`: `label`, `hint`, `error` (replaces the hint and marks it invalid), `invalid`,
 `name` (form submit and `<Form errors>` key), `required` and `readOnly`, all wired by Base UI's
 Field. `className` lands on the field root. The trigger truncates a long value and carries it as a
-`title`. Options may carry a `description` and a `meta` so nobody has to guess what "Balanced" means.
+`title`. Its chevron side, and its `lead` side when there is one, sit about 4px closer to the edge
+than the text (12 / 8px; `compact` 10 / 6, `xs` 8 / 4). Options may carry a `description` and a `meta` so nobody has to guess what "Balanced" means.
 The selected tick sits at the trailing edge (label · meta · tick), never in an empty leading
 column; the same goes for Combobox and for checkbox/radio marks in menus.
 
@@ -402,7 +470,8 @@ only the body scrolls, so a long form never pushes its actions out of view. The 
 `neutral`, with no mark: most toasts just say what happened. `success`, `danger`, `warning` and
 `info` add a solid disc with a distinct glyph; `success` marks an outcome worth confirming
 ("Settings saved", "Device verified").
-`danger` is announced assertively; the rest politely. For anything reversible, prefer an **Undo**
+`danger` is announced assertively; the rest politely. With an action the end padding drops to
+8px, so the button sits concentric in the toast's corner. For anything reversible, prefer an **Undo**
 action to a confirmation dialog: `toast("Agent deleted", { action: { label: "Undo", onClick: restore } })`.
 The action is a `Button size="sm"` and closes the toast. Toasts stay 2.4s, 4s with a description,
 6s with an action or for `danger`; `timeout: 0` waits for dismissal.
@@ -410,7 +479,8 @@ The action is a `Button size="sm"` and closes the toast. Toasts stay 2.4s, 4s wi
 **Badge.** A status, count or date. Tones `neutral`, `ok`, `live` (pulsing `--accent-strong` dot),
 `danger`, `warning`, `info`, soft by default; `solid` fills with `--{status}-solid` and its
 `--on-{status}` text. It grows with its text (no fixed height) and truncates only when it alone
-outgrows its container; pass `title` when that can happen.
+outgrows its container; pass `title` when that can happen. Text sits 10px in from the round ends;
+a dot sits 8px in, centered in the end cap.
 
 **Drawer.** Modal like a dialog (focus trapped, returned on close) and swipeable back toward its
 edge. `--e-modal`, with `--r-dialog` only on the corners facing the page. `bottom` shows a drag
@@ -448,7 +518,7 @@ infotips. Focus goes to the panel on open; Escape or an outside click closes and
 way to see the content.
 
 **Switch.** For settings that take effect immediately, with no Save button. The checkbox's sibling,
-never a pill: a squared track (`--r-inline`, 1.5px stroke) with a square thumb. On, the track fills
+never a pill: a squared track (`--r-inline`, 2px stroke) with a 14px square thumb. On, the track fills
 with ink and the thumb springs across. The whole row is the target; Space toggles. If a change
 needs confirming, use a checkbox in a form.
 
@@ -481,7 +551,8 @@ Icon-only toggles need a `label` (name + tooltip). A group is one tab stop with 
 single-choice group clears when you press the active toggle.
 
 **Accordion.** One hairline panel (`--r-card`), rows divided by `--line`. Each header is a button in
-the Tab order (Base UI follows current ARIA guidance: no arrow roving). The caret turns and the panel
+the Tab order (Base UI follows current ARIA guidance: no arrow roving). The header is 16px in on
+the title side and 12px on the caret side. The caret turns and the panel
 grows from `--accordion-panel-height` over `--d-settle`. `multiple` lets several stay open.
 
 **Nav item.** A row you navigate to. The current row gets `--selected`, ink text in
@@ -518,7 +589,7 @@ uses `tone="danger"` and the hint says what went wrong.
 **Meter.** A level, not progress. A tick marks the threshold (85% by default); at or above it the bar
 and value turn `--danger`, the same rule as the context meter. `valueText` prints real units.
 
-**Navigation menu.** 36px button-shaped top-level links; a trigger opens a floating `--r-card` +
+**Navigation menu.** 36px button-shaped top-level links (12px in; 8px on a trigger's chevron side); a trigger opens a floating `--r-card` +
 `--e-float` panel of link cards that say where they go. Arrow keys move along the top row; Escape
 closes and returns focus. The panel resizes as you move between sections.
 
@@ -526,10 +597,10 @@ closes and returns focus. The panel resizes as you move between sections.
 answer is done ("Worked for 41s"). The reply streams with the accent caret as the write head. The
 composer's Send becomes Stop while busy (Esc stops). The context meter turns danger-colored at ≥85%.
 
-**Focus.** One plain ring on `:focus-visible`: `--focus-width` (2px; 3px in Contrast) of
+**Focus.** One plain ring on `:focus-visible`: `--focus-width` (1px; 2px in Contrast) of
 `--focus`, drawn *inside* the border box (`outline-offset: calc(-1 * var(--focus-width))`), from
-the base styles. On a bordered control it covers the border, so it reads as that one line
-thickened in the focus color: no gap, nothing over neighbours, nothing a clipping parent can cut. Keyboard focus shows it; a pointer
+the base styles. On a bordered control it lies exactly on the border, so focus reads as that one line
+turning the focus color: no gap, nothing over neighbours, nothing a clipping parent can cut. Keyboard focus shows it; a pointer
 click on a button doesn't. When the focused element is hidden or inset (a checkbox in its row,
 a slider's input), mark the visible wrapper `data-focus-target` and the
 element it stands in for `data-focus-proxy`: the wrapper wears the ring and the proxy's own outline
@@ -594,6 +665,8 @@ the object.
 
 - [ ] Built only from existing components, and the template CSS is layout only
 - [ ] Every radius is a token, chosen by hierarchy
+- [ ] Optical spacing: the icon, chevron or key-cap side is ~4px tighter than the text side, on logical sides (`ps`/`pe`)
+- [ ] Pixel grid: whole px only; anything centered is even in an even box; strokes 1px or 2px; icons 10/12/14/16/20; line heights from the type steps, not ratios
 - [ ] Every color, space, duration and shadow is a token
 - [ ] Controls are 36px (`sm` only in dense chrome); no ad hoc heights, no default max widths
 - [ ] Shadows only on floating things

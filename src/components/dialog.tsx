@@ -244,7 +244,7 @@ export function DestructiveDialog({
           label={
             <>
               Type{" "}
-              <code className="rounded-inline bg-sunken px-[5px] py-px text-caption">{name}</code>{" "}
+              <code className="rounded-inline bg-sunken px-1 py-px text-caption">{name}</code>{" "}
               to confirm
             </>
           }

@@ -92,6 +92,9 @@ function ToastList() {
           "transition-[opacity,translate] duration-settle ease-out",
           "data-starting-style:translate-y-full data-starting-style:opacity-0",
           "data-ending-style:translate-y-full data-ending-style:opacity-0 data-ending-style:duration-quick",
+          // With an action the end side tightens to 8px: the button is a box, and 12px outer less
+          // 8px inset is its 4px radius (concentric).
+          action && "pe-2",
         )}
       >
         {mark && (

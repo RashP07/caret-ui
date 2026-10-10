@@ -21,13 +21,14 @@ export const floatingPanelClass = cn(
   "data-instant:transition-none",
 );
 
-/** A bordered arrow that continues the panel's hairline. */
+/** A bordered arrow that continues the panel's hairline. Set 5px out (half its 10px box), so its
+ *  corners land on the border's inner edge on whole pixels. */
 export const floatingArrowClass = cn(
   "size-2.5 rotate-45 rounded-[1px] border-line bg-surface",
-  "data-[side=bottom]:-top-[5.5px] data-[side=bottom]:border-t data-[side=bottom]:border-l",
-  "data-[side=top]:-bottom-[5.5px] data-[side=top]:border-r data-[side=top]:border-b",
-  "data-[side=left]:-right-[5.5px] data-[side=left]:border-t data-[side=left]:border-r",
-  "data-[side=right]:-left-[5.5px] data-[side=right]:border-b data-[side=right]:border-l",
+  "data-[side=bottom]:-top-[5px] data-[side=bottom]:border-t data-[side=bottom]:border-l",
+  "data-[side=top]:-bottom-[5px] data-[side=top]:border-r data-[side=top]:border-b",
+  "data-[side=left]:-right-[5px] data-[side=left]:border-t data-[side=left]:border-r",
+  "data-[side=right]:-left-[5px] data-[side=right]:border-b data-[side=right]:border-l",
 );
 
 export interface PopoverProps {
@@ -76,7 +77,7 @@ export function Popover({
             style={{ width: `min(${width}px, var(--available-width))` }}
           >
             <BasePopover.Arrow className={floatingArrowClass} />
-            <BasePopover.Title className={cn("m-0 text-body leading-[1.3] font-heading tracking-[-.01em] text-balance", !hideClose && "pr-9")}>
+            <BasePopover.Title className={cn("m-0 text-body leading-5 font-heading tracking-[-.01em] text-balance", !hideClose && "pr-9")}>
               {title}
             </BasePopover.Title>
             {description && (

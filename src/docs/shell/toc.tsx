@@ -120,7 +120,7 @@ export function OnThisPageCompact({ containerId, className }: { containerId: str
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger meta={entries.length}>On this page</CollapsibleTrigger>
         <CollapsiblePanel>
-          <Threads className="ml-[6.5px] pr-px">
+          <Threads className="ml-1.5 pr-px">
             {entries.map((e) => (
               <NavItem key={e.id} render={<a href={`#${e.id}`} />} onClick={() => setOpen(false)}>
                 {e.text}

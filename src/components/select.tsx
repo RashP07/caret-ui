@@ -112,9 +112,11 @@ const triggerBase = cn(
   "data-disabled:cursor-not-allowed data-disabled:text-ink-disabled",
 );
 
+/** Optical spacing: the chevron side, and the lead side when there is one ([data-lead]), sit
+ *  about 4px closer to the edge than the text side (12/8, compact 10/6, xs 8/4). */
 const triggerDensity: Record<SelectDensity, string> = {
   default: cn(
-    "h-9 gap-2.5 rounded-control border-stroke border-border-control bg-surface pr-2.5 pl-3 text-control text-ink touch:h-11",
+    "h-9 gap-2.5 rounded-control border-stroke border-border-control bg-surface ps-3 pe-2 data-lead:ps-2 text-control text-ink touch:h-11",
     // Hover darkens the edge only when the field isn't focused or open.
     "not-focus-visible:not-data-popup-open:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
     // Like the text fields: focus and open show the one field focus line (field-focus).
@@ -124,12 +126,12 @@ const triggerDensity: Record<SelectDensity, string> = {
     "data-disabled:border-line-strong data-disabled:bg-sunken",
   ),
   compact: cn(
-    "min-h-7.5 gap-1.5 rounded-control border border-transparent bg-transparent pr-1.5 pl-2.5 text-small font-control text-ink-2",
+    "min-h-7.5 gap-1.5 rounded-control border border-transparent bg-transparent ps-2.5 pe-1.5 data-lead:ps-1.5 text-small font-control text-ink-2",
     "hover:bg-hover hover:text-ink focus-visible:bg-hover focus-visible:text-ink data-popup-open:bg-pressed data-popup-open:text-ink",
     "data-disabled:bg-transparent data-disabled:text-ink-disabled",
   ),
   xs: cn(
-    "min-h-6.5 gap-1.5 rounded-control border border-transparent bg-transparent pr-1 pl-2 text-small font-control text-ink-2",
+    "min-h-6.5 gap-1.5 rounded-control border border-transparent bg-transparent ps-2 pe-1 data-lead:ps-1 text-small font-control text-ink-2",
     "hover:bg-hover hover:text-ink focus-visible:bg-hover focus-visible:text-ink data-popup-open:bg-pressed data-popup-open:text-ink",
     "data-disabled:bg-transparent data-disabled:text-ink-disabled",
   ),
@@ -188,6 +190,7 @@ export function Select<V extends string = string>({
       >
         <BaseSelect.Label className={cn(fieldLabelClass, hideLabel && "sr-only-caret")}>{label}</BaseSelect.Label>
         <BaseSelect.Trigger
+          data-lead={lead != null || undefined}
           className={cn(triggerBase, triggerDensity[density], "[&>svg:not([data-chev])]:flex-none [&>svg:not([data-chev])]:text-ink-3", triggerClassName)}
         >
           {lead}

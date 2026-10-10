@@ -139,7 +139,9 @@ export function TableRow({ selected, interactive, className, ...props }: TableRo
       className={cn(
         "transition-[background-color] duration-instant ease-hover",
         hover && "cursor-pointer not-data-selected:hover:bg-hover",
-        "data-selected:bg-selected",
+        // A light wash, not the full selected fill: the checkbox and the start bar already mark the
+        // row, and a heavy fill under every cell dims the muted text, badges and checkbox edges.
+        "data-selected:bg-[color-mix(in_oklab,var(--selected)_40%,var(--surface))]",
         selectedMarkClass,
         className,
       )}

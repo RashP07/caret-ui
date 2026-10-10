@@ -38,8 +38,11 @@ export interface BadgeProps extends ComponentProps<"span"> {
 export function Badge({ tone = "neutral", solid, dot, className, children, ...props }: BadgeProps) {
   return (
     <span
+      data-lead={dot || undefined}
       className={cn(
-        "inline-flex min-h-[22px] max-w-full flex-none items-center gap-1.5 rounded-pill border px-2 py-0.5 text-caption font-control whitespace-nowrap",
+        // Optical spacing on a pill: the round ends eat into the text, so it sits 10px in (not 8);
+        // a dot sits 8px in, which centers it in the end cap (11px radius).
+        "inline-flex min-h-[22px] max-w-full flex-none items-center gap-1.5 rounded-pill border px-2.5 data-lead:ps-2 py-0.5 text-caption font-control whitespace-nowrap",
         solid ? solids[tone] : tones[tone],
         className,
       )}

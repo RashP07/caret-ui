@@ -86,11 +86,8 @@ export function MenuSection() {
         <Menu
           onOpenChange={setOpen}
           trigger={
-            <Button variant="secondary">
-              <span className="inline-flex items-center gap-1.5">
-                Run actions
-                <CaretDownIcon size={14} className="-mr-1 text-ink-3" />
-              </span>
+            <Button variant="secondary" trail={<CaretDownIcon size={14} className="text-ink-3" />}>
+              Run actions
             </Button>
           }
         >
@@ -328,7 +325,7 @@ export function PreviewCardSection() {
       lede="Use a preview card to show where a link goes before anyone follows it. The link stays a real link, and the card is a bonus, never the only way to the content. It waits half a second."
     >
       <Spec name="run link, person link" state={[["open", open ? `"${open}"` : "null"]]} canvasClassName="min-h-[220px]">
-        <p className="m-0 max-w-[46ch] text-body leading-[1.7] text-ink-2">
+        <p className="m-0 max-w-[46ch] text-body leading-6.5 text-ink-2">
           The flaky test was fixed in{" "}
           <PreviewCard
             href="#preview-card"

@@ -127,7 +127,7 @@ export function MenuPopup({
 /* ---------- items ---------- */
 
 function Shortcut({ keys }: { keys?: string }) {
-  return keys ? <Kbd keys={keys} size="sm" className="ml-4 text-ink-3 group-data-disabled/item:text-ink-disabled" /> : null;
+  return keys ? <Kbd keys={keys} size="sm" className="ms-4 text-ink-3 group-data-disabled/item:text-ink-disabled" /> : null;
 }
 
 export interface MenuItemProps extends Omit<ComponentProps<typeof BaseMenu.Item>, "className" | "children"> {
@@ -236,7 +236,8 @@ export function MenuSubmenu({ label, icon, children, disabled }: MenuSubmenuProp
       <BaseMenu.SubmenuTrigger className={cn(actionMenuItemClass, "data-popup-open:bg-pressed")}>
         <Lead icon={icon} />
         <span className="min-w-0 flex-1 truncate" title={textOf(label)}>{label}</span>
-        <CaretRightIcon size={14} className="ml-4 flex-none text-ink-3 group-data-disabled/item:text-ink-disabled" aria-hidden />
+        {/* The caret's ink sits ~4px inside its box; -me-1 lines it up with the shortcut caps' edge above and below. */}
+        <CaretRightIcon size={14} className="ms-4 -me-1 flex-none text-ink-3 group-data-disabled/item:text-ink-disabled" aria-hidden />
       </BaseMenu.SubmenuTrigger>
       <MenuPopup side="inline-end" align="start" sideOffset={2} alignOffset={-5}>
         {children}

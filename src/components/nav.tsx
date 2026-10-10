@@ -150,6 +150,7 @@ export function Threads({ className, children, ...props }: ComponentProps<"div">
     <ThreadsContext.Provider value={true}>
       <div
         className={cn(
+          // The 1px thread takes 15–16px, ending on the 16px icon's centre: whole pixels, never 15.5.
           "relative ml-[15px] flex flex-col gap-px pl-2.5",
           "before:absolute before:top-0.5 before:bottom-0.5 before:left-0 before:w-px before:bg-line before:content-['']",
           className,

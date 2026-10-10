@@ -146,7 +146,7 @@ function StaticAction({ icon, label, kbd, highlighted, danger }: { icon?: ReactN
 /** A static tooltip bubble with its arrow pointing down. */
 function StaticTip({ label, kbd }: { label: string; kbd?: string }) {
   return (
-    <div className="relative flex items-center gap-2 rounded-control bg-ink px-[9px] py-1.5 text-small leading-[1.35] font-control text-on-ink">
+    <div className="relative flex items-center gap-2 rounded-control bg-ink px-2.5 py-1.5 text-small leading-4.5 font-control text-on-ink">
       <span>{label}</span>
       {kbd && <Kbd keys={kbd} size="sm" />}
       <span className="absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rotate-45 rounded-[1px] bg-ink" />
@@ -230,7 +230,7 @@ function SpaceThumb() {
       </div>
       <div className="grid grid-cols-2 gap-3">
         {radii.map((r) => (
-          <span key={r} className={cn("size-16 border-t-[1.5px] border-l-[1.5px] border-ink bg-sunken", r)} />
+          <span key={r} className={cn("size-16 border-t-2 border-l-2 border-ink bg-sunken", r)} />
         ))}
       </div>
     </Artboard>
@@ -550,10 +550,8 @@ function PreviewCardThumb() {
 function MenuThumb() {
   return (
     <Artboard className="flex-col items-start gap-1.5 px-20">
-      <Button variant="secondary">
-        <span className="inline-flex items-center gap-1.5">
-          Run actions <CaretDownIcon size={14} className="-mr-1 text-ink-3" />
-        </span>
+      <Button variant="secondary" trail={<CaretDownIcon size={14} className="text-ink-3" />}>
+        Run actions
       </Button>
       <div className={cn(actionMenuPopupClass, "w-[240px]")}>
         <StaticAction icon={<ArrowClockwiseIcon />} label="Re-run" kbd="⌘ R" highlighted />
@@ -721,7 +719,7 @@ function TabsThumb() {
           </Tab>
         </TabList>
         <TabPanel value="logs" className="min-h-0">
-          <div className="mono text-code leading-[1.9] text-ink-2">
+          <div className="mono text-code leading-6 text-ink-2">
             <div>
               <span className="text-ink-3">11:30:00</span> schedule fired
             </div>
@@ -805,7 +803,7 @@ function ScrollAreaThumb() {
   return (
     <Artboard>
       <ScrollArea className="h-[190px] w-[300px] rounded-control border border-line bg-sunken" contentClassName="px-3 py-2">
-        <div className="mono text-code leading-[1.9] text-ink-2">
+        <div className="mono text-code leading-6 text-ink-2">
           {lines.map((l, i) => (
             <div key={i} className="whitespace-nowrap">
               <span className="text-ink-3">11:30:{String(i * 7).padStart(2, "0")}</span> {l}
@@ -925,7 +923,7 @@ function AgentWorkspaceThumb() {
             <div className="flex h-9 items-center gap-1.5 border-b border-line px-3 text-small font-control">
               Changes <span className="rounded-pill bg-accent-soft px-1.5 text-caption tabular-nums">4</span>
             </div>
-            <div className="mono flex flex-col text-caption leading-[1.7]">
+            <div className="mono flex flex-col text-caption leading-5">
               <div className="bg-success-soft px-2">+ "use client";</div>
               <div className="bg-success-soft px-2">+ import …</div>
               <div className="bg-danger-soft px-2 text-ink-2">− --bg: white;</div>

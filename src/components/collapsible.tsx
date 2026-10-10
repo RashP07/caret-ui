@@ -50,7 +50,7 @@ export function CollapsibleTrigger({ className, children, meta, ...props }: Trig
   return (
     <BaseCollapsible.Trigger
       className={cn(
-        "group/col -ml-2 inline-flex h-9 items-center gap-1.5 self-start rounded-button border-0 bg-transparent pr-2.5 pl-2 text-control font-control text-ink-2",
+        "group/col -ms-2 inline-flex h-9 items-center gap-1.5 self-start rounded-button border-0 bg-transparent ps-2 pe-2.5 text-control font-control text-ink-2",
         pressColorTransition,
         pressClass,
         "hover:bg-hover hover:text-ink data-panel-open:text-ink",
@@ -65,7 +65,7 @@ export function CollapsibleTrigger({ className, children, meta, ...props }: Trig
       />
       {children}
       {meta != null && (
-        <span className="ml-1 text-caption font-normal tabular-nums text-ink-3">
+        <span className="ms-1 text-caption font-normal tabular-nums text-ink-3">
           {meta}
         </span>
       )}

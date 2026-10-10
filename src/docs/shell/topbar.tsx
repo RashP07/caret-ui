@@ -50,8 +50,11 @@ export function TopBar({ frameClassName }: { frameClassName?: string }) {
         </Drawer>
       </span>
       <RouteCrumbs />
-      <div className="flex-1" />
-      <ThemePanelButton />
+      {/* The crumbs share the page's centred width so they line up with the content; the theme
+          control belongs to the window, so on desktop it pins to the bar's end edge instead. */}
+      <div className="ms-auto flex items-center min-[1001px]:absolute min-[1001px]:inset-y-0 min-[1001px]:end-0">
+        <ThemePanelButton />
+      </div>
       </div>
     </header>
   );

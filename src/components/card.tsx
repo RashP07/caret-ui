@@ -50,7 +50,7 @@ export function CardIcon({ className, ...props }: ComponentProps<"div">) {
 }
 
 export function CardTitle({ className, ...props }: ComponentProps<"div">) {
-  return <div className={cn("text-body leading-[1.3] font-heading tracking-[-.01em] text-balance", className)} {...props} />;
+  return <div className={cn("text-body leading-5 font-heading tracking-[-.01em] text-balance", className)} {...props} />;
 }
 
 export function CardSub({ className, ...props }: ComponentProps<"div">) {
@@ -58,7 +58,7 @@ export function CardSub({ className, ...props }: ComponentProps<"div">) {
 }
 
 export function CardText({ className, ...props }: ComponentProps<"p">) {
-  return <p className={cn("m-0 text-control leading-normal text-pretty text-ink-2", className)} {...props} />;
+  return <p className={cn("m-0 text-control leading-5.5 text-pretty text-ink-2", className)} {...props} />;
 }
 
 /** A dashed rule separates what a thing is from what you can do with it. Actions wrap; padding matches the body. */
