@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AccentPicker, Button, Code, Hint, NavItem, Seg, ThemeSwatch } from "@/components";
 import { cn } from "@/lib/cn";
 import { buildTheme, checkTheme, PRESETS } from "@/lib/palette";
@@ -104,8 +104,8 @@ function Principles() {
       <div className="relative grid place-items-center border-l border-(--rule) bg-pattern px-12 py-12 max-[1000px]:border-t max-[1000px]:border-l-0 max-[600px]:px-4">
         <Node className="-top-[5px] -left-[5px] max-[1000px]:hidden" />
         <Node className="-bottom-[5px] -left-[5px] max-[1000px]:hidden" />
-        <div className="w-full max-w-[480px]">
-          <RunCard />
+        <div className="w-full min-w-0 max-w-[480px]">
+          <RunCard variant="sheet" />
         </div>
       </div>
     </div>
@@ -184,15 +184,69 @@ function MakeItYours() {
       </div>
 
       {/* A scoped theme: data-theme, data-mode and data-accent on one element re-theme everything inside it. */}
-      <ThemeScope
-        theme={theme}
-        mode={mode}
-        data-accent={accent}
-        className="rounded-card border border-line bg-page bg-pattern p-5 text-ink transition-colors duration-quick"
-      >
-        <SampleSettings />
-      </ThemeScope>
+      {/* The frame and its nodes sit outside the scope, so they keep the sheet's own line and page colors. */}
+      <Boxed>
+        <ThemeScope
+          theme={theme}
+          mode={mode}
+          data-accent={accent}
+          className="bg-page bg-pattern p-5 text-ink transition-colors duration-quick"
+        >
+          <SampleSettings />
+        </ThemeScope>
+      </Boxed>
     </section>
+  );
+}
+
+/** A square 1px frame in the sheet's line color, with a Node on each corner. */
+function Boxed({ className, children }: { className?: string; children: ReactNode }) {
+  return (
+    <div className={cn("relative grid border border-(--rule)", className)}>
+      <Node className="-top-[5px] -left-[5px]" />
+      <Node className="-top-[5px] -right-[5px]" />
+      <Node className="-bottom-[5px] -left-[5px]" />
+      <Node className="-right-[5px] -bottom-[5px]" />
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Pages as one table of cells: 3 columns, 2 under 1000px, 1 under 640px. The grid's 1px gaps
+ * show its `--rule` background and its border is the outer edge, so every edge is one line.
+ * (Fill whole rows: an empty slot in a short last row would show as a solid block of line.)
+ *
+ * Nodes: the grid holds the top-left corner; every cell marks its own bottom-right junction
+ * (crossings, the right and bottom T's, the bottom-right corner); first-row cells add their
+ * top-right (top T's, top-right corner) and first-column cells their bottom-left (left T's,
+ * bottom-left corner), worked out per breakpoint. -5px centres a 9px node on a 1px gap or border.
+ */
+function CellGrid({ pages }: { pages: DocPage[] }) {
+  return (
+    <div className="relative grid grid-cols-3 gap-px border border-(--rule) bg-(--rule) max-[1000px]:grid-cols-2 max-[640px]:grid-cols-1">
+      <Node className="-top-[5px] -left-[5px]" />
+      {pages.map((p, i) => (
+        <PageCard key={p.slug} page={p} sheet>
+          <Node className="-right-[5px] -bottom-[5px]" />
+          <Node
+            className={cn(
+              "-top-[5px] -right-[5px] hidden",
+              i < 3 && "min-[1001px]:block",
+              i < 2 && "min-[641px]:max-[1000px]:block",
+              i < 1 && "max-[640px]:block",
+            )}
+          />
+          <Node
+            className={cn(
+              "-bottom-[5px] -left-[5px] hidden max-[640px]:block",
+              i % 3 === 0 && "min-[1001px]:block",
+              i % 2 === 0 && "min-[641px]:max-[1000px]:block",
+            )}
+          />
+        </PageCard>
+      ))}
+    </div>
   );
 }
 
@@ -313,8 +367,6 @@ export function Home() {
           <Rule />
 
           <section aria-labelledby="h-inside" className={cn(PAD, "relative py-16")}>
-            <Guides columns={3} className={cn(GUIDE_INSET, "max-[1000px]:hidden")} />
-            <Guides columns={2} className={cn(GUIDE_INSET, "hidden max-[1000px]:grid max-[640px]:hidden")} />
             <div className="relative mb-6 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h2 id="h-inside" className="m-0 text-h2 font-heading text-balance">
@@ -329,11 +381,7 @@ export function Home() {
                 Browse all components
               </Button>
             </div>
-            <div className="relative grid grid-cols-3 gap-4 max-[1000px]:grid-cols-2 max-[640px]:grid-cols-1">
-              {featured.map((p) => (
-                <PageCard key={p.slug} page={p} />
-              ))}
-            </div>
+            <CellGrid pages={featured} />
           </section>
           <Rule />
 
@@ -358,7 +406,9 @@ export function Home() {
                 Open the workspace
               </Button>
             </div>
-            <PageCard page={workspace} />
+            <Boxed>
+              <PageCard page={workspace} sheet />
+            </Boxed>
           </section>
           <Rule />
 

@@ -19,6 +19,7 @@ import { cn } from "@/lib/cn";
 import { MODE_INFO, MODES, THEME_INFO, type Accent, type Mode, type ThemeName } from "@/lib/theme";
 import { usePageScheme } from "@/lib/use-page-scheme";
 import { useDocs } from "./docs-context";
+import { Node } from "./shell/construction";
 import { AccentRow, ThemeList } from "./shell/theme-panel";
 import { Section, Spec, SpecBar, type Pairs } from "./spec";
 
@@ -86,8 +87,14 @@ export function Hero({ pressB }: { pressB: boolean }) {
   );
 }
 
-/** Hero composition: an agent run, built from Caret parts. */
-export function RunCard() {
+/**
+ * Hero composition: an agent run, built from Caret parts.
+ * `variant="sheet"` frames it as a drafting-sheet cell (the landing page): square 1px frame in
+ * `--rule` with Nodes at its corners, no shadow, square inner tile and diff, and the footer set
+ * off by one rule instead of a tinted band. Needs the SHEET line colors from an ancestor.
+ */
+export function RunCard({ variant = "card" }: { variant?: "card" | "sheet" }) {
+  const sheet = variant === "sheet";
   const steps: { label: string; t: string; s: "done" | "now" | "todo" }[] = [
     { label: "Read 14 route handlers", t: "0:12", s: "done" },
     { label: "Draft migration plan", t: "0:41", s: "done" },
@@ -95,9 +102,23 @@ export function RunCard() {
     { label: "Run the test suite", t: "—", s: "todo" },
   ];
   return (
-    <Card aria-label="Example: an agent run composed from Caret components" className="rm-fade animate-fade-in overflow-hidden shadow-float">
+    <Card
+      aria-label="Example: an agent run composed from Caret components"
+      className={cn(
+        "rm-fade animate-fade-in",
+        sheet ? "relative rounded-none border border-(--rule)" : "overflow-hidden shadow-float",
+      )}
+    >
+      {sheet && (
+        <>
+          <Node className="-top-[5px] -left-[5px]" />
+          <Node className="-top-[5px] -right-[5px]" />
+          <Node className="-bottom-[5px] -left-[5px]" />
+          <Node className="-right-[5px] -bottom-[5px]" />
+        </>
+      )}
       <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
-        <CardIcon>
+        <CardIcon className={cn(sheet && "rounded-none")}>
           <GitBranchIcon />
         </CardIcon>
         <div className="min-w-0">
@@ -140,13 +161,21 @@ export function RunCard() {
       </ol>
       <div
         aria-label="Diff preview"
-        className="mono mx-4 mb-3 overflow-x-auto rounded-control border border-line bg-sunken py-2 text-code [&>div]:px-3 [&>div]:whitespace-pre"
+        className={cn(
+          "mono mx-4 mb-3 overflow-x-auto rounded-control border border-line bg-sunken py-2 text-code [&>div]:px-3 [&>div]:whitespace-pre",
+          sheet && "rounded-none",
+        )}
       >
         <div className="bg-danger-soft text-ink-2">- let app = Router::new().route("/invoices", legacy)</div>
         <div className="bg-success-soft text-ink">+ let app = Router::new().route("/invoices", get(list))</div>
         <div>{"      .layer(auth_layer());"}</div>
       </div>
-      <div className="flex items-center gap-2 border-t border-line bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))] px-4 py-3">
+      <div
+        className={cn(
+          "flex items-center gap-2 border-t px-4 py-3",
+          sheet ? "border-(--rule)" : "border-line bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))]",
+        )}
+      >
         <Button variant="ghost" icon={<PauseIcon />} tip="Pause after the current step" tipKbd="⌘ .">
           Pause
         </Button>

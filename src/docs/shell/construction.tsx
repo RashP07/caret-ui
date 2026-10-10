@@ -111,8 +111,27 @@ export function Ruler({ className }: { className?: string }) {
   );
 }
 
-/** A half circle on its parent's bottom edge, as wide as fits: the compass arc behind a hero. */
-export function ConstructionArc({ className }: { className?: string }) {
+/**
+ * The upper half of a regular polygon on its parent's bottom edge, as wide as fits: the
+ * drafted figure behind a hero. `facets` is how many straight edges span the half:
+ * 2 is a diamond's peak, 4 half an octagon (the default), 6 half a dodecagon.
+ * Straight facets instead of a compass curve, so it reads as construction, not ornament.
+ */
+export function ConstructionArc({
+  facets = 4,
+  variant = "polygon",
+  className,
+}: {
+  facets?: number;
+  /** `golden`: a golden rectangle cut into its shrinking squares, all straight lines. */
+  variant?: "polygon" | "golden";
+  className?: string;
+}) {
+  if (variant === "golden") return <GoldenFigure className={className} />;
+  const points = Array.from({ length: facets + 1 }, (_, i) => {
+    const a = Math.PI - (i * Math.PI) / facets;
+    return `${(500 + 500 * Math.cos(a)).toFixed(1)},${(500 - 500 * Math.sin(a)).toFixed(1)}`;
+  }).join(" ");
   return (
     <svg
       aria-hidden
@@ -120,7 +139,54 @@ export function ConstructionArc({ className }: { className?: string }) {
       preserveAspectRatio="xMidYMax meet"
       className={cn("pointer-events-none absolute inset-0 size-full overflow-visible text-(--rule-faint)", className)}
     >
-      <path d="M0 500A500 500 0 0 1 1000 500" fill="none" stroke="currentColor" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+      <polyline
+        points={points}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1}
+        strokeLinejoin="miter"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+
+const PHI = (1 + Math.sqrt(5)) / 2;
+
+/**
+ * A golden rectangle (1000 × 618) on its parent's bottom edge, cut into the squares of the
+ * golden spiral, turning clockwise: left, top, right, bottom, and so on, eight cuts deep.
+ * Straight lines only (the spiral itself is implied, never drawn).
+ */
+function GoldenFigure({ className }: { className?: string }) {
+  const W = 1000;
+  const H = W / PHI;
+  const cuts: string[] = [];
+  let [x, y, w, h] = [0, 0, W, H];
+  for (let i = 0; i < 8; i++) {
+    const s = Math.min(w, h);
+    switch (i % 4) {
+      case 0: x += s; w -= s; cuts.push(`M${x} ${y}V${y + h}`); break; // square on the left
+      case 1: y += s; h -= s; cuts.push(`M${x} ${y}H${x + w}`); break; // on top
+      case 2: w -= s; cuts.push(`M${x + w} ${y}V${y + h}`); break; // on the right
+      case 3: h -= s; cuts.push(`M${x} ${y + h}H${x + w}`); break; // on the bottom
+    }
+  }
+  return (
+    <svg
+      aria-hidden
+      viewBox={`0 0 ${W} ${H.toFixed(1)}`}
+      preserveAspectRatio="xMidYMax meet"
+      className={cn("pointer-events-none absolute inset-0 size-full overflow-visible text-(--rule-faint)", className)}
+    >
+      <path
+        d={`M0 0H${W}V${H}H0Z ${cuts.join(" ")}`}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1}
+        vectorEffect="non-scaling-stroke"
+        shapeRendering="crispEdges"
+      />
     </svg>
   );
 }

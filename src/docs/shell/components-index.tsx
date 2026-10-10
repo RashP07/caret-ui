@@ -1,13 +1,35 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Card, CardBody, CardText, CardTitle } from "@/components";
 import { GROUP_BLURBS, GROUPS, PAGES, type DocPage } from "../registry";
 import { PageModeContext, Section, slugify } from "../spec";
 import { Thumb } from "../thumbs";
 import { pageLink } from "./links";
 
-/** A page card: a live, inert preview on the drafting ground, then name and one line. */
-export function PageCard({ page }: { page: DocPage }) {
+/**
+ * A page card: a live, inert preview on the drafting ground, then name and one line.
+ * `sheet` drops the card frame for a square, borderless cell: the parent draws its edges
+ * (shared 1px lines on the landing page's drafting sheet), and `children` can place Nodes.
+ */
+export function PageCard({ page, sheet, children }: { page: DocPage; sheet?: boolean; children?: ReactNode }) {
+  if (sheet) {
+    return (
+      <Link {...pageLink(page)} className="group relative flex min-w-0 flex-col bg-page text-left text-ink no-underline">
+        <div
+          inert
+          aria-hidden
+          className="grid h-[180px] place-items-center overflow-hidden border-b border-(--rule) bg-pattern p-4 [background-position:-8px_-8px]"
+        >
+          <Thumb slug={page.slug} />
+        </div>
+        <div className="flex flex-1 flex-col gap-1 p-5 transition-colors duration-quick group-hover:bg-hover">
+          <CardTitle>{page.title}</CardTitle>
+          <CardText>{page.description}</CardText>
+        </div>
+        {children}
+      </Link>
+    );
+  }
   return (
     <Link {...pageLink(page)} className="block no-underline">
       <Card link tabIndex={-1} className="h-full overflow-hidden">
