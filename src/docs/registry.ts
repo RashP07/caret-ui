@@ -88,7 +88,7 @@ export const PAGES: DocPage[] = [
   { slug: "color", title: "Color", kind: "foundation", group: "Foundations", load: ctx("ColorPage"), description: "Role-named tokens, measured for contrast in every theme and mode." },
   { slug: "themes", title: "Themes", kind: "foundation", group: "Foundations", load: ctx("ThemesPage"), description: "Eight themes, each light and dark, that scope to any element." },
   { slug: "theme-builder", title: "Theme builder", kind: "foundation", group: "Foundations", load: builder, full: true, description: "Pick a brand color and tune it; contrast and harmony stay solved." },
-  { slug: "typography", title: "Typography", kind: "foundation", group: "Foundations", load: foundations("TypeSection"), description: "Schibsted Grotesk for the interface, JetBrains Mono for code." },
+  { slug: "typography", title: "Typography", kind: "foundation", group: "Foundations", load: foundations("TypeSection"), description: "Schibsted Grotesk for the interface, Paper Mono for code." },
   { slug: "space", title: "Space & radius", kind: "foundation", group: "Foundations", load: foundations("SpaceSection"), description: "A 4px base, and radius by how far a thing floats." },
   { slug: "motion", title: "Motion", kind: "foundation", group: "Foundations", load: foundations("MotionSection"), description: "Three durations, five curves, springs for things that glide." },
   { slug: "focus", title: "Focus", kind: "foundation", group: "Foundations", load: ctx("FocusPage"), description: "One plain ring for keyboard focus, drawn on what you can see." },

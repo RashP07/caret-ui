@@ -169,7 +169,7 @@ every theme. Never hard-code syntax colors.
 - **Schibsted Grotesk**: interface and display. Three weights: 400 (`font-normal`) for
   reading, 550 (`font-control`) for controls and labels, 620 (`font-heading`) for headings.
   Tracking gets more negative as the size grows.
-- **JetBrains Mono**: only where the content is literally code (keys, token names, paths, logs,
+- **Paper Mono**: only where the content is literally code (keys, token names, paths, logs,
   diffs), via `mono`.
   Counts, times and percentages use the UI font with `tabular-nums`.
 - Sizes are in rem, so they follow the reader's default font size. **Nothing that carries
@@ -676,7 +676,7 @@ palette, radii, shadows and type scale are cleared, so only Caret values exist.
 | coarse pointer | `touch:` variant (`@media (pointer: coarse)`) |
 | `--pattern` | `bg-pattern` |
 | `--stroke` | `border-stroke` (hairline that thickens in Contrast) |
-| JetBrains Mono | `mono` |
+| Paper Mono | `mono` |
 
 `cn()` is `clsx` + `tailwind-merge` taught these names, so a caller's `className` overrides a
 component default cleanly.

@@ -124,15 +124,15 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+  font-family: "Paper Mono";
+  src: url("/fonts/paper-mono-latin-wght-normal.woff2") format("woff2-variations");
   font-weight: 100 800;
   font-display: swap;
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/jetbrains-mono-latin-ext-wght-normal.woff2") format("woff2-variations");
+  font-family: "Paper Mono";
+  src: url("/fonts/paper-mono-latin-ext-wght-normal.woff2") format("woff2-variations");
   font-weight: 100 800;
   font-display: swap;
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
@@ -140,7 +140,10 @@
 
 /* Metric-matched fallbacks: until the web fonts arrive, Arial and Courier New are
    scaled to the same advance width and line box, so the swap moves nothing.
-   Measured against the web fonts in Chromium (canvas measureText, 100px). */
+   Measured against the web fonts in Chromium (canvas measureText, 100px).
+   Paper Mono Fallback is computed from the font tables: size-adjust = Paper Mono's advance
+   (606/1000 em) over Courier New's (1229/2048 em); ascent/descent-override = hhea 955/-245
+   over 1000, divided by size-adjust; line gap 0. */
 @font-face {
   font-family: "Schibsted Grotesk Fallback";
   src: local("Arial"), local("ArialMT");
@@ -150,11 +153,11 @@
   line-gap-override: 0%;
 }
 @font-face {
-  font-family: "JetBrains Mono Fallback";
+  font-family: "Paper Mono Fallback";
   src: local("Courier New"), local("CourierNewPSMT");
-  size-adjust: 100%;
-  ascent-override: 102.02%;
-  descent-override: 30%;
+  size-adjust: 100.98%;
+  ascent-override: 94.57%;
+  descent-override: 24.26%;
   line-gap-override: 0%;
 }
 
@@ -162,7 +165,7 @@
 @theme static {
   --font-*: initial;
   --font-ui: "Schibsted Grotesk", "Schibsted Grotesk Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-mono: "Paper Mono", "Paper Mono Fallback", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --ease-*: initial;
   /* entering / exiting: starts fast, so the UI answers immediately */
   --ease-out: cubic-bezier(.23, 1, .32, 1);
@@ -203,7 +206,7 @@
 @utility duration-quick { transition-duration: var(--d-quick); }
 @utility duration-settle { transition-duration: var(--d-settle); }
 
-/* JetBrains Mono only where the content is literally code: keys, tokens, paths. */
+/* Paper Mono only where the content is literally code: keys, tokens, paths. */
 @utility mono { font-family: var(--font-mono); }
 
 /* Inline links in running text. */

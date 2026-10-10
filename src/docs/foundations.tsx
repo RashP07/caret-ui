@@ -367,7 +367,7 @@ export function TypeSection() {
     <Section
       id="type"
       title="Typography"
-      lede="Two faces with clearly separate jobs. Schibsted Grotesk carries the interface and headlines with tight, confident tracking. JetBrains Mono appears only where the content is literally code: keys, token names, paths, logs. Sizes are in rem, so they follow the reader's default font size."
+      lede="Two faces with clearly separate jobs. Schibsted Grotesk carries the interface and headlines with tight, confident tracking. Paper Mono appears only where the content is literally code: keys, token names, paths, logs. Sizes are in rem, so they follow the reader's default font size."
     >
       <div className="mb-4 grid grid-cols-2 gap-4 max-[860px]:grid-cols-1">
         <div className="flex min-h-[220px] flex-col gap-3 rounded-card border border-line bg-surface p-6">
@@ -378,7 +378,7 @@ export function TypeSection() {
         </div>
         <div className="flex min-h-[220px] flex-col gap-3 rounded-card border border-line bg-surface p-6">
           <div aria-hidden className="mono text-display font-normal tracking-normal">{"{}"}</div>
-          <div className="text-body font-heading">JetBrains Mono</div>
+          <div className="text-body font-heading">Paper Mono</div>
           <p className="m-0 text-control text-pretty text-ink-2 [&_code]:text-small">
             Code, keyboard keys and token names (<code>mono</code>), with clearly distinct 0/O and 1/l/I. Counts, times
             and percentages stay in the grotesk with tabular figures.
