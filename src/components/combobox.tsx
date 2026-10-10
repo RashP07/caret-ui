@@ -37,7 +37,7 @@ interface ComboboxBaseProps<V extends string> {
 
 /** Buttons at the trailing end of the well (clear, open). They keep their own ring, drawn inside the well. */
 const wellButton = cn(
-  "flex w-8 flex-none items-center justify-center border-0 bg-transparent text-ink-3 -outline-offset-2 touch:w-11",
+  "flex w-8 flex-none items-center justify-center border-0 bg-transparent text-ink-3 touch:w-11",
   "transition-colors duration-instant hover:text-ink",
 );
 
@@ -213,7 +213,7 @@ export function MultiCombobox<V extends string = string>({
                       className={cn(
                         // 24px box flush with the chip's edge (radius concentric with its 1px border),
                         // and a hit area that reaches past the chip on touch.
-                        "relative grid size-6 flex-none place-items-center rounded-[calc(var(--r-inline)-1px)] border-0 bg-transparent text-ink-3 -outline-offset-2",
+                        "relative grid size-6 flex-none place-items-center rounded-[calc(var(--r-inline)-1px)] border-0 bg-transparent text-ink-3",
                         "before:absolute before:-inset-0.5 before:content-[''] touch:before:-inset-2.5 hover:bg-hover hover:text-ink",
                       )}
                     >

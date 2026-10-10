@@ -395,12 +395,14 @@ export function themeVars(theme: Theme, { radius = theme.spec.radius !== "defaul
     "accent-halo": ld(css(L.accent, 0.38), css(D.accent, 0.32)),
     "btn-secondary-hl": ld("oklch(1 0 0 / 0.6)", "oklch(1 0 0 / 0.06)"),
     "btn-secondary-ledge": "var(--line-strong)",
-    "well-shadow": ld(ink("light", 0.06), "oklch(0 0 0 / 0.28)"),
     dot: ld(css(L.ink, high ? 0.2 : 0.13), css(D.ink, high ? 0.2 : 0.09)),
     scrim: ld(ink("light", 0.42), "oklch(0.08 0.005 260 / 0.62)"),
-    "e-float": `0 1px 0 ${ld(ink("light", 0.04), "oklch(1 0 0 / 0.04)")}, 0 8px 24px -6px ${ld(ink("light", 0.18), "oklch(0 0 0 / 0.6)")}, 0 2px 6px -2px ${ld(ink("light", 0.1), "oklch(0 0 0 / 0.3)")}`,
-    "e-modal": `0 0 0 1px ${ld("oklch(0 0 0 / 0)", "oklch(1 0 0 / 0.06)")}, 0 24px 64px -12px ${ld(ink("light", 0.35), "oklch(0 0 0 / 0.75)")}, 0 4px 12px -4px ${ld(ink("light", 0.14), "oklch(0 0 0 / 0.4)")}`,
+    // Floating surfaces keep their own border; the shadow is one soft drop, no hairline.
+    "e-float": `0 6px 16px -6px ${ld(ink("light", 0.12), "oklch(0 0 0 / 0.45)")}`,
+    // Dialogs have no border: in dark mode the 1px ring is their only edge.
+    "e-modal": `0 0 0 1px ${ld("oklch(0 0 0 / 0)", "oklch(1 0 0 / 0.06)")}, 0 16px 40px -12px ${ld(ink("light", 0.2), "oklch(0 0 0 / 0.5)")}, 0 4px 12px -4px ${ld(ink("light", 0.1), "oklch(0 0 0 / 0.3)")}`,
     stroke: high ? "1.5px" : "1px",
+    "stroke-bold": high ? "2px" : "1.5px",
     "focus-width": high ? "3px" : "2px",
     pattern: "radial-gradient(var(--dot) 1px, transparent 1.2px)",
     "pattern-size": "16px 16px",

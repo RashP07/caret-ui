@@ -7,8 +7,8 @@ import { cn } from "@/lib/cn";
 /*
  * Input. The label sits above and stays visible. The hint explains the rule
  * before it's broken; the error says exactly what to change. At rest the
- * field is a slightly recessed well; on focus it sits flush with an ink
- * border. No glow.
+ * field is a tinted well; on focus it sits flush and its one border line
+ * turns the focus color. No glow, no inner shadow.
  */
 
 /* Shared by every field-shaped control (NumberField, OTPField, Combobox, Autocomplete, Select). */
@@ -23,28 +23,27 @@ export const hintClass = "flex items-start gap-1.5 text-small text-ink-3 text-pr
 export const fieldRootClass = "group/field flex w-full min-w-0 flex-col gap-1.5";
 
 /**
- * The recessed well: sunken at rest, flush with an ink border on focus, danger when the
- * enclosing Field (group/field) or the control is invalid. Its edge is border-control (3:1),
- * so the box reads as a control on every ground. Disabled goes flat and sunken; read-only
- * keeps full ink and drops the recess. 36px tall (44px on touch) unless it wraps (chips).
+ * The recessed well: a tinted ground at rest; on focus it turns flush with the shared field
+ * focus ring (one 2px line over the border, see field-focus), danger when the enclosing Field
+ * (group/field) or the control is invalid. Its edge is border-control (3:1), so the box reads
+ * as a control on every ground. Disabled goes sunken; read-only keeps full ink on a flat
+ * surface. 36px tall (44px on touch) unless it wraps (chips).
  */
 export const wellClass = cn(
   "flex items-stretch overflow-hidden rounded-control border-stroke border-border-control",
-  "bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))] shadow-[inset_0_1px_2px_var(--well-shadow)]",
-  "transition-[border-color,box-shadow,background-color] duration-quick",
+  "bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))]",
+  "transition-[border-color,background-color] duration-quick",
   // Hover darkens the edge only while unfocused; focus owns the border.
   "not-focus-within:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
-  // Focus: the border turns the brand color and thickens (no offset ring on text fields).
-  "has-[[data-focus-proxy]:focus-visible]:outline-none",
-  "focus-within:border-accent-strong focus-within:bg-surface focus-within:shadow-[0_0_0_1px_var(--accent-strong)]",
+  // Focus shows on click too (focus-within), as text entry should.
+  "focus-within:field-focus focus-within:bg-surface",
   "group-data-invalid/field:border-danger-line has-[[aria-invalid=true]]:border-danger-line",
-  "group-data-invalid/field:focus-within:border-danger-line group-data-invalid/field:focus-within:shadow-[0_0_0_1px_var(--danger-line)]",
-  "has-[[aria-invalid=true]]:focus-within:shadow-[0_0_0_1px_var(--danger-line)]",
-  "has-[input[readonly]]:bg-surface has-[input[readonly]]:shadow-none",
-  "has-[input:disabled]:cursor-not-allowed has-[input:disabled]:border-line-strong has-[input:disabled]:bg-sunken has-[input:disabled]:shadow-none",
+  "group-data-invalid/field:[--field-focus:var(--danger)] has-[[aria-invalid=true]]:[--field-focus:var(--danger)]",
+  "has-[input[readonly]]:bg-surface",
+  "has-[input:disabled]:cursor-not-allowed has-[input:disabled]:border-line-strong has-[input:disabled]:bg-sunken",
 );
 
-/** The text inside a well. Mark it data-focus-proxy: the well shows focus with its border. 16px on phones so iOS doesn't zoom. */
+/** The text inside a well. Mark it data-focus-proxy: the well shows focus for it. 16px on phones so iOS doesn't zoom. */
 export const wellInputClass = cn(
   "min-w-0 flex-1 border-0 bg-transparent px-3 text-input-touch text-ink outline-none placeholder:text-ink-3 sm:text-control",
   "disabled:cursor-not-allowed disabled:text-ink-disabled disabled:placeholder:text-ink-disabled",

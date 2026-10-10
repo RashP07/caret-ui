@@ -42,7 +42,7 @@ export function ChoiceRow({ disabled, className, children }: { disabled?: boolea
       data-focus-target
       data-disabled={disabled || undefined}
       className={cn(
-        "group/choice grid cursor-pointer grid-cols-[18px_minmax(0,1fr)] items-start gap-2.5 rounded-button px-2 py-2 text-control -outline-offset-2 touch:min-h-11",
+        "group/choice grid cursor-pointer grid-cols-[18px_minmax(0,1fr)] items-start gap-2.5 rounded-button px-2 py-2 text-control touch:min-h-11",
         "transition-[background-color] duration-instant ease-hover",
         "hover:bg-hover",
         disabled && "cursor-not-allowed text-ink-disabled hover:bg-transparent",
@@ -92,7 +92,7 @@ export function ChoiceList({
 /* ---------- Checkbox ---------- */
 
 const boxClass = cn(
-  "relative mt-0.5 grid size-4.5 flex-none place-items-center rounded-inline border-[1.5px] border-border-control bg-surface text-on-ink",
+  "relative mt-0.5 grid size-4.5 flex-none place-items-center rounded-inline border-stroke-bold border-border-control bg-surface text-on-ink",
   // 18px box, 26px to hit (46px on touch); inside a row the whole row is the target anyway.
   "before:absolute before:-inset-1 before:content-[''] touch:before:-inset-3.5",
   "transition-[background-color,border-color,scale] duration-quick [transition-timing-function:var(--ease-hover),var(--ease-hover),var(--ease-out)]",
@@ -167,7 +167,7 @@ export function Nested({ className, ...props }: ComponentProps<"div">) {
 /* ---------- Radio ---------- */
 
 const radioClass = cn(
-  "relative mt-0.5 grid size-4.5 flex-none place-items-center rounded-full border-[1.5px] border-border-control bg-surface",
+  "relative mt-0.5 grid size-4.5 flex-none place-items-center rounded-full border-stroke-bold border-border-control bg-surface",
   "before:absolute before:-inset-1 before:rounded-full before:content-[''] touch:before:-inset-3.5",
   "transition-[border-color,scale] duration-quick [transition-timing-function:var(--ease-hover),var(--ease-out)]",
   controlPressClass,
@@ -240,13 +240,13 @@ export function RadioCard({ label, description, picture, media, meta, children, 
       className={cn(
         "group/card relative flex cursor-pointer flex-col gap-2 rounded-card border-stroke border-line-strong bg-surface p-4 text-ink",
         // Cards are wide targets: they answer a press with the border, never by shrinking.
-        "transition-[border-color,box-shadow] duration-instant ease-hover",
+        "transition-[border-color] duration-instant ease-hover",
         "hover:border-border-control",
-        "has-[[data-card-radio][data-checked]]:border-ink has-[[data-card-radio][data-checked]]:shadow-[inset_0_0_0_1px_var(--ink)]",
+        "has-[[data-card-radio][data-checked]]:border-ink",
         "[&_.diagram]:text-ink-3 has-[[data-card-radio][data-checked]]:[&_.diagram]:text-ink",
         "has-[[data-card-radio][data-checked]]:[&_.hi]:fill-accent has-[[data-card-radio][data-checked]]:[&_.hi]:stroke-ink",
         "has-[[data-card-radio][data-disabled]]:cursor-not-allowed has-[[data-card-radio][data-disabled]]:border-line has-[[data-card-radio][data-disabled]]:bg-sunken",
-        "has-[[data-card-radio][data-disabled]]:text-ink-disabled has-[[data-card-radio][data-disabled]]:shadow-none",
+        "has-[[data-card-radio][data-disabled]]:text-ink-disabled",
         "has-[[data-card-radio][data-disabled]]:[&_.diagram]:text-ink-disabled",
         media && "overflow-hidden",
         className,
@@ -332,7 +332,7 @@ export function Seg<V extends string = string>({ value, onValueChange, options, 
                       aria-hidden
                       layoutId="seg-pill"
                       transition={transition()}
-                      className="absolute inset-0 -z-10 rounded-[calc(var(--r-control)-4px)] bg-surface shadow-[0_0_0_1px_var(--line)]"
+                      className="absolute inset-0 -z-10 rounded-[calc(var(--r-control)-4px)] bg-surface"
                     />
                   )}
                   {radioProps.children}

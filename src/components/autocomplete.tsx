@@ -89,7 +89,7 @@ export function Autocomplete({
             <BaseAutocomplete.Clear
               aria-label={typeof label === "string" ? `Clear ${label}` : "Clear"}
               // Keeps its own ring, drawn inside the well so overflow can't clip it.
-              className="flex w-8 flex-none items-center justify-center border-0 bg-transparent text-ink-3 -outline-offset-2 transition-colors duration-instant hover:text-ink touch:w-11"
+              className="flex w-8 flex-none items-center justify-center border-0 bg-transparent text-ink-3 transition-colors duration-instant hover:text-ink touch:w-11"
             >
               <XIcon size={14} />
             </BaseAutocomplete.Clear>

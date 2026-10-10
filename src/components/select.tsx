@@ -117,10 +117,10 @@ const triggerDensity: Record<SelectDensity, string> = {
     "h-9 gap-2.5 rounded-control border-stroke border-border-control bg-surface pr-2.5 pl-3 text-control text-ink touch:h-11",
     // Hover darkens the edge only when the field isn't focused or open.
     "not-focus-visible:not-data-popup-open:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
-    // Like the text fields: focus and open show a brand border, not an offset ring.
-    "focus-visible:outline-none focus-visible:border-accent-strong focus-visible:shadow-[0_0_0_1px_var(--accent-strong)]",
-    "data-popup-open:border-accent-strong data-popup-open:shadow-[0_0_0_1px_var(--accent-strong)]",
+    // Like the text fields: focus and open show the one field focus line (field-focus).
+    "focus-visible:field-focus data-popup-open:field-focus",
     "data-invalid:border-danger-line group-data-invalid/field:border-danger-line",
+    "data-invalid:[--field-focus:var(--danger)] group-data-invalid/field:[--field-focus:var(--danger)]",
     "data-disabled:border-line-strong data-disabled:bg-sunken",
   ),
   compact: cn(

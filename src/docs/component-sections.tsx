@@ -157,7 +157,7 @@ export function InputSection({ searchRef }: { searchRef: RefObject<HTMLInputElem
     <Section
       id="input"
       title="Input"
-      lede="Use an input for free text. Labels sit above and stay visible; hints state the rule before you break it, and errors say what to change. At rest it's a recessed well; focus lifts it flush, with an ink border."
+      lede="Use an input for free text. Labels sit above and stay visible; hints state the rule before you break it, and errors say what to change. At rest it's a tinted well; focus turns it flush, and its edge turns the focus color."
     >
       <Spec name="text, affix, icon + key, disabled" state={state} layout="left" canvasClassName="gap-8">
         <Field

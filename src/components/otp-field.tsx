@@ -5,10 +5,10 @@ import { cn } from "@/lib/cn";
 import { FieldMessage, fieldLabelClass, fieldRootClass } from "./input";
 
 /*
- * OTP field. One cell per character, mono, each a small recessed well. Typing
+ * OTP field. One cell per character, mono, each a small tinted well. Typing
  * advances, Backspace steps back, arrows move between cells, and pasting
- * the whole code fills every cell at once. The focus ring goes around the
- * whole code, not one cell: every cell is its focus proxy.
+ * the whole code fills every cell at once. The focused cell wears the field
+ * focus line (field-focus), on click too, as text entry should.
  */
 
 export interface OTPFieldProps {
@@ -71,14 +71,16 @@ export function OTPField({
               data-focus-proxy
               aria-label={i === 0 ? undefined : `Character ${i + 1} of ${length}`}
               className={cn(
-                "mono size-9 min-w-8 shrink rounded-control border-stroke border-border-control p-0 text-center text-input-touch text-ink outline-none sm:text-control touch:size-11",
-                "bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))] shadow-[inset_0_1px_2px_var(--well-shadow)]",
-                "transition-[border-color,box-shadow,background-color] duration-quick",
+                "mono size-9 min-w-8 shrink rounded-control border-stroke border-border-control p-0 text-center text-input-touch text-ink sm:text-control touch:size-11",
+                "bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))]",
+                "transition-[border-color,background-color] duration-quick",
                 "not-focus:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
-                "focus:border-accent-strong focus:bg-surface focus:shadow-[0_0_0_1px_var(--accent-strong)]",
+                // Text entry keeps showing focus on click, so :focus, not :focus-visible.
+                "focus:field-focus focus:bg-surface",
                 "data-filled:bg-surface",
                 "group-data-invalid/field:border-danger-line data-invalid:border-danger-line",
-                "disabled:cursor-not-allowed disabled:border-line-strong disabled:bg-sunken disabled:text-ink-disabled disabled:shadow-none",
+                "group-data-invalid/field:[--field-focus:var(--danger)] data-invalid:[--field-focus:var(--danger)]",
+                "disabled:cursor-not-allowed disabled:border-line-strong disabled:bg-sunken disabled:text-ink-disabled",
               )}
             />
           </Fragment>

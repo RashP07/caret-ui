@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
 export interface CardProps extends ComponentProps<"article"> {
-  /** Openable: focusable, and lifts on hover. The only card with a shadow. */
+  /** Openable: focusable, and its border steps darker on hover. */
   link?: boolean;
   /** Empty state: dashed, transparent, centered. */
   empty?: boolean;
@@ -16,8 +16,8 @@ export function Card({ link, empty, className, ...props }: CardProps) {
       className={cn(
         "flex min-w-0 flex-col rounded-card border-stroke border-line bg-surface text-left",
         link &&
-          // Large surface: lifts on hover, but never shrinks on press. Lift on the hover curve.
-          "cursor-pointer transition-[border-color,box-shadow] duration-quick ease-hover hover:border-line-strong hover:shadow-float",
+          // Large surface: hover steps the one border darker, never lifts or shrinks on press.
+          "cursor-pointer transition-[border-color] duration-quick ease-hover hover:border-line-strong",
         empty &&
           "items-center justify-center gap-3 border-dashed border-line-strong bg-transparent px-6 py-8 text-center [&_p]:max-w-[30ch]",
         className,

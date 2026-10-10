@@ -111,8 +111,8 @@ export function AccentPicker({ value, onValueChange, theme, disabled, className,
             className={cn(
               "grid size-7 place-items-center rounded-full bg-accent text-on-accent shadow-[inset_0_0_0_1px_var(--line)] touch:size-10",
               "transition-[scale,box-shadow] duration-instant ease-out not-data-disabled:active:scale-90",
-              // Chosen: a ring cut out of the ground, plus the tick.
-              "data-checked:shadow-[0_0_0_2px_var(--surface),0_0_0_4px_var(--ink)]",
+              // Chosen: the edge turns one 2px ink line, inside the dot, plus the tick.
+              "data-checked:shadow-[inset_0_0_0_2px_var(--ink)]",
               "data-disabled:cursor-not-allowed data-disabled:opacity-40",
             )}
           >

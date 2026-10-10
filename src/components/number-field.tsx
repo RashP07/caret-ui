@@ -40,7 +40,7 @@ export interface NumberFieldProps {
 
 /* The steppers keep their own focus ring, drawn inside the well so its overflow can't clip it. */
 const stepButton = cn(
-  "flex w-9 flex-none items-center justify-center border-0 bg-transparent text-ink-3 -outline-offset-2 touch:w-11",
+  "flex w-9 flex-none items-center justify-center border-0 bg-transparent text-ink-3 touch:w-11",
   "transition-colors duration-instant hover:bg-hover hover:text-ink active:bg-pressed",
   "disabled:cursor-not-allowed disabled:text-ink-disabled disabled:hover:bg-transparent",
 );

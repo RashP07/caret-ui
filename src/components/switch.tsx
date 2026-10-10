@@ -22,7 +22,7 @@ export function Switch({ className, ...props }: SwitchProps) {
   return (
     <BaseSwitch.Root
       className={cn(
-        "relative inline-flex h-5 w-9 flex-none cursor-pointer items-center rounded-inline border-[1.5px] border-border-control bg-sunken p-px",
+        "relative inline-flex h-5 w-9 flex-none cursor-pointer items-center rounded-inline border-stroke-bold border-border-control bg-sunken p-px",
         // 20px tall to see, 28px to hit (44px on touch).
         "before:absolute before:-inset-x-0.5 before:-inset-y-1 before:content-[''] touch:before:-inset-3",
         // One timing for every color, so track and thumb never pass through a low-contrast middle.

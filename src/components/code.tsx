@@ -217,7 +217,7 @@ export function Diff({ lang, path, lines, hunk, className }: DiffProps) {
       <pre
         tabIndex={0}
         aria-label={`Diff of ${path}`}
-        className="mono m-0 min-h-0 flex-1 overflow-auto pt-2 pb-4 text-code leading-[1.8] text-ink -outline-offset-2"
+        className="mono m-0 min-h-0 flex-1 overflow-auto pt-2 pb-4 text-code leading-[1.8] text-ink"
       >
         {hunk && <div className="mb-1 border-b border-line bg-sunken px-3.5 py-1.5 whitespace-pre text-ink-3">{hunk}</div>}
         {lines.map(([sign, text], i) => {

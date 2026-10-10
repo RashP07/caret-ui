@@ -146,7 +146,7 @@ function StaticAction({ icon, label, kbd, highlighted, danger }: { icon?: ReactN
 /** A static tooltip bubble with its arrow pointing down. */
 function StaticTip({ label, kbd }: { label: string; kbd?: string }) {
   return (
-    <div className="relative flex items-center gap-2 rounded-control bg-ink px-[9px] py-1.5 text-small leading-[1.35] font-control text-on-ink shadow-float">
+    <div className="relative flex items-center gap-2 rounded-control bg-ink px-[9px] py-1.5 text-small leading-[1.35] font-control text-on-ink">
       <span>{label}</span>
       {kbd && <Kbd keys={kbd} size="sm" />}
       <span className="absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rotate-45 rounded-[1px] bg-ink" />
@@ -264,7 +264,7 @@ function FocusThumb() {
   return (
     <Artboard className="flex-col gap-4">
       {/* A static ring, as :focus-visible draws it (the card is inert, so it can't really focus). */}
-      <Button variant="secondary" className="outline-(length:--focus-width) outline-offset-2 outline-focus">
+      <Button variant="secondary" className="outline-(length:--focus-width) outline-offset-[calc(-1*var(--focus-width))] outline-focus">
         Save changes
       </Button>
     </Artboard>

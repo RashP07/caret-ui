@@ -220,9 +220,12 @@ Rules:
 
 ### Elevation
 
-- `--e-float`: menus, tooltips, toasts, hovered link-cards, floating panels.
+- `--e-float`: menus, popovers, toasts, floating panels. One soft drop under their own border.
 - `--e-modal`: dialogs, slide-over panels on small screens.
 - Nothing else gets a shadow. Separate things with hairlines (`--line`) first.
+- Hairline: every edge is one thin line, drawn once. State changes that line's color; it never
+  stacks a second line, a glow or an offset ring; no ring or shadow spills outside the box; and
+  nothing draws an inner shadow (wells are a tinted ground, not a recess).
 
 ### Motion
 
@@ -358,8 +361,8 @@ toolbars) with the same ledge and states. Icon-only buttons are `<IconButton lab
 both the accessible name and the tooltip. Ghost buttons have no ledge.
 
 **Input.** The label always sits above and stays visible. The hint explains the rule *before* it's broken;
-the error says exactly what to change. At rest the field is a slightly recessed well. On focus it sits flush
-with an ink border. No glow. The text caret is `--caret`, set once on `body`. Editable text is 16px
+the error says exactly what to change. At rest the field is a tinted well. On focus it sits flush
+and its one border line turns the focus color. No glow. The text caret is `--caret`, set once on `body`. Editable text is 16px
 below `sm` (`text-input-touch`) so iOS doesn't zoom on focus.
 
 **Select.** A real listbox: arrows, Enter, Escape, Home/End and type-ahead. It lives in the Field
@@ -457,7 +460,7 @@ range, each labelled.
 **Number field.** A 36px well (UI font, `tabular-nums`) with − and + at its ends (tooltips with keys). Arrows step,
 Shift+Arrow steps large, dragging the label scrubs. Typed values snap to the step and clamp on blur.
 
-**OTP field.** One mono cell per character, each a small recessed well, split into groups. Typing
+**OTP field.** One mono cell per character, each a small tinted well, split into groups. Typing
 advances, Backspace steps back, paste fills every cell. The focus ring goes around the whole code.
 
 **Combobox.** A dropdown you can type into, with the menu look (description + meta). Escape closes,
@@ -524,22 +527,21 @@ answer is done ("Worked for 41s"). The reply streams with the accent caret as th
 composer's Send becomes Stop while busy (Esc stops). The context meter turns danger-colored at ≥85%.
 
 **Focus.** One plain ring on `:focus-visible`: `--focus-width` (2px; 3px in Contrast) of
-`--focus`, 2px out from the control, from the base styles. Keyboard focus shows it; a pointer
+`--focus`, drawn *inside* the border box (`outline-offset: calc(-1 * var(--focus-width))`), from
+the base styles. On a bordered control it covers the border, so it reads as that one line
+thickened in the focus color: no gap, nothing over neighbours, nothing a clipping parent can cut. Keyboard focus shows it; a pointer
 click on a button doesn't. When the focused element is hidden or inset (a checkbox in its row,
 a slider's input), mark the visible wrapper `data-focus-target` and the
 element it stands in for `data-focus-proxy`: the wrapper wears the ring and the proxy's own outline
 is hidden. Put `data-focus-proxy` only on that one element; every other focusable inside the
 wrapper (Send, Clear, steppers, chip remove) keeps its own ring. Invalid fields ring in `--danger`.
-**Buttons** draw their ring with `::after` instead of `outline`, so it wraps the face *and* its
-ledge with an even gap (an outline hugs the border box, and the ledge below would fill the gap on
-one side only). **Text fields are the exception:** inputs, combobox and number wells, OTP cells, the field Select
-and the chat composer show focus (and an open popup) with a 2px `--accent-strong` border (1px
-border + 1px shadow, no gap) instead of the offset ring; invalid fields do the same in
-`--danger-line`. `--accent-strong` clears 3:1 on every ground, so the border is a compliant focus
-indicator on its own.
-Rings are never clipped: inside `overflow-hidden` or scrolling containers (nav rows, tabs, table
-headers) the ring sits inside the element (`-outline-offset-2`). Don't remove the outline without
-replacing it.
+**Buttons** use the same outline: it sits inside the face, so the ledge below doesn't matter and
+it never overlaps a neighbour in a toolbar or group. **Text fields** (inputs, combobox and number
+wells, OTP cells, the field Select and the chat composer) use the same ring through the
+`field-focus` utility, which also turns the border underneath the focus color so no seam shows.
+They show it on click too (`:focus` / `focus-within`), since focus there means you're about to
+type; the Select shows it on `:focus-visible` and while open. Invalid fields set `--field-focus`
+to `--danger`. Don't remove the outline without replacing it.
 
 ---
 

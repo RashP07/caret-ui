@@ -589,7 +589,7 @@ export function FocusSection() {
     <Section
       id="focus"
       title="Focus"
-      lede="Keyboard focus is one plain ring: the focus color, 2px out from the control. It shows when you move with the keyboard, not when you click, and where the focused element is hidden or inset it goes on what you can see. Click into the canvas and press Tab."
+      lede="Keyboard focus is one plain ring: the focus color, drawn just inside the control's edge. It shows when you move with the keyboard, not when you click, and where the focused element is hidden or inset it goes on what you can see. Click into the canvas and press Tab."
     >
       <Spec name="focus ring" state={state}>
         <div
@@ -607,7 +607,7 @@ export function FocusSection() {
       <div className="mt-4 grid grid-cols-3 gap-4 max-[860px]:grid-cols-1">
         {[
           ["Keyboard, not pointer", "The ring follows :focus-visible. Tab shows it; clicking a button doesn't. Text fields always show it, since focus there means you're about to type."],
-          ["On what you can see", "A hidden or inset control (data-focus-proxy) hands the ring to the box around it (data-focus-target): the checkbox row, the radio card. Text fields skip the ring: their border turns the brand color. Other buttons inside keep their own ring."],
+          ["On what you can see", "A hidden or inset control (data-focus-proxy) hands the ring to the box around it (data-focus-target): the checkbox row, the radio card. Text fields wear the same ring, with their border turned the focus color beneath it. Other buttons inside keep their own ring."],
           ["Follows the state", "Invalid fields ring in the danger color. The Contrast theme thickens the ring to 3px (--focus-width)."],
         ].map(([t, d]) => (
           <Card key={t}>

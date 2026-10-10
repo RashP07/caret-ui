@@ -223,6 +223,18 @@
 
 /* Hairline stroke weight that thickens in the Contrast theme. */
 @utility border-stroke { border-width: var(--stroke); }
+/* The bolder stroke of small indicators (checkbox, radio, switch, slider thumb). */
+@utility border-stroke-bold { border-width: var(--stroke-bold); }
+
+/* Field focus: the same inset ring as every other control, with the border turned the same
+   color underneath so no anti-aliased seam shows between them. One line, never a glow.
+   Fields set --field-focus to var(--danger) while invalid. Apply it under the variant the
+   field needs (focus-within, focus-visible, or :focus for text entry). */
+@utility field-focus {
+  outline: var(--focus-width) solid var(--field-focus, var(--focus));
+  outline-offset: calc(-1 * var(--focus-width));
+  border-color: var(--field-focus, var(--focus));
+}
 
 @utility sr-only-caret {
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -258,16 +270,18 @@
   button { cursor: pointer; }
   button:disabled { cursor: not-allowed; }
 
-  /* Keyboard focus: one plain ring. Where the focused element is hidden or inset
-     (a checkbox in its row, a slider's input), mark the visible box
-     data-focus-target and the focused element data-focus-proxy: the box wears the
-     ring instead. Other focusables inside the box (a Send button, a stepper)
-     keep their own ring. Invalid fields ring in danger. Text fields opt out of the
-     ring and show focus with a brand-colored border instead (input.tsx wellClass). */
+  /* Keyboard focus: one plain ring, drawn inside the border box (a negative offset of
+     its own width). On a bordered element it covers the border and the pixels just
+     inside it, so it reads as that one line thickened in the focus color: no gap, and
+     nothing spills over neighbours or gets cut by a clipping parent. Where the focused
+     element is hidden or inset (a checkbox in its row, a slider's input), mark the
+     visible box data-focus-target and the focused element data-focus-proxy: the box
+     wears the ring instead. Other focusables inside the box (a Send button, a stepper)
+     keep their own ring. Invalid fields ring in danger. */
   :focus-visible,
   [data-focus-target]:has([data-focus-proxy]:focus-visible) {
     outline: var(--focus-width) solid var(--focus);
-    outline-offset: 2px;
+    outline-offset: calc(-1 * var(--focus-width));
   }
   [data-focus-proxy]:focus-visible { outline: none; }
   [aria-invalid="true"]:focus-visible,

@@ -323,14 +323,13 @@ export function Composer({
   }
 
   return (
-    // The box wears the textarea's ring (data-focus-proxy); Attach, the model
-    // picker, Dictate and Send keep their own. 12px outer = 4px buttons + 8px inset.
+    // The box wears the textarea's focus line (data-focus-proxy), on click too; Attach,
+    // the model picker, Dictate and Send keep their own. 12px outer = 4px buttons + 8px inset.
     <div
       data-focus-target
       className={cn(
-        "flex min-w-0 flex-col rounded-card border-stroke border-border-control bg-surface shadow-[0_1px_0_var(--line)]",
-        "transition-[border-color,box-shadow] duration-instant has-[[data-focus-proxy]:focus-visible]:outline-none",
-        "has-[[data-focus-proxy]:focus]:border-accent-strong has-[[data-focus-proxy]:focus]:shadow-[0_0_0_1px_var(--accent-strong)]",
+        "flex min-w-0 flex-col rounded-card border-stroke border-border-control bg-surface",
+        "transition-[border-color] duration-instant has-[[data-focus-proxy]:focus]:field-focus",
         className,
       )}
     >

@@ -44,7 +44,7 @@ export interface TooltipProps {
 /* ---------- the popup, shared by single tooltips and groups ---------- */
 
 const popupClass = [
-  "flex max-w-[260px] items-center gap-2 rounded-control bg-ink px-[9px] py-1.5 text-small leading-[1.35] font-control text-on-ink shadow-float",
+  "flex max-w-[260px] items-center gap-2 rounded-control bg-ink px-[9px] py-1.5 text-small leading-[1.35] font-control text-on-ink",
   // Enter 160ms from the trigger's side; exit faster than it arrived.
   "origin-(--transform-origin) transition-[opacity,scale,translate] duration-quick ease-out",
   "data-starting-style:scale-[.97] data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-instant",
@@ -78,7 +78,7 @@ const groupPositionerClass = cn(
 );
 
 const groupPopupClass = cn(
-  "relative h-(--popup-height,auto) w-(--popup-width,auto) max-w-[260px] rounded-control bg-ink text-small leading-[1.35] font-control text-on-ink shadow-float",
+  "relative h-(--popup-height,auto) w-(--popup-width,auto) max-w-[260px] rounded-control bg-ink text-small leading-[1.35] font-control text-on-ink",
   "origin-(--transform-origin) transition-[width,height,opacity,scale,translate] duration-quick ease-out",
   "data-starting-style:scale-[.97] data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-instant",
   "data-[side=top]:data-starting-style:translate-y-[3px] data-[side=bottom]:data-starting-style:-translate-y-[3px]",

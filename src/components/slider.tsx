@@ -133,8 +133,9 @@ export function Slider<V extends Value>({
                 getAriaLabel={thumbLabels ? (idx) => thumbLabels[idx] ?? "" : undefined}
                 className={cn(
                   "z-[1] h-4 w-0.5 rounded-full bg-ink-3 group-hover/slider:bg-ink-2",
-                  // 24px to grab (44px on touch) around the 2px bar.
-                  "before:absolute before:-inset-x-3 before:-inset-y-1 before:content-[''] touch:before:-inset-x-5 touch:before:-inset-y-3.5",
+                  // 22px to grab around the 2px bar: exactly the bar's 10px inset, so overflow-hidden never
+                  // cuts it at the ends (44px on touch, where the whole bar is the target anyway).
+                  "before:absolute before:-inset-x-2.5 before:-inset-y-1 before:content-[''] touch:before:-inset-x-5 touch:before:-inset-y-3.5",
                   thumbMotion,
                   // Grabbed: the bar squashes wider and taller, then settles, like something soft under a finger.
                   "data-dragging:scale-x-175 data-dragging:scale-y-110 data-dragging:bg-accent-strong",
@@ -167,7 +168,7 @@ export function Slider<V extends Value>({
                 inputRef={markFocusProxy}
                 getAriaLabel={thumbLabels ? (idx) => thumbLabels[idx] ?? "" : undefined}
                 className={cn(
-                  "size-4 rounded-full border-[1.5px] border-ink bg-surface",
+                  "size-4 rounded-full border-stroke-bold border-ink bg-surface",
                   // 24px to grab (44px on touch) around the 16px dot.
                   "before:absolute before:-inset-1 before:rounded-full before:content-[''] touch:before:-inset-3.5",
                   thumbMotion,

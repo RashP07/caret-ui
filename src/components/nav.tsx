@@ -126,8 +126,6 @@ export function NavItem({ icon, children, meta, trail, current, live, path, rend
         "aria-current": current ? "true" : undefined,
         className: cn(
           "group/nav relative flex w-full items-center gap-2.5 rounded-button border-0 bg-transparent px-2 text-left font-control text-ink-2 no-underline",
-          // Rows live in clipped lists (scroll areas, collapsing panels): the focus ring sits inside.
-          "-outline-offset-2",
           pressColorTransition,
           "hover:bg-hover hover:text-ink active:bg-pressed",
           // Content rides above any gliding face, this row's or a neighbour's.

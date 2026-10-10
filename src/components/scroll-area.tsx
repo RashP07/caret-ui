@@ -49,7 +49,7 @@ export function ScrollArea({ children, className, contentClassName, onScroll, fa
         role={aria["aria-label"] ? "region" : undefined}
         aria-label={aria["aria-label"]}
         onScroll={onScroll}
-        className={cn("size-full overscroll-contain rounded-[inherit] -outline-offset-2", fade && "scroll-fade-y")}
+        className={cn("size-full overscroll-contain rounded-[inherit]", fade && "scroll-fade-y")}
       >
         <BaseScrollArea.Content className={contentClassName}>{children}</BaseScrollArea.Content>
       </BaseScrollArea.Viewport>

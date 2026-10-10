@@ -26,13 +26,8 @@ const base = [
   "border border-(--bd) bg-(--bg) text-(--fg) text-control font-control tracking-[-.005em] whitespace-nowrap no-underline select-none",
   "[-webkit-tap-highlight-color:transparent] mb-(--btn-ledge) [--lift:var(--btn-ledge)]",
   "shadow-[inset_0_1px_0_var(--hl),0_var(--lift)_0_0_var(--ledge)]",
-  // Focus: the ring is drawn by ::after so it wraps the face AND its ledge with an even 2px gap
-  // (a plain outline hugs the border box, and the ledge below would fill the gap on one side).
-  // Inset = 1px border + 2px gap + ring width; the bottom grows by the ledge (0 for ghost, 0 while pressed).
-  "focus-visible:outline-none",
-  "focus-visible:after:pointer-events-none focus-visible:after:absolute focus-visible:after:content-['']",
-  "focus-visible:after:-inset-[calc(3px+var(--focus-width))] focus-visible:after:-bottom-[calc(3px+var(--focus-width)+var(--lift))]",
-  "focus-visible:after:rounded-[calc(var(--r-button)+3px+var(--focus-width))] focus-visible:after:border-(length:--focus-width) focus-visible:after:border-focus",
+  // Focus: the global inset outline. The ring sits inside the face, over its border, so it never
+  // overlaps neighbours in a toolbar or group, and the ledge below doesn't matter.
   // Touch: a 44px hit area around the face without growing the layout.
   "touch:before:absolute touch:before:top-1/2 touch:before:left-1/2 touch:before:size-full touch:before:min-h-11 touch:before:min-w-11 touch:before:-translate-1/2 touch:before:content-['']",
   // Press travel answers the press (ease-out); the face color is a hover change (ease).
@@ -53,6 +48,11 @@ const ledgeActive =
 const ledgeDisabled =
   "disabled:[--bg:var(--sunken)] disabled:[--bd:var(--line)] disabled:[--ledge:var(--line)] disabled:[--hl:transparent]";
 
+/** Filled faces: the focus color can match the fill (ink primary, accent on an accent theme), so the
+ *  ring is drawn in the face's own text color, one step inside the border. Still one line, still inside. */
+const filledFocus =
+  "focus-visible:outline-(--fg) focus-visible:outline-offset-[calc(-1*var(--focus-width)-2px)]";
+
 const variants: Record<ButtonVariant, { rest: string; pressed: string }> = {
   primary: {
     rest: cn(
@@ -60,6 +60,7 @@ const variants: Record<ButtonVariant, { rest: string; pressed: string }> = {
       "not-disabled:hover:[--bg:var(--btn-primary-hover)] not-disabled:active:[--bg:color-mix(in_oklch,var(--btn-primary)_88%,var(--on-btn-primary))]",
       ledgeActive,
       ledgeDisabled,
+      filledFocus,
     ),
     pressed: cn(ledgePressed, "not-disabled:[--bg:color-mix(in_oklch,var(--btn-primary)_88%,var(--on-btn-primary))]"),
   },
@@ -88,6 +89,7 @@ const variants: Record<ButtonVariant, { rest: string; pressed: string }> = {
       "not-disabled:hover:[--bg:oklch(from_var(--accent)_calc(l_-_0.03)_c_h)]",
       ledgeActive,
       ledgeDisabled,
+      filledFocus,
     ),
     pressed: ledgePressed,
   },
@@ -97,6 +99,7 @@ const variants: Record<ButtonVariant, { rest: string; pressed: string }> = {
       "not-disabled:hover:[--bg:oklch(from_var(--danger-solid)_calc(l_-_0.04)_c_h)]",
       ledgeActive,
       ledgeDisabled,
+      filledFocus,
     ),
     pressed: ledgePressed,
   },
@@ -286,7 +289,7 @@ export function IconButton({ label, icon, kbd, tip, variant = "ghost", ...props 
   return <Button variant={variant} icon={icon} aria-label={label} tip={tip ?? label} tipKbd={kbd} {...props} />;
 }
 
-/** Joins buttons into one control: square inner corners, shared borders; a focused button rises so its ring shows. */
+/** Joins buttons into one control: square inner corners, shared borders; a focused button rises so its ring covers the shared border. */
 export function ButtonGroup({ className, ...props }: ComponentProps<"div">) {
   return (
     <div

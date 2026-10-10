@@ -173,7 +173,7 @@ export function TableHead({ align = "start", sort, onSort, scope = "col", classN
           onClick={onSort}
           className={cn(
             // Negative margin keeps the label on the column's edge; the ring sits inside the clipped frame.
-            "-mx-1.5 inline-flex min-h-6 items-center gap-1 rounded-inline border-0 bg-transparent px-1.5 text-inherit -outline-offset-2",
+            "-mx-1.5 inline-flex min-h-6 items-center gap-1 rounded-inline border-0 bg-transparent px-1.5 text-inherit",
             pressColorTransition,
             "hover:bg-hover hover:text-ink",
             // End-aligned labels keep their text on the numbers' edge: the caret goes first.

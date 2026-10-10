@@ -97,8 +97,6 @@ export function Tab({ className, count, children, ...props }: TabProps) {
     <BaseTabs.Tab
       className={cn(
         "group/tab relative inline-flex flex-none h-[38px] items-center gap-2 rounded-t-button border-0 bg-transparent px-2.5 text-control font-control text-ink-3",
-        // The list is a scroll box: the focus ring sits inside the tab so it's never clipped.
-        "-outline-offset-2",
         "transition-[color,scale] duration-instant [transition-timing-function:var(--ease-hover),var(--ease-out)]",
         "hover:text-ink data-active:text-ink",
         pressClass,

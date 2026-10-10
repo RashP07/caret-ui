@@ -99,7 +99,7 @@ export const PAGES: DocPage[] = [
   { slug: "kbd", title: "Kbd", kind: "component", group: "Actions", load: structure("KbdSection"), imports: ["Kbd"], description: "A shortcut, printed the same way everywhere." },
 
   // Inputs
-  { slug: "input", title: "Input", kind: "component", group: "Inputs", load: ctx("InputPage"), imports: ["Field", "Input"], baseUi: "field", description: "A recessed well with the label above and the rule below." },
+  { slug: "input", title: "Input", kind: "component", group: "Inputs", load: ctx("InputPage"), imports: ["Field", "Input"], baseUi: "field", description: "A tinted well with the label above and the rule below." },
   { slug: "select", title: "Select", kind: "component", group: "Inputs", load: comp("DropdownSection"), imports: ["Select"], baseUi: "select", description: "A real listbox, with descriptions so no one has to guess." },
   { slug: "combobox", title: "Combobox", kind: "component", group: "Inputs", load: inputs("ComboboxSection"), imports: ["Combobox", "MultiCombobox"], baseUi: "combobox", description: "A select you can type into, single or with chips." },
   { slug: "autocomplete", title: "Autocomplete", kind: "component", group: "Inputs", load: inputs("AutocompleteSection"), imports: ["Autocomplete"], baseUi: "autocomplete", description: "Free text; the suggestions only offer to finish it." },

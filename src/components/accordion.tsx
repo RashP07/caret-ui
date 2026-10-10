@@ -45,7 +45,6 @@ export function AccordionItem({ value, title, meta, disabled, children, classNam
         <BaseAccordion.Trigger
           className={cn(
             "group/acc flex min-h-12 w-full items-center gap-3 border-0 bg-transparent px-4 py-3 text-left text-control font-control text-ink",
-            "-outline-offset-2",
             // A full-width row: hover and press answer in color only, never scale.
             "transition-[background-color] duration-instant ease-hover",
             "not-data-disabled:hover:bg-hover not-data-disabled:active:bg-pressed",

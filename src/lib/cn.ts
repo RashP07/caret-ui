@@ -16,7 +16,7 @@ const merge = extendTailwindMerge({
       ease: ["out", "spring", "spring-soft", "gooey"],
     },
     classGroups: {
-      "border-w": ["border-stroke"],
+      "border-w": ["border-stroke", "border-stroke-bold"],
       "bg-image": ["bg-pattern"],
       duration: ["duration-instant", "duration-quick", "duration-settle"],
     },
