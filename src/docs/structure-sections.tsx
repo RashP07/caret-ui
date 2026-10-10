@@ -330,7 +330,7 @@ export function ToggleSection() {
     <Section
       id="toggle"
       title="Toggle"
-      lede="Use a toggle for a button that stays pressed, like Bold. Pressed shows a darker face with a hairline edge, and assistive tech hears it as pressed. In a group, arrow keys move between toggles."
+      lede="Use a toggle for a button that stays pressed, like Bold. It is a real key: off, it stands on its ledge; on, it stays held down, and assistive tech hears it as pressed. In a group, arrow keys move between toggles."
     >
       <Spec
         name="multiple, single, standalone"

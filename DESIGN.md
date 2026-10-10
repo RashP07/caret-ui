@@ -545,8 +545,10 @@ blocked and focus moves to the first invalid field. `validate` returns a sentenc
 Server errors come back through `errors`, keyed by field name. `FormActions` sits right-aligned under
 a dashed rule, primary last.
 
-**Toggle.** A ghost button that stays pressed: a `--pressed` face with an inset `--line-strong`
-hairline and ink text, carried by `aria-pressed`, so on never reads as hover.
+**Toggle.** A button that stays pressed, built as a real key: off, a secondary button on its
+ledge; on, the same key held down (ledge gone, face dropped by `--btn-travel`, `--pressed` fill),
+the frame a click passes through. `aria-pressed` carries the state, so on never reads as hover.
+Toggles are buttons, not tabs: picking one of a few views is `Seg`, not a single-choice group.
 Icon-only toggles need a `label` (name + tooltip). A group is one tab stop with arrow keys; a
 single-choice group clears when you press the active toggle.
 
