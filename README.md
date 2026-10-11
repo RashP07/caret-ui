@@ -9,6 +9,8 @@
 around them. 41 components on [Base UI](https://base-ui.com), eight themes in light and dark, and a
 keyboard path for every control. Copy them into your repo and they're yours.
 
+**[See every component live →](https://caretui.rashmitaparmanik.com)**
+
 Caret is a design system for tools where people and agents build software together. It's built
 for the parts those tools share: a conversation with an agent, the steps of a run, output that's
 still arriving, and settings that take effect the moment they flip.
@@ -95,7 +97,8 @@ show several themes at once.
 
 ## Run the docs
 
-The docs site is the best way to see everything: every component live, with its states, its
+The docs are live at [caretui.rashmitaparmanik.com](https://caretui.rashmitaparmanik.com). They're
+the best way to see everything: every component live, with its states, its
 keyboard behaviour and a readout of what it's doing.
 
 ```sh
@@ -108,7 +111,7 @@ regenerates the theme tokens and checks every contrast pairing.
 
 ## Working with coding agents
 
-Caret is written to be used by agents as well as people. The docs build serves `llms.txt` (every
+Caret is written to be used by agents as well as people. The docs serve [`llms.txt`](https://caretui.rashmitaparmanik.com/llms.txt) (every
 page with its exports), `llms-full.txt` (every rule as well) and `agents.md` (a file to drop into
 your repo as `AGENTS.md`), so an agent composes from existing components instead of inventing new
 ones.
