@@ -15,7 +15,7 @@ still arriving, and settings that take effect the moment they flip.
 
 ## What's inside
 
-| | |
+| Group | Components |
 |---|---|
 | **Agents** | Chat (messages, trace, composer, context meter), Timeline, Log stream |
 | **Actions** | Button, Toggle, Kbd, Link |
