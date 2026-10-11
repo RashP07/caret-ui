@@ -13,9 +13,9 @@ import {
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
+  AccentPicker,
   Accordion,
   AccordionItem,
-  AccentPicker,
   Badge,
   Button,
   Card,
@@ -27,6 +27,7 @@ import {
   IconButton,
   Input,
   Meter,
+  Nested,
   NumberField,
   OTPField,
   Progress,
@@ -116,7 +117,7 @@ function NotificationsDemo() {
             indeterminate={!all && tools.length > 0}
             onCheckedChange={() => setTools(all ? [] : TOOLS)}
           />
-          <div className="ml-7 flex flex-col gap-0.5 border-l border-line pl-2.5">
+          <Nested>
             {TOOLS.map((t) => (
               <CheckboxChoice
                 key={t}
@@ -125,7 +126,7 @@ function NotificationsDemo() {
                 onCheckedChange={(on) => setTools((ts) => (on ? [...ts, t] : ts.filter((x) => x !== t)))}
               />
             ))}
-          </div>
+          </Nested>
         </div>
       </CardBody>
     </Card>

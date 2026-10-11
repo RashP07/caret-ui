@@ -53,11 +53,12 @@ import {
   KeyValueItem,
   Link,
   LogStream,
-  NavLinks,
   Meter,
   MsgAgent,
   MsgUser,
   NavItem,
+  NavLinks,
+  Nested,
   NumberField,
   OTPField,
   Progress,
@@ -413,11 +414,11 @@ function CheckboxThumb() {
     <Artboard className="justify-start px-14">
       <div className="flex flex-col gap-0.5">
         <CheckboxChoice label="All tools" indeterminate />
-        <div className="ml-7 flex flex-col gap-0.5 border-l border-line pl-2.5">
+        <Nested>
           <CheckboxChoice label="Headless browser" defaultChecked />
           <CheckboxChoice label="Vector search" />
           <CheckboxChoice label="SQL database" defaultChecked />
-        </div>
+        </Nested>
       </div>
     </Artboard>
   );
