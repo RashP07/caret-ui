@@ -592,7 +592,7 @@ infotips. Focus goes to the panel on open; Escape or an outside click closes and
 way to see the content.
 
 **Switch.** For settings that take effect immediately, with no Save button. The checkbox's sibling,
-never a pill: a squared track (`--r-inline`, 2px stroke) with a 14px square thumb. On, the track fills
+never a pill: a squared track (`--r-inline`, 2px stroke) with a 16px square thumb that fills the track's height, so only the stroke rings it. On, the track fills
 with ink and the thumb springs across. The whole row is the target; Space toggles. If a change
 needs confirming, use a checkbox in a form.
 

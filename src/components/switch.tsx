@@ -26,7 +26,7 @@ export function Switch({ className, onCheckedChange, ...props }: SwitchProps) {
   return (
     <BaseSwitch.Root
       className={cn(
-        "relative inline-flex h-5 w-9 flex-none cursor-pointer items-center rounded-inline border-stroke-bold border-border-control bg-border-control p-px",
+        "relative inline-flex h-5 w-9 flex-none cursor-pointer items-center rounded-inline border-stroke-bold border-border-control bg-border-control",
         // 20px tall to see, 28px to hit (44px on touch).
         "before:absolute before:-inset-x-0.5 before:-inset-y-1 before:content-[''] touch:before:-inset-3",
         // One timing for every color, so track and thumb never pass through a low-contrast middle.
@@ -51,7 +51,7 @@ export function Switch({ className, onCheckedChange, ...props }: SwitchProps) {
     >
       <BaseSwitch.Thumb
         // A transform on the thumb alone (not a layout animation), so nothing
-        // around it is measured or moved: 30px lane − 14px thumb = 16px of travel.
+        // around it is measured or moved: 32px lane − 16px thumb = 16px of travel.
         render={(thumbProps, state) => (
           <motion.span
             {...(thumbProps as ComponentProps<typeof motion.span>)}
@@ -61,9 +61,10 @@ export function Switch({ className, onCheckedChange, ...props }: SwitchProps) {
           />
         )}
         className={cn(
-          // 20×36 track − 2px stroke − 1px inset leaves a 30×14 lane for a 14px square (even in even).
-          // Outer radius − stroke − inset, so the thumb's corner is concentric (4 − 2 − 1 = 1px by default).
-          "block size-3.5 rounded-[max(0px,calc(var(--r-inline)-var(--stroke-bold)-1px))] bg-surface",
+          // 20×36 track − 2px stroke leaves a 32×16 lane, and the 16px square fills its height (even in
+          // even), so the stroke is the only ring around it and it reads as part of the track, not a chip
+          // floating in it. Outer radius − stroke keeps the corners concentric (4 − 2 = 2px by default).
+          "block size-4 rounded-[max(0px,calc(var(--r-inline)-var(--stroke-bold)))] bg-surface",
           "transition-[background-color] duration-quick ease-out",
           "data-checked:bg-on-ink data-disabled:not-data-checked:bg-sunken",
         )}
