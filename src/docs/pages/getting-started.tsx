@@ -22,7 +22,7 @@ export default function GettingStarted() {
     <Section
       id="getting-started"
       title="Getting started"
-      lede="Caret is a design system for tools where people and agents build software together. You get copy-in React components on Base UI, eight themes in light and dark, measured contrast, and a keyboard path for every control."
+      lede="Caret is a library of beautiful React components with accessibility and motion built in. You get copy-in React components on Base UI, eight themes in light and dark, measured contrast, and a keyboard path for every control."
     >
       <PageHeading>Three principles</PageHeading>
       <div className="grid grid-cols-3 gap-4 max-[860px]:grid-cols-1">

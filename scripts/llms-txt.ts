@@ -48,7 +48,7 @@ function llmsTxt(origin: string): string {
   const out = [
     "# Caret",
     "",
-    "> React components for agent apps: the chat, run traces and diffs, and every form and menu around them. Built on Base UI and Tailwind CSS v4, and copied into your repo as source you own.",
+    "> Beautiful React components with accessibility and motion built in: every form, menu and overlay an app needs, plus chat, run traces and diffs for agent interfaces. Built on Base UI and Tailwind CSS v4, and copied into your repo as source you own.",
     "",
     `Every component works in eight themes, light and dark. Rules for coding agents, ready to drop into a repo as AGENTS.md: ${origin}/agents.md. The full design rules (tokens, composition, accessibility, motion) follow this index in ${origin}/llms-full.txt.`,
   ];

@@ -5,15 +5,16 @@
 
 # Caret
 
-**React components for agent apps:** the chat, run traces, logs and diffs, and every form and menu
-around them. 41 components on [Base UI](https://base-ui.com), eight themes in light and dark, and a
-keyboard path for every control. Copy them into your repo and they're yours.
+**Beautiful React components with accessibility and motion built in.** 41 components on
+[Base UI](https://base-ui.com), eight themes in light and dark, and a keyboard path for every control.
+Copy them into your repo and they're yours.
 
 **[See every component live →](https://caretui.rashmitaparmanik.com)**
 
-Caret is a design system for tools where people and agents build software together. It's built
-for the parts those tools share: a conversation with an agent, the steps of a run, output that's
-still arriving, and settings that take effect the moment they flip.
+Caret works out of the box. Every state is visible, every control works from the keyboard, contrast
+is checked in every theme, and motion answers what you do, then gets out of the way. It covers what
+every app needs (forms, menus, dialogs, tables) and what agent interfaces need too: a chat with its
+trace, the steps of a run, and output that's still arriving.
 
 ## What's inside
 

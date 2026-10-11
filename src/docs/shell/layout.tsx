@@ -74,7 +74,8 @@ export function DocsLayout({ children }: { children: ReactNode }) {
       {/* Clips the margin grid at the sidebar's line and the window's edge; clip, not hidden, so sticky still works. */}
       <div className="min-w-0 overflow-x-clip">
         <TopBar frameClassName={frame} />
-        <div className="px-6 max-[1000px]:px-4">
+        {/* On phones the column carries the whole 16px gutter (COLUMN_PAD); this wrapper adds none. */}
+        <div className="px-6 max-[1000px]:px-4 max-[600px]:px-0">
           <div
             className={cn(
               "relative mx-auto grid min-h-[calc(100dvh-56px)] w-full",

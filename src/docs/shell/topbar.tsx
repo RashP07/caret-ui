@@ -42,7 +42,7 @@ export const REPO_URL = "https://github.com/RashP07/caret-ui";
 export function TopBar({ frameClassName }: { frameClassName?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-20 h-14 border-b border-(--rule) bg-[color-mix(in_srgb,var(--page)_86%,transparent)] px-6 backdrop-blur-[10px] max-[1000px]:px-4">
+    <header className="sticky top-0 z-20 h-14 border-b border-(--rule) bg-[color-mix(in_srgb,var(--page)_86%,transparent)] px-6 backdrop-blur-[10px] max-[1000px]:px-4 max-[600px]:px-0">
       {/* The frame's width, with transparent sides and the column's padding, so the crumbs line up with the text below. */}
       <div className={cn("mx-auto flex h-full w-full items-center gap-3 border-x border-transparent", COLUMN_PAD, frameClassName)}>
         <span className="hidden max-[1000px]:flex">

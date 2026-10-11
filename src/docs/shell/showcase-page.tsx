@@ -19,7 +19,7 @@ const code = "rounded-inline bg-sunken px-1 py-px text-caption";
 export function ShowcasePage() {
   const count = PAGES.filter((p) => p.kind === "component").length;
   useEffect(() => {
-    document.title = "Caret — components for agent apps";
+    document.title = "Caret — beautiful components with accessibility and motion built in";
   }, []);
 
   return (
@@ -27,8 +27,8 @@ export function ShowcasePage() {
       <header className="flex flex-col items-start">
         <h1 className="m-0 text-h1 font-heading">Caret</h1>
         <p className="mt-3 mb-6 max-w-[56ch] text-body text-ink-2">
-          React components for agent apps: the chat, run traces and diffs, and every form and menu around them. {count}{" "}
-          components on Base UI, copied into your repo.
+          Beautiful React components with accessibility and motion built in. {count} components on Base UI, from forms and
+          menus to chat and run timelines, copied into your repo.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button variant="primary" nativeButton={false} render={<Link to="/docs/$slug" params={{ slug: "getting-started" }} />}>
@@ -46,8 +46,8 @@ export function ShowcasePage() {
         <h2 id="h-faq" className="m-0 text-h2 font-heading">Questions</h2>
         <Accordion className="w-full">
           <AccordionItem value="what" title="What is Caret?">
-            A set of React components for software people and agents build together: the controls every app needs, plus the
-            parts an agent interface needs, like chat, run traces, diffs and a composer.
+            A React component library that works out of the box: beautiful by default, with accessibility and motion built in.
+            It has the controls every app needs, plus the parts agent interfaces need, like chat, run traces, diffs and a composer.
           </AccordionItem>
           <AccordionItem value="install" title="How do I install it?">
             Add the dependencies and copy the source into your repo. There's no package to update: the code is yours.

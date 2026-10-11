@@ -1,6 +1,6 @@
 # DESIGN.md — Caret
 
-Caret is a design system for tools where people and agents build software together.
+Caret is a library of beautiful React components with accessibility and motion built in.
 This file is the source of truth for its philosophy and rules. **Read it before you add,
 change, or compose anything.** When the code and this file disagree, fix one of them. Don't
 leave them out of sync.

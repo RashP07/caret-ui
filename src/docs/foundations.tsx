@@ -55,7 +55,7 @@ export function Hero({ pressB }: { pressB: boolean }) {
             </span>
           </h1>
           <p className="m-0 mb-6 max-w-[46ch] text-title leading-7 font-normal tracking-normal text-pretty text-ink-2">
-            Caret is a design system for tools where people and agents build software together. Every control makes
+            Caret is a library of beautiful React components with accessibility and motion built in. Every control makes
             its state legible, every value has a token name you can type, and nothing ships without its keyboard story.
           </p>
           <div className="flex flex-wrap gap-2">
