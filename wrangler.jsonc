@@ -2,6 +2,9 @@
 {
   "name": "caret-ui",
   "compatibility_date": "2026-09-27",
+  // Build before every deploy, so `wrangler deploy` (here or in Cloudflare's Workers Builds) always
+  // uploads a fresh dist/ instead of failing on a missing one.
+  "build": { "command": "pnpm build" },
   "assets": {
     "directory": "./dist",
     // Pages like /components/button exist only in the client router. Without this, a refresh or
