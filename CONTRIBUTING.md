@@ -72,4 +72,7 @@ These are the ones reviews catch most often. The full checklist is in DESIGN.md 
 
 ## License
 
-By contributing, you agree that your contributions are licensed under the [MIT License](LICENSE).
+Caret is released under the [MIT License](LICENSE), and by contributing you agree that your
+contributions are licensed under it too. The fonts in `public/fonts` (Schibsted Grotesk and Paper
+Mono) are not covered by it: they're under the SIL Open Font License 1.1, with a license file beside
+each font.
