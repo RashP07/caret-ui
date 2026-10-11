@@ -86,7 +86,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 const AUTHOR_URL = "https://rashmitaparmanik.com";
 const AUTHOR_EMAIL = "rashmitaparmanik9876@gmail.com";
 
-/** Who made Caret, and how to reach her about work. Pinned under the nav; also at the foot of the phone drawer. */
+/** Who made Caret, and how to reach her. Pinned under the nav; also at the foot of the phone drawer. */
 export function Credit({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-col gap-1 text-small", className)}>
@@ -96,12 +96,9 @@ export function Credit({ className }: { className?: string }) {
           Rashmita Parmanik
         </TextLink>
       </span>
-      <span className="flex flex-col text-ink-3">
-        Open to new roles
-        <TextLink variant="quiet" href={`mailto:${AUTHOR_EMAIL}`} className="self-start">
-          {AUTHOR_EMAIL}
-        </TextLink>
-      </span>
+      <TextLink variant="quiet" href={`mailto:${AUTHOR_EMAIL}`} title={AUTHOR_EMAIL} className="self-start">
+        Contact me
+      </TextLink>
     </div>
   );
 }
