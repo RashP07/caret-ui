@@ -5,3 +5,8 @@ dist
 video/
 .tanstack
 .wrangler
+
+# Local agent tooling (skills, settings), not part of the project
+.agents/
+.claude/
+skills-lock.json
