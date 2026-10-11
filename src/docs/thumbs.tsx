@@ -1168,9 +1168,6 @@ const THUMBS: Record<string, () => ReactNode> = {
   settings: SettingsThumb,
 };
 
-/** Slugs that have a dedicated thumbnail. */
-export const THUMB_SLUGS = Object.keys(THUMBS);
-
 /** Fallback for pages without a dedicated preview: the page's name set in type. */
 function FallbackThumb({ slug }: { slug: string }) {
   return (

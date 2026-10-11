@@ -8,7 +8,6 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
-    "render:launch": "node scripts/render-launch.mjs",
     "tokens": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/themes/gen.mjs"
   },
   "dependencies": {
@@ -29,7 +28,6 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "playwright-core": "^1.63.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.1"

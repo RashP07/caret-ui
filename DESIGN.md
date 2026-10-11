@@ -6,8 +6,7 @@ change, or compose anything.** When the code and this file disagree, fix one of 
 leave them out of sync.
 
 Implementation: React + Vite + Tailwind CSS v4, on [Base UI](https://base-ui.com) primitives
-(`src/`, see §9). The original single-file prototype, `caret-design-system.html`, is kept as the
-visual reference.
+(`src/`, see §9).
 
 ---
 
@@ -51,59 +50,59 @@ radii. The documented exceptions are the template frame (`rounded-dialog`, `shad
 
 Before you write any new class, map the need to an existing component:
 
-| Need | Use (React, `@/components`) | Prototype class |
-|---|---|---|
-| Any clickable action | `<Button variant="primary / secondary / ghost / accent / danger">` (`size="sm"`: a 28px row for toasts, table rows, dense toolbars), `<IconButton label icon>` | `.btn`, `.btn-icon` |
-| A switcher / picker / "chip" that changes a value | `<Select label hint error name required readOnly>`, part of the Field system like `Input` (`density="compact"` / `"xs"` inside dense UI) | `.select` (`.compact`, `.xs`) |
-| A row in a list you navigate (threads, files, settings nav) | `<NavItem>` (+ `meta`, `trail`, `current`, `live`, `path`) | `.nav-item` |
-| Nested rows | `<Threads>` around `<NavItem>`s | `.threads` |
-| Section label inside a list | `<MenuLabel>` | `.menu-label` |
-| Switching views | `<Tabs>` / `<TabList>` / `<Tab count>` / `<TabPanel>` (ink bar built in) | `.tabs`, `.tab-ink` |
-| Compact 2–4 way switch | `<Seg>` | `.seg` |
-| A container holding one thing and its actions | `<Card>` + `CardBody / CardHead / CardIcon / CardTitle / CardSub / CardText / CardFoot` | `.card` |
-| The properties of one thing (a run's ID, model, duration, cost) | `<KeyValue layout="columns / stack">` + `<KeyValueItem label mono numeric copy>` | — |
-| Records to scan, sort and select (deployments, runs, invoices) | `<Table density stickyHeader caption>` + `TableHeader / TableBody / TableFooter / TableRow selected / TableHead sort onSort align / TableCell numeric truncate`; `<TableEmpty>`, `<TableSkeleton>` | — |
-| Empty state | `<Card empty>` | `.card.empty` |
-| Status / count / date pill | `<Badge tone="neutral / ok / live / danger / warning / info" solid dot>` | `.badge` |
-| Code or a diff | `<Code>`, `<Diff>`, `<Lang>`, `<Diffstat>` | `.code`, `.diffstat` |
-| Text entry | `<Field label hint error>` + `<Input lead affix trail valid>` (`variant="filled"`: no edge until focused; `size="sm"`: a 28px well for dense chrome, like a filter in a panel head) | `.field` + `.control` |
-| Text longer than a line (instructions, a description, a note) | `<Field label count hint error>` + `<Textarea rows maxRows>` | — |
-| Helper / empty text | `<Hint>` | `.hint` |
-| Breadcrumbs | `<Crumbs items>` (last item is current) | `.crumbs` |
-| Chat | `MsgUser`, `MsgAgent`, `Trace`, `MsgActions`, `Composer`, `ComposerFoot`, `ContextMeter`, `Avatar`, `StreamCaret` | `.msg-*`, `.trace`, `.composer`, `.ctx` |
-| What a whole run did, step by step | `<Timeline>` + `<TimelineItem status="done / running / failed / pending / skipped" title time duration description>` (children = detail behind the step) | — |
-| Output still arriving (build, tests, a shell) | `<LogStream name lines live filterable wrap>` (`LogLine`: `text`, `level`, `time`) | — |
-| Label for an icon-only control | `<IconButton label>` (required: it is both the accessible name and the tooltip); `<Button tip tipKbd>` for a tooltip on a labelled button; `<Tooltip label>` for anything else | `data-tip` |
-| A row of icon actions | `<Toolbar>` + `<ToolbarButton render={<IconButton/>}>` | `.toolbar` |
-| A decision that can't wait | `<AlertDialog>`; destructive confirm: `<DestructiveDialog>` | `dialog.dlg` |
-| A dismissible focused task (settings, a form) | `<Dialog trigger title description footer size="sm / md / lg">` + `<DialogClose>` | — |
-| Room for detail or filters without a new page | `<Drawer side="right" / "bottom">` + `<DrawerClose>` | — |
-| A list of actions behind a button | `<Menu trigger>` + `MenuItem (icon, kbd, danger) / MenuCheckboxItem / MenuRadioGroup + MenuRadioItem / MenuGroup / MenuSeparator / MenuSubmenu` | — |
-| The same actions at the pointer (a shortcut, never the only path) | `<ContextMenu area>` filled with Menu parts | — |
-| App-chrome menus | `<Menubar>` + `<MenubarMenu label>` filled with Menu parts | — |
-| Details or a quick action anchored to a button; infotip behind a help icon | `<Popover trigger title description>` (+ `openOnHover`), `<PopoverClose>` | — |
-| Anything that goes somewhere | `<Link>` (`variant="inline"` in prose, `"quiet"` in meta lines and footers, `"code"` for a file or symbol in a reply, `"nav"` + `current` inside `<NavLinks aria-label>` in a top bar; `render` for a router link); `<LinkButton variant size icon>` when the main action navigates; `<Citation n title source href>` for a source in an agent reply | `.link` |
-| A link that previews its destination | `<PreviewCard href preview>` (fill with Card parts) | — |
-| A theme's colors (pickers, theme cards) | `<ThemeSwatch theme form="dots" / "strip">` | `.chips` |
-| A setting that applies the moment it flips | `<SwitchChoice label description>` (bare: `<Switch>`) | — |
-| A value where rough position matters (budget, window) | `<Slider>` (array value = range) | — |
-| A bounded number with steps | `<NumberField min max step unit>` | — |
-| A one-time / verification code | `<OTPField length groupAt>` | — |
-| Pick one or several from many (type to filter) | `<Combobox>`, `<MultiCombobox>` | — |
-| Free text with suggestions | `<Autocomplete suggestions>` | — |
-| A form with submit-time validation | `<Form>` + `<Field name validate>` + `<FormActions>` | — |
-| A button that stays pressed / a set of them | `<Toggle label icon>`, `<ToggleGroup multiple framed>` | — |
-| A stack of questions or settings groups | `<Accordion>` + `<AccordionItem value title meta>` | — |
-| Hide detail until asked for, one trigger | `<Collapsible>` + `<CollapsibleTrigger meta>` + `<CollapsiblePanel>` | — |
-| A rule between regions of one thing | `<Separator>` (`orientation="vertical"`, `dashed`) | — |
-| A fixed-height region that scrolls | `<ScrollArea aria-label>` | — |
-| Work with an end (deploy, index, tests) | `<Progress label value>` (`value={null}` = indeterminate, `tone="danger"`) | — |
-| A level within a known range (quota, storage) | `<Meter label value threshold valueText>` | — |
-| Site navigation with sections of links | `<NavigationMenu>` + `<NavigationMenuGroup links>` + `<NavigationMenuLink>` | — |
-| Something true until it's dealt with (a key expiring, a quota spent) | `<Callout tone="neutral / info / success / warning / danger" title action onDismiss>` | — |
-| Confirmation feedback, or a way back | `toast("Agent deleted", { action: { label: "Undo", onClick } })`; options `tone`, `description`, `action`, `timeout` (returns an id; `dismissToast(id)` closes it early) | `toast()` |
-| Find anything, run a command (⌘K) | `<CommandPalette groups>` (opens with no animation) | — |
-| One choice among a few / independent on-off | `<RadioGroup>` + `<RadioChoice>` / `<RadioCard>` (`picture`, or `media` for a live preview); `<CheckboxGroup>` + `<CheckboxChoice parent>` | `.choice`, `.rcard`, `.cb` |
+| Need | Use (React, `@/components`) |
+|---|---|
+| Any clickable action | `<Button variant="primary / secondary / ghost / accent / danger">` (`size="sm"`: a 28px row for toasts, table rows, dense toolbars), `<IconButton label icon>` |
+| A switcher / picker / "chip" that changes a value | `<Select label hint error name required readOnly>`, part of the Field system like `Input` (`density="compact"` / `"xs"` inside dense UI) |
+| A row in a list you navigate (threads, files, settings nav) | `<NavItem>` (+ `meta`, `trail`, `current`, `live`, `path`) |
+| Nested rows | `<Threads>` around `<NavItem>`s |
+| Section label inside a list | `<MenuLabel>` |
+| Switching views | `<Tabs>` / `<TabList>` / `<Tab count>` / `<TabPanel>` (ink bar built in) |
+| Compact 2–4 way switch | `<Seg>` |
+| A container holding one thing and its actions | `<Card>` + `CardBody / CardHead / CardIcon / CardTitle / CardSub / CardText / CardFoot` |
+| The properties of one thing (a run's ID, model, duration, cost) | `<KeyValue layout="columns / stack">` + `<KeyValueItem label mono numeric copy>` |
+| Records to scan, sort and select (deployments, runs, invoices) | `<Table density stickyHeader caption>` + `TableHeader / TableBody / TableFooter / TableRow selected / TableHead sort onSort align / TableCell numeric truncate`; `<TableEmpty>`, `<TableSkeleton>` |
+| Empty state | `<Card empty>` |
+| Status / count / date pill | `<Badge tone="neutral / ok / live / danger / warning / info" solid dot>` |
+| Code or a diff | `<Code>`, `<Diff>`, `<Lang>`, `<Diffstat>` |
+| Text entry | `<Field label hint error>` + `<Input lead affix trail valid>` (`variant="filled"`: no edge until focused; `size="sm"`: a 28px well for dense chrome, like a filter in a panel head) |
+| Text longer than a line (instructions, a description, a note) | `<Field label count hint error>` + `<Textarea rows maxRows>` |
+| Helper / empty text | `<Hint>` |
+| Breadcrumbs | `<Crumbs items>` (last item is current) |
+| Chat | `MsgUser`, `MsgAgent`, `Trace`, `MsgActions`, `Composer`, `ComposerFoot`, `ContextMeter`, `Avatar`, `StreamCaret` |
+| What a whole run did, step by step | `<Timeline>` + `<TimelineItem status="done / running / failed / pending / skipped" title time duration description>` (children = detail behind the step) |
+| Output still arriving (build, tests, a shell) | `<LogStream name lines live filterable wrap>` (`LogLine`: `text`, `level`, `time`) |
+| Label for an icon-only control | `<IconButton label>` (required: it is both the accessible name and the tooltip); `<Button tip tipKbd>` for a tooltip on a labelled button; `<Tooltip label>` for anything else |
+| A row of icon actions | `<Toolbar>` + `<ToolbarButton render={<IconButton/>}>` |
+| A decision that can't wait | `<AlertDialog>`; destructive confirm: `<DestructiveDialog>` |
+| A dismissible focused task (settings, a form) | `<Dialog trigger title description footer size="sm / md / lg">` + `<DialogClose>` |
+| Room for detail or filters without a new page | `<Drawer side="right" / "bottom">` + `<DrawerClose>` |
+| A list of actions behind a button | `<Menu trigger>` + `MenuItem (icon, kbd, danger) / MenuCheckboxItem / MenuRadioGroup + MenuRadioItem / MenuGroup / MenuSeparator / MenuSubmenu` |
+| The same actions at the pointer (a shortcut, never the only path) | `<ContextMenu area>` filled with Menu parts |
+| App-chrome menus | `<Menubar>` + `<MenubarMenu label>` filled with Menu parts |
+| Details or a quick action anchored to a button; infotip behind a help icon | `<Popover trigger title description>` (+ `openOnHover`), `<PopoverClose>` |
+| Anything that goes somewhere | `<Link>` (`variant="inline"` in prose, `"quiet"` in meta lines and footers, `"code"` for a file or symbol in a reply, `"nav"` + `current` inside `<NavLinks aria-label>` in a top bar; `render` for a router link); `<LinkButton variant size icon>` when the main action navigates; `<Citation n title source href>` for a source in an agent reply |
+| A link that previews its destination | `<PreviewCard href preview>` (fill with Card parts) |
+| A theme's colors (pickers, theme cards) | `<ThemeSwatch theme form="dots" / "strip">` |
+| A setting that applies the moment it flips | `<SwitchChoice label description>` (bare: `<Switch>`) |
+| A value where rough position matters (budget, window) | `<Slider>` (array value = range) |
+| A bounded number with steps | `<NumberField min max step unit>` |
+| A one-time / verification code | `<OTPField length groupAt>` |
+| Pick one or several from many (type to filter) | `<Combobox>`, `<MultiCombobox>` |
+| Free text with suggestions | `<Autocomplete suggestions>` |
+| A form with submit-time validation | `<Form>` + `<Field name validate>` + `<FormActions>` |
+| A button that stays pressed / a set of them | `<Toggle label icon>`, `<ToggleGroup multiple framed>` |
+| A stack of questions or settings groups | `<Accordion>` + `<AccordionItem value title meta>` |
+| Hide detail until asked for, one trigger | `<Collapsible>` + `<CollapsibleTrigger meta>` + `<CollapsiblePanel>` |
+| A rule between regions of one thing | `<Separator>` (`orientation="vertical"`, `dashed`) |
+| A fixed-height region that scrolls | `<ScrollArea aria-label>` |
+| Work with an end (deploy, index, tests) | `<Progress label value>` (`value={null}` = indeterminate, `tone="danger"`) |
+| A level within a known range (quota, storage) | `<Meter label value threshold valueText>` |
+| Site navigation with sections of links | `<NavigationMenu>` + `<NavigationMenuGroup links>` + `<NavigationMenuLink>` |
+| Something true until it's dealt with (a key expiring, a quota spent) | `<Callout tone="neutral / info / success / warning / danger" title action onDismiss>` |
+| Confirmation feedback, or a way back | `toast("Agent deleted", { action: { label: "Undo", onClick } })`; options `tone`, `description`, `action`, `timeout` (returns an id; `dismissToast(id)` closes it early) |
+| Find anything, run a command (⌘K) | `<CommandPalette groups>` (opens with no animation) |
+| One choice among a few / independent on-off | `<RadioGroup>` + `<RadioChoice>` / `<RadioCard>` (`picture`, or `media` for a live preview); `<CheckboxGroup>` + `<CheckboxChoice parent>` |
 
 Controls fill their container (`w-full`); none carries a default max width. **Width belongs to
 the layout**: constrain the wrapper, or pass `className="max-w-80"` to the control.
@@ -392,7 +391,7 @@ Rules that follow from it:
 ### Sound
 
 Off by default, behind one flag: `setSoundEnabled(true)` from `src/lib/sound.ts` (persisted per
-browser; `useSound()` reads `{ enabled, volume }`, `setSoundVolume(0–1)`). While it's off,
+browser and synced across tabs; `useSound()` reads `{ enabled, volume }`, `setSoundVolume(0–1)`). While it's off,
 `playSound` returns at once and no `AudioContext` is created. Every sound is synthesized (no
 files): a few milliseconds of sine, triangle or band-passed noise, quiet enough to sit under music.
 Sounds are named by role, like tokens:
@@ -400,9 +399,11 @@ Sounds are named by role, like tokens:
 | Sound | Plays on |
 |---|---|
 | `press` | Button, IconButton, LinkButton: pointer down, or Enter/Space down |
-| `on` / `off` | Switch, Toggle; the composer's Stop is `off` |
-| `check` / `uncheck` | Checkbox |
-| `select` | Tabs, Seg, RadioGroup: a new pick |
+| `on` / `off` | Switch, Toggle, reply votes; the composer's Stop is `off` |
+| `check` / `uncheck` | Checkbox, menu checkbox items, MultiCombobox |
+| `select` | Tabs, Seg, RadioGroup, Select, Combobox, menu items, nav rows and links, table sort, the command palette |
+| `tick` | Slider and NumberField, once per step (the 40ms guard keeps a drag from buzzing) |
+| `open` / `close` | Menu, Select, Combobox, Popover, Dialog, Drawer, Accordion, Collapsible, Timeline, Trace, when you opened or closed it (never on hover or focus; a pick that closes a popup plays only `select`) |
 | `copy` | `useCopy` succeeded (a failed copy is `danger`) |
 | `send` | Composer: a message sent |
 | `success` / `warning` / `danger` | `toast()` with that tone; neutral and info stay silent |
@@ -413,6 +414,7 @@ Rules, the same as motion's:
 - **One sound per action.** A control that plays its own sound turns the press off
   (`<Button sound={false}>`, as Toggle, Send and the copy buttons do).
 - **Never the only cue.** Every sound repeats something already visible on screen.
+- For a Base UI `onOpenChange(open, details)`, call `playOpenSound(open, details)`: it skips hover, focus and programmatic changes.
 - `playSound(name, { force: true })` is only for a preview the person asked to hear.
 
 ---
@@ -885,8 +887,7 @@ Base UI validation (`validate`, `required`, Form `errors`) drives it, and `Field
 hint while an error shows. Style Base UI state through its data attributes
 (`data-checked`, `data-highlighted`, `data-popup-open`, `data-starting-style`, …).
 
-**Radius corrections from the prototype.** A few prototype values were off-token and now map
-by role: swatches, radio cards and toasts use `--r-card`; the dialog icon well uses
-`--r-control`; sidebar tree rows and choice rows use `--r-button`; the checkbox box uses
-`--r-inline`. The 32px theme-picker trigger is now the standard 36px.
+**Radius for the less obvious parts.** Swatches, radio cards and toasts use `--r-card`; the dialog
+icon well uses `--r-control`; sidebar tree rows and choice rows use `--r-button`; the checkbox box
+uses `--r-inline`. The theme-picker trigger is the standard 36px.
 

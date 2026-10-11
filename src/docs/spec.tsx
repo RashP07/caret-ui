@@ -39,11 +39,6 @@ export function PageHeading({ children, id }: { children: string; id?: string })
   );
 }
 
-/** Readout state; a tag whose value changes answers with an accent line. */
-export function useReadout(initial: Pairs) {
-  return useState<Pairs>(initial);
-}
-
 /** Properties that mean something is moving (not just changing color). */
 const MOVEMENT = /transform|translate|scale|rotate|left|top|right|bottom|width|height|inset/;
 
@@ -265,8 +260,4 @@ export function Section({
 /** A code block on a docs page: the library's Code as it ships. */
 export function SheetCode(props: CodeProps) {
   return <Code {...props} />;
-}
-
-export function SubHead({ children }: { children: ReactNode }) {
-  return <h3 className="mt-8 mb-3 text-title font-heading text-balance">{children}</h3>;
 }
