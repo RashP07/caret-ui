@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 import { useDocs } from "../docs-context";
 import { PAGES, hrefOf } from "../registry";
 import { COLUMN_PAD, SHEET } from "./construction";
-import { Brand, SearchButton, SidebarNav } from "./sidebar";
+import { Brand, Credit, SearchButton, SidebarNav } from "./sidebar";
 import { OnThisPage, OnThisPageCompact } from "./toc";
 import { TopBar } from "./topbar";
 
@@ -67,6 +67,8 @@ export function DocsLayout({ children }: { children: ReactNode }) {
             Every component built all the way down: states, keyboard, focus, light and dark.
           </p>
         </ScrollArea>
+        {/* Pinned under the nav: who built it and how to reach her. */}
+        <Credit className="flex-none border-t border-(--rule) px-5 py-3" />
       </aside>
 
       {/* Clips the margin grid at the sidebar's line and the window's edge; clip, not hidden, so sticky still works. */}

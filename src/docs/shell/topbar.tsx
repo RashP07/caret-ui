@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { Crumbs, Drawer, IconButton, LinkButton, Tooltip } from "@/components";
 import { PAGES, hrefOf } from "../registry";
-import { SearchButton, SidebarNav } from "./sidebar";
+import { Credit, SearchButton, SidebarNav } from "./sidebar";
 import { COLUMN_PAD } from "./construction";
 import { ThemePanelButton } from "./theme-panel";
 
@@ -56,6 +56,7 @@ export function TopBar({ frameClassName }: { frameClassName?: string }) {
             <div className="flex flex-col gap-4">
               <SearchButton className="w-full justify-start" />
               <SidebarNav onNavigate={() => setMenuOpen(false)} />
+              <Credit className="border-t border-line px-2 pt-4" />
             </div>
           </Drawer>
         </span>
