@@ -10,5 +10,5 @@
     "not_found_handling": "single-page-application"
   },
   // Served at the custom domain; the zone (rashmitaparmanik.com) is on this Cloudflare account.
-  "routes": [{ "pattern": "caret.rashmitaparmanik.com", "custom_domain": true }]
+  "routes": [{ "pattern": "caretui.rashmitaparmanik.com", "custom_domain": true }]
 }
