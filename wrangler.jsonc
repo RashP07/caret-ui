@@ -8,5 +8,7 @@
     // a shared link asks for a file that isn't there and gets an empty 404; with it, unknown
     // paths serve index.html and the router takes over (and shows its own not-found page).
     "not_found_handling": "single-page-application"
-  }
+  },
+  // Served at the custom domain; the zone (rashmitaparmanik.com) is on this Cloudflare account.
+  "routes": [{ "pattern": "caret.rashmitaparmanik.com", "custom_domain": true }]
 }

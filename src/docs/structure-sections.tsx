@@ -639,7 +639,7 @@ export function LinkSection() {
               View history
             </Link>{" "}
             ·{" "}
-            <Link variant="quiet" href="https://github.com/caret-ui/caret/edit/main/DESIGN.md" onClick={followProse("github.com (new tab)")}>
+            <Link variant="quiet" href="https://github.com/RashP07/caret-ui/edit/main/DESIGN.md" onClick={followProse("github.com (new tab)")}>
               Edit on GitHub
             </Link>
           </p>
@@ -695,7 +695,7 @@ export function LinkSection() {
             </NavLinks>
             {!withIcons && (
               <NavLinks aria-label="Elsewhere" className="ms-auto">
-                <Link variant="nav" href="https://github.com/caret-ui/caret" onClick={(e) => e.preventDefault()}>
+                <Link variant="nav" href="https://github.com/RashP07/caret-ui" onClick={(e) => e.preventDefault()}>
                   GitHub
                 </Link>
               </NavLinks>
@@ -712,7 +712,7 @@ export function LinkSection() {
           <LinkButton href="#run" onClick={followAction("run_8f2a91")} kbd="⌘O">
             View run
           </LinkButton>
-          <LinkButton variant="ghost" href="https://github.com/caret-ui/caret" onClick={followAction("github.com (new tab)")}>
+          <LinkButton variant="ghost" href="https://github.com/RashP07/caret-ui" onClick={followAction("github.com (new tab)")}>
             Source
           </LinkButton>
         </div>

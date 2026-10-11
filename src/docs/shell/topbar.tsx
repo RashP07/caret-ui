@@ -1,8 +1,8 @@
-import { ListIcon } from "@phosphor-icons/react";
+import { GithubLogoIcon, ListIcon } from "@phosphor-icons/react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { Crumbs, Drawer, IconButton } from "@/components";
+import { Crumbs, Drawer, IconButton, LinkButton, Tooltip } from "@/components";
 import { PAGES, hrefOf } from "../registry";
 import { SearchButton, SidebarNav } from "./sidebar";
 import { COLUMN_PAD } from "./construction";
@@ -36,6 +36,9 @@ function RouteCrumbs() {
  * Its bottom border is the sheet's top rule, full width; the frame's lines rise to meet it from below, and
  * Nodes mark each junction (the frame's two sides, and the line before "On this page" when it shows).
  */
+/** Where Caret's source lives. */
+export const REPO_URL = "https://github.com/RashP07/caret-ui";
+
 export function TopBar({ frameClassName }: { frameClassName?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
@@ -59,7 +62,19 @@ export function TopBar({ frameClassName }: { frameClassName?: string }) {
         <RouteCrumbs />
         {/* The crumbs share the page's centred width; the theme control belongs to the window, so on
             desktop it pins to the bar's end edge instead. */}
-        <div className="ms-auto flex items-center min-[1001px]:absolute min-[1001px]:inset-y-0 min-[1001px]:end-4">
+        <div className="ms-auto flex items-center gap-1 min-[1001px]:absolute min-[1001px]:inset-y-0 min-[1001px]:end-4">
+          {/* The source, one press away. Icon-only, so the label is its name and its tooltip. */}
+          <Tooltip label="Source on GitHub">
+            <LinkButton
+              variant="ghost"
+              icon={<GithubLogoIcon />}
+              href={REPO_URL}
+              external={false}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Source on GitHub (opens in a new tab)"
+            />
+          </Tooltip>
           <ThemePanelButton />
         </div>
       </div>
