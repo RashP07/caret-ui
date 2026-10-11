@@ -2,6 +2,7 @@ import { NavigationMenu as BaseNav } from "@base-ui/react/navigation-menu";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import type { MouseEventHandler, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { pressClass, pressColorTransition } from "./modality";
 
@@ -82,7 +83,15 @@ export interface NavigationMenuLinkProps {
 export function NavigationMenuLink({ href, children, current, onClick }: NavigationMenuLinkProps) {
   return (
     <BaseNav.Item>
-      <BaseNav.Link href={href} active={current} onClick={onClick} className={topItem}>
+      <BaseNav.Link
+        href={href}
+        active={current}
+        onClick={(e) => {
+          playSound("select");
+          onClick?.(e);
+        }}
+        className={topItem}
+      >
         {children}
       </BaseNav.Link>
     </BaseNav.Item>
@@ -133,7 +142,10 @@ export function NavigationMenuGroup({ value, label, links, columns = 2, onNaviga
             <li key={`${link.title}:${link.href}`}>
               <BaseNav.Link
                 href={link.href}
-                onClick={(e) => onNavigate?.(link, e)}
+                onClick={(e) => {
+                  playSound("select");
+                  onNavigate?.(link, e);
+                }}
                 className={cn(
                   // A wide target: no press shrink.
                   "flex h-full gap-3 rounded-button p-3 text-left text-ink no-underline",

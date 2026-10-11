@@ -71,10 +71,10 @@ export function OTPField({
               data-focus-proxy
               aria-label={i === 0 ? undefined : `Character ${i + 1} of ${length}`}
               className={cn(
-                "mono size-9 min-w-8 shrink rounded-control border-stroke border-border-control p-0 text-center text-input-touch text-ink sm:text-control touch:size-11",
+                "mono size-9 min-w-8 shrink rounded-control border-stroke border-border-field p-0 text-center text-input-touch text-ink sm:text-control touch:size-11",
                 "bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))]",
                 "transition-[border-color,background-color] duration-quick",
-                "not-focus:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
+                "not-focus:hover:border-border-control",
                 // Text entry keeps showing focus on click, so :focus, not :focus-visible.
                 "focus:field-focus focus:bg-surface",
                 "data-filled:bg-surface",

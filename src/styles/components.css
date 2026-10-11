@@ -7,10 +7,11 @@
 @layer components {
   /* ---------- Code: numbered lines ---------- */
   .code-lines { counter-reset: ln var(--start, 0); }
-  .code-lines > .ln { display: block; padding: 0 14px 0 0; white-space: pre; }
+  .code-lines > .ln { display: block; padding: 0 12px 0 0; white-space: pre; }
   .code-lines > .ln::before {
     counter-increment: ln; content: counter(ln);
-    display: inline-block; width: 3.2em; padding-right: 1.2em; text-align: right;
+    /* As wide as the widest number (Code sets --digits), 12px in like the head's tag, 12px before the code. */
+    display: inline-block; width: calc(var(--digits, 2) * 1ch); margin: 0 12px 0 12px; text-align: right;
     color: var(--ink-3); user-select: none;
   }
 

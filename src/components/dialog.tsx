@@ -3,6 +3,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { WarningCircleIcon, XIcon } from "@phosphor-icons/react";
 import { useRef, useState, type ReactElement, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playOpenSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { Button, IconButton } from "./button";
 import { Field, Input } from "./input";
@@ -76,7 +77,10 @@ export interface DialogProps extends OverlayProps {
 export function Dialog({ open, onOpenChange, trigger, title, description, children, footer, initialFocus, size = "md" }: DialogProps) {
   const portalTheme = usePortalTheme();
   return (
-    <BaseDialog.Root open={open} onOpenChange={(o) => onOpenChange?.(o)}>
+    <BaseDialog.Root open={open} onOpenChange={(o, d) => {
+        playOpenSound(o, d);
+        onOpenChange?.(o);
+      }}>
       {trigger && <BaseDialog.Trigger render={trigger} />}
       <BaseDialog.Portal {...portalTheme}>
         <BaseDialog.Backdrop className={overlayBackdropClass} />
@@ -123,7 +127,10 @@ export function AlertDialog({
 }: AlertDialogProps) {
   const portalTheme = usePortalTheme();
   return (
-    <BaseAlertDialog.Root open={open} onOpenChange={(o) => onOpenChange?.(o)}>
+    <BaseAlertDialog.Root open={open} onOpenChange={(o, d) => {
+        playOpenSound(o, d);
+        onOpenChange?.(o);
+      }}>
       {trigger && <BaseAlertDialog.Trigger render={trigger} />}
       <BaseAlertDialog.Portal {...portalTheme}>
         <BaseAlertDialog.Backdrop className={overlayBackdropClass} />

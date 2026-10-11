@@ -13,6 +13,7 @@ import {
   OTPField,
   Slider,
   SwitchChoice,
+  Textarea,
   toast,
   type SelectOption,
 } from "@/components";
@@ -490,6 +491,50 @@ export function FormSection() {
             </Button>
           </FormActions>
         </Form>
+      </Spec>
+    </Section>
+  );
+}
+
+/* =========================================================
+   Textarea
+   ========================================================= */
+
+const PROMPT_MAX = 600;
+
+export function TextareaSection() {
+  const [prompt, setPrompt] = useState("You maintain the agent-console repo. Keep changes small and explain each one in a sentence.");
+  const [note, setNote] = useState("");
+  const lines = prompt ? prompt.split("\n").length : 0;
+  const over = prompt.length > PROMPT_MAX;
+  const state: Pairs = [
+    ["chars", `${prompt.length}/${PROMPT_MAX}`],
+    ["lines", String(lines)],
+    ["invalid", String(over)],
+  ];
+
+  return (
+    <Section
+      id="textarea"
+      title="Textarea"
+      lede="Use a textarea for text that runs past one line: instructions, a description, a note for the reviewer. It's the same well as Input, wired to the same label and hint. It grows with what you type up to a limit, then scrolls, so the form's actions stay in view."
+    >
+      <Spec name="grows, counts, invalid, disabled" state={state} layout="left" canvasClassName="gap-8">
+        <Field
+          className="max-w-[440px]"
+          label="Default instructions"
+          count={`${prompt.length}/${PROMPT_MAX}`}
+          hint="The agent reads this before every run. Plain sentences work best."
+          error={over ? `Shorten this by ${prompt.length - PROMPT_MAX} characters. Up to ${PROMPT_MAX} fit.` : undefined}
+        >
+          <Textarea value={prompt} onValueChange={setPrompt} rows={3} maxRows={8} />
+        </Field>
+        <Field className="max-w-[440px]" label="Note for the reviewer" optional>
+          <Textarea value={note} onValueChange={setNote} rows={2} placeholder="What should they look at first?" />
+        </Field>
+        <Field className="max-w-[440px]" label="Run summary" hint="Written by the agent when the run ends." disabled>
+          <Textarea rows={2} defaultValue="Added dark-mode tokens and a theme toggle. 3 files changed." />
+        </Field>
       </Spec>
     </Section>
   );

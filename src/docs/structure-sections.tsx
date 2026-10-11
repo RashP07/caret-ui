@@ -2,8 +2,12 @@ import {
   ArrowCounterClockwiseIcon,
   BookOpenIcon,
   CodeIcon,
+  ClockCounterClockwiseIcon,
   ColumnsIcon,
   DatabaseIcon,
+  GearIcon,
+  GitPullRequestIcon,
+  HouseIcon,
   KeyIcon,
   LightningIcon,
   PlayIcon,
@@ -18,18 +22,26 @@ import {
   TextItalicIcon,
   WrenchIcon,
 } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { parseKeys } from "@/components/kbd";
 import {
   Accordion,
   AccordionItem,
   Badge,
   Button,
+  Callout,
   Collapsible,
   CollapsiblePanel,
   CollapsibleTrigger,
   Kbd,
+  KeyValue,
+  KeyValueItem,
+  Link,
+  LinkButton,
+  NavLinks,
+  Citation,
   Meter,
+  MsgAgent,
   NavigationMenu,
   NavigationMenuGroup,
   NavigationMenuLink,
@@ -149,7 +161,7 @@ export function SeparatorSection() {
       <Spec name="horizontal, vertical, dashed" state={[["role", "separator"], ["orientations", "horizontal, vertical"]]} layout="stack">
         <div className="w-full max-w-[420px] rounded-card border border-line bg-surface">
           <div className="p-4">
-            <div className="text-body font-heading">lunch-picker</div>
+            <div className="text-subtitle font-heading">lunch-picker</div>
             <div className="mt-1 flex h-4 items-center gap-2.5 text-small text-ink-3">
               <span className="mono">main</span>
               <Separator orientation="vertical" />
@@ -468,6 +480,249 @@ export function KbdSection() {
         </div>
         <div className="flex items-center gap-2 rounded-control bg-ink px-2.5 py-1.5 text-small font-control text-on-ink">
           Redo <Kbd keys="⇧⌘Z" size="sm" />
+        </div>
+      </Spec>
+    </Section>
+  );
+}
+
+/* =========================================================
+   Callout
+   ========================================================= */
+
+export function CalloutSection() {
+  const [rotated, setRotated] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const state: Pairs = [
+    ["key", rotated ? "rotated" : "expiring"],
+    ["tip", dismissed ? "dismissed" : "shown"],
+  ];
+  return (
+    <Section
+      id="callout"
+      title="Callout"
+      lede="Use a callout for something that stays true until it's dealt with: a key about to expire, a quota nearly spent, a run waiting on you. A toast says what just happened and leaves; a callout stays in the page. Each tone has its own mark, so color is never the only cue."
+    >
+      <Spec name="tones, action, dismiss" state={state} layout="stack" canvasClassName="gap-3">
+        <div className="flex w-full max-w-[520px] flex-col gap-3">
+          {rotated ? (
+            <Callout tone="success" title="Key rotated">
+              Update CI with the new key before the old one stops working on Friday.
+            </Callout>
+          ) : (
+            <Callout
+              tone="warning"
+              title="The deploy key expires in 3 days"
+              action={
+                <Button size="sm" variant="secondary" onClick={() => setRotated(true)}>
+                  Rotate key
+                </Button>
+              }
+            >
+              Runs that deploy will fail after Friday.
+            </Callout>
+          )}
+          <Callout tone="danger" title="Model calls are paused">
+            This workspace used all 5,000 calls this month. Runs start again on the 1st, or raise the limit in Usage.
+          </Callout>
+          <Callout tone="info" title="Runs on main start automatically">
+            Pushes to other branches wait for you to start them.
+          </Callout>
+          {!dismissed && (
+            <Callout icon={<ClockCounterClockwiseIcon />} title="Logs are kept for 30 days" onDismiss={() => setDismissed(true)}>
+              Download a run's logs from its menu to keep them longer.
+            </Callout>
+          )}
+        </div>
+      </Spec>
+    </Section>
+  );
+}
+
+/* =========================================================
+   Key value
+   ========================================================= */
+
+export function KeyValueSection() {
+  const [layout, setLayout] = useState<"columns" | "stack">("columns");
+  return (
+    <Section
+      id="key-value"
+      title="Key value"
+      lede="Use a key-value list for the properties of one thing: a run's ID, model, duration and cost. Keys are quiet and values are ink. IDs and hashes are set in mono, numbers line up, and any value worth pasting somewhere has its own copy button."
+    >
+      <Spec name="run properties, columns or stacked" state={[["layout", layout], ["rows", "7"]]} layout="stack" canvasClassName="gap-4">
+        <Seg
+          aria-label="Layout"
+          value={layout}
+          onValueChange={setLayout}
+          options={[
+            { value: "columns", label: "Columns" },
+            { value: "stack", label: "Stacked" },
+          ]}
+        />
+        <div className={layout === "columns" ? "w-full max-w-[400px]" : "w-full max-w-[260px]"}>
+          <KeyValue layout={layout}>
+            <KeyValueItem label="Run ID" mono copy="run_8f2a91" copyLabel="Copy run ID">
+              run_8f2a91
+            </KeyValueItem>
+            <KeyValueItem label="Agent">lunch-picker</KeyValueItem>
+            <KeyValueItem label="Branch" mono>
+              theme-toggle
+            </KeyValueItem>
+            <KeyValueItem label="Commit" mono copy="4c1e9b07d2" copyLabel="Copy commit SHA">
+              4c1e9b0
+            </KeyValueItem>
+            <KeyValueItem label="Duration" numeric>
+              2m 41s
+            </KeyValueItem>
+            <KeyValueItem label="Tokens" numeric>
+              48,210
+            </KeyValueItem>
+            <KeyValueItem label="Cost" numeric>
+              $0.37
+            </KeyValueItem>
+          </KeyValue>
+        </div>
+      </Spec>
+    </Section>
+  );
+}
+
+/* =========================================================
+   Link
+   ========================================================= */
+
+/** Demo links record where they'd go instead of leaving the docs. */
+function useFollowed(initial: string) {
+  const [followed, setFollowed] = useState(initial);
+  const follow = (to: string) => (e: MouseEvent) => {
+    e.preventDefault();
+    setFollowed(to);
+  };
+  return [followed, follow] as const;
+}
+
+export function LinkSection() {
+  const [prose, followProse] = useFollowed("none");
+  const [reply, followReply] = useFollowed("none");
+  const [nav, setNav] = useState("Runs");
+  const [action, followAction] = useFollowed("none");
+  const navItems = [
+    { label: "Overview", icon: <HouseIcon size={16} /> },
+    { label: "Runs", icon: <PlayIcon size={16} /> },
+    { label: "Agents", icon: <RobotIcon size={16} /> },
+    { label: "Settings", icon: <GearIcon size={16} /> },
+  ];
+  return (
+    <Section
+      id="link"
+      title="Link"
+      lede="Use a link for anything that goes somewhere; use a Button for anything that does something. Every form here is a real link: Enter follows it, it opens in a new tab, and it's always marked by more than color. Links to another site get an arrow and open in a new tab."
+    >
+      <Spec name="inline and quiet, in running text" state={[["variant", "inline, quiet"], ["followed", prose]]} layout="stack" canvasClassName="gap-5">
+        <div className="flex max-w-[60ch] flex-col gap-3">
+          <p className="m-0 text-body text-ink">
+            Agents read the{" "}
+            <Link href="/docs/agents" onClick={followProse("/docs/agents")}>
+              agents guide
+            </Link>{" "}
+            before they touch the UI. Every token is solved against the{" "}
+            <Link href="https://www.w3.org/TR/WCAG22/" onClick={followProse("w3.org (new tab)")}>
+              WCAG 2.2 contrast targets
+            </Link>
+            , in every theme.
+          </p>
+          <p className="m-0 text-small text-ink-3">
+            Updated 3 days ago ·{" "}
+            <Link variant="quiet" href="#history" onClick={followProse("#history")}>
+              View history
+            </Link>{" "}
+            ·{" "}
+            <Link variant="quiet" href="https://github.com/caret-ui/caret/edit/main/DESIGN.md" onClick={followProse("github.com (new tab)")}>
+              Edit on GitHub
+            </Link>
+          </p>
+        </div>
+      </Spec>
+
+      <Spec name="in an agent reply: files, links, sources" state={[["variant", "inline, code, citation"], ["followed", reply]]} layout="block">
+        <div className="mx-auto max-w-[640px]">
+          <MsgAgent>
+            <p>
+              The toggle reads the stored theme in{" "}
+              <Link variant="code" href="#src/lib/theme.ts:42" onClick={followReply("src/lib/theme.ts:42")}>
+                src/lib/theme.ts:42
+              </Link>{" "}
+              before the first paint, so there's no flash on load.
+              <Citation n={1} title="Avoiding a flash of the wrong theme" source="src/lib/theme.ts" href="#cite-1" onClick={followReply("source 1")} />
+            </p>
+            <p>
+              I followed the{" "}
+              <Link href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark" onClick={followReply("developer.mozilla.org (new tab)")}>
+                light-dark() guidance on MDN
+              </Link>{" "}
+              and opened{" "}
+              <Link href="#pr-128" onClick={followReply("pull request #128")}>
+                pull request #128
+              </Link>{" "}
+              for review.
+              <Citation n={2} title="light-dark() — CSS" source="developer.mozilla.org" href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark" onClick={followReply("source 2 (new tab)")} />
+            </p>
+          </MsgAgent>
+        </div>
+      </Spec>
+
+      <Spec name="nav links in a top bar" state={[["current", nav], ["aria-current", "page"], ["mark", "shared, glides"]]} layout="stack" canvasClassName="gap-6">
+        {[false, true].map((withIcons) => (
+          <div key={String(withIcons)} className="flex h-12 w-full max-w-[560px] items-stretch border-b border-line">
+            <NavLinks aria-label={withIcons ? "Workspace, with icons" : "Workspace"} className="min-w-0 overflow-x-auto">
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  variant="nav"
+                  icon={withIcons ? item.icon : undefined}
+                  href={`#${item.label.toLowerCase()}`}
+                  current={nav === item.label}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setNav(item.label);
+                  }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </NavLinks>
+            {!withIcons && (
+              <NavLinks aria-label="Elsewhere" className="ms-auto">
+                <Link variant="nav" href="https://github.com/caret-ui/caret" onClick={(e) => e.preventDefault()}>
+                  GitHub
+                </Link>
+              </NavLinks>
+            )}
+          </div>
+        ))}
+      </Spec>
+
+      <Spec name="link buttons: a link with a button's face" state={[["element", "<a>"], ["followed", action]]} layout="stack" canvasClassName="gap-5">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <LinkButton variant="primary" icon={<GitPullRequestIcon size={16} />} href="#pr-128" onClick={followAction("pull request #128")}>
+            Open pull request
+          </LinkButton>
+          <LinkButton href="#run" onClick={followAction("run_8f2a91")} kbd="⌘O">
+            View run
+          </LinkButton>
+          <LinkButton variant="ghost" href="https://github.com/caret-ui/caret" onClick={followAction("github.com (new tab)")}>
+            Source
+          </LinkButton>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <LinkButton size="sm" href="#logs" onClick={followAction("logs")}>
+            Open logs
+          </LinkButton>
+          <LinkButton size="sm" variant="ghost" icon={<BookOpenIcon size={14} />} href="/docs/agents" onClick={followAction("/docs/agents")}>
+            Read the guide
+          </LinkButton>
         </div>
       </Spec>
     </Section>

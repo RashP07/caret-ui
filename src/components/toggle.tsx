@@ -2,6 +2,7 @@ import { Toggle as BaseToggle } from "@base-ui/react/toggle";
 import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { Button, IconButton } from "./button";
 
 /*
@@ -25,16 +26,21 @@ export interface ToggleProps extends BaseToggleProps {
   className?: string;
 }
 
-export function Toggle({ label, icon, children, kbd, className, ...props }: ToggleProps) {
+export function Toggle({ label, icon, children, kbd, className, onPressedChange, ...props }: ToggleProps) {
   return (
     <BaseToggle
       {...props}
+      onPressedChange={(pressed, details) => {
+        // A toggle says which way it went, instead of the plain press.
+        playSound(pressed ? "on" : "off");
+        onPressedChange?.(pressed, details);
+      }}
       render={(p, state) =>
         children == null ? (
-          <IconButton {...p} variant="secondary" pressed={state.pressed} label={label} icon={icon} kbd={kbd} className={className} />
+          <IconButton {...p} sound={false} variant="secondary" pressed={state.pressed} label={label} icon={icon} kbd={kbd} className={className} />
         ) : (
           // Text toggles are named by their text; `label` adds detail as a tooltip when it says more.
-          <Button {...p} variant="secondary" pressed={state.pressed} icon={icon} kbd={kbd} tip={label !== children ? label : undefined} className={className}>
+          <Button {...p} sound={false} variant="secondary" pressed={state.pressed} icon={icon} kbd={kbd} tip={label !== children ? label : undefined} className={className}>
             {children}
           </Button>
         )

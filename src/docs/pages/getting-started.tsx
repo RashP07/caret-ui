@@ -1,6 +1,6 @@
 import { Kbd } from "@/components";
 import { Link } from "@tanstack/react-router";
-import { Card, CardBody, CardText, CardTitle } from "@/components";
+import { CardText, CardTitle } from "@/components";
 import { PageHeading, Section } from "../spec";
 
 const PRINCIPLES: [string, string][] = [
@@ -27,12 +27,10 @@ export default function GettingStarted() {
       <PageHeading>Three principles</PageHeading>
       <div className="grid grid-cols-3 gap-4 max-[860px]:grid-cols-1">
         {PRINCIPLES.map(([t, d]) => (
-          <Card key={t}>
-            <CardBody className="p-5">
-              <CardTitle>{t}</CardTitle>
-              <CardText className="mt-1.5">{d}</CardText>
-            </CardBody>
-          </Card>
+          <div key={t} className="rounded-card border border-(--rule) bg-surface p-5">
+            <CardTitle>{t}</CardTitle>
+            <CardText className="mt-1.5">{d}</CardText>
+          </div>
         ))}
       </div>
 

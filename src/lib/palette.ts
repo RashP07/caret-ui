@@ -409,7 +409,9 @@ export function themeVars(theme: Theme, { radius = theme.spec.radius !== "defaul
     // Dialogs have no border: in dark mode the 1px ring is their only edge.
     "e-modal": `0 0 0 1px ${ld("oklch(0 0 0 / 0)", "oklch(1 0 0 / 0.06)")}, 0 16px 40px -12px ${ld(ink("light", 0.2), "oklch(0 0 0 / 0.5)")}, 0 4px 12px -4px ${ld(ink("light", 0.1), "oklch(0 0 0 / 0.3)")}`,
     // Whole pixels only: a 1.5px line smears across two device pixels at 100%, 125% and 150%.
-    stroke: high ? "2px" : "1px",
+    // 1px everywhere, Contrast too: its borders are already full ink, so a 2px edge only reads as bold.
+    // Contrast keeps the 2px focus ring (WCAG's focus-appearance size), which shows on keyboard focus only.
+    stroke: "1px",
     "stroke-bold": "2px",
     "focus-width": high ? "2px" : "1px",
     pattern: "radial-gradient(var(--dot) 1px, transparent 1.2px)",

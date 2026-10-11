@@ -6,12 +6,18 @@ import { useDocs } from "../docs-context";
 import { pageLink } from "./links";
 import { GROUPS, hrefOf } from "../registry";
 
-/** The Caret mark: an ink tile with the accent caret. */
+/**
+ * The Caret mark: the ⌃ key, standing on its ledge like Caret's buttons.
+ * Face in the accent, glyph in on-accent. The ledge is ink in light; on a dark
+ * ground ink would vanish, so it's a deeper shade of the face instead.
+ * Drawn on a 24-unit grid at 24px, so every edge lands on a whole pixel.
+ */
 export function BrandMark() {
   return (
-    <svg viewBox="0 0 22 22" width="22" height="22" aria-hidden>
-      <rect x="1" y="1" width="20" height="20" rx="6" fill="var(--ink)" />
-      <rect x="9.5" y="5" width="3" height="12" rx="1" fill="var(--accent)" />
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden>
+      <rect x="1" y="1" width="22" height="22" rx="4" style={{ fill: "light-dark(var(--ink), color-mix(in oklch, var(--accent) 62%, black))" }} />
+      <rect x="2" y="2" width="20" height="16" rx="3" fill="var(--accent)" />
+      <path d="M7 13 12 8l5 5" fill="none" stroke="var(--on-accent)" strokeWidth="3" strokeLinejoin="miter" />
     </svg>
   );
 }
@@ -20,7 +26,7 @@ export function Brand() {
   return (
     <Link to="/" className="flex items-center gap-2.5 px-2 no-underline">
       <BrandMark />
-      <span className="text-title font-heading tracking-[-.02em]">Caret</span>
+      <span className="text-title font-heading">Caret</span>
       <span className="mono ml-auto rounded-inline border border-line px-1.5 py-0.5 text-caption text-ink-3">v0.1</span>
     </Link>
   );
@@ -45,6 +51,9 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <nav aria-label="Documentation" className="flex flex-col gap-1">
       <NavGroup>
+        <NavItem render={<Link to="/" />} current={pathname === "/"} onClick={onNavigate}>
+          Showcase
+        </NavItem>
         {GROUPS.map((g) => (
           <Collapsible key={g.name} defaultOpen>
             {/* Full-width row, flush with the search button; wide rows don't shrink on press. */}

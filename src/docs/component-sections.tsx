@@ -52,7 +52,7 @@ import {
   Tooltip,
   type ButtonVariant,
 } from "@/components";
-import { Section, Spec, type Pairs } from "./spec";
+import { PageHeading, Section, Spec, type Pairs } from "./spec";
 
 /* =========================================================
    Button
@@ -149,6 +149,7 @@ function validateName(v: string) {
 }
 
 export function InputSection({ searchRef }: { searchRef: RefObject<HTMLInputElement | null> }) {
+  const [filledState, setFilledState] = useState<Pairs>([["variant", "filled"], ["edge", "none"]]);
   const [name, setName] = useState("lunch-picker");
   const [state, setState] = useState<Pairs>([["value", '"lunch-picker"'], ["valid", "true"]]);
   const error = validateName(name);
@@ -201,6 +202,30 @@ export function InputSection({ searchRef }: { searchRef: RefObject<HTMLInputElem
         </Field>
         <Field className="max-w-[340px]" label="Region" hint="Set by your workspace plan." disabled>
           <Input defaultValue="Chosen automatically" />
+        </Field>
+      </Spec>
+      <Spec name="filled: an edge only while you type" state={filledState} layout="left" canvasClassName="gap-8">
+        <Field className="max-w-[340px]" label="Display name" hint="Shown on runs you start.">
+          <Input
+            variant="filled"
+            defaultValue="Priya Raman"
+            onFocus={() => setFilledState([["variant", "filled"], ["edge", "focus"]])}
+            onBlur={() => setFilledState([["variant", "filled"], ["edge", "none"]])}
+          />
+        </Field>
+        <Field className="max-w-[340px]" label="Search runs">
+          <Input variant="filled" lead={<MagnifyingGlassIcon />} placeholder="Filter by name or status" autoComplete="off" />
+        </Field>
+        <Field className="max-w-[340px]" label="Agent name" error="Use lowercase letters, numbers and dashes.">
+          <Input variant="filled" defaultValue="Lunch Picker" />
+        </Field>
+        <Field className="max-w-[340px]" label="Region" disabled>
+          <Input variant="filled" defaultValue="Chosen automatically" />
+        </Field>
+      </Spec>
+      <Spec name="sm, in dense chrome" state={[["size", "sm"], ["height", "28px"]]} layout="left">
+        <Field className="max-w-[240px]" label="Filter the log" hint="28px, beside sm buttons in a panel head.">
+          <Input size="sm" lead={<MagnifyingGlassIcon />} placeholder="Filter" autoComplete="off" />
         </Field>
       </Spec>
     </Section>
@@ -371,6 +396,45 @@ export function CardSection() {
           <Button variant="secondary" icon={<PlusIcon />}>
             Connect a tool
           </Button>
+        </Card>
+      </div>
+
+      <PageHeading>Frame</PageHeading>
+      <p className="mt-0 mb-6 max-w-[64ch] text-body text-ink-2">
+        Square, a darker hairline and a mark on each corner, like a part on a drawing. Use it for a card that puts
+        something on display: a specimen, a preview, a featured item. Everything else keeps the rounded card.
+      </p>
+      <div className="grid grid-cols-2 gap-6 max-[860px]:grid-cols-1">
+        <Card frame link aria-label="Weekly digest template">
+          <div aria-hidden className="grid h-[148px] place-items-center border-b border-line-strong">
+            <Badge tone="info">Preview</Badge>
+          </div>
+          <CardBody>
+            <CardTitle>Weekly digest</CardTitle>
+            <CardText className="mt-1">A Monday summary of every run, posted to the channel you choose.</CardText>
+          </CardBody>
+        </Card>
+
+        <Card frame>
+          <CardBody>
+            <CardHead>
+              <CardIcon>
+                <LightningIcon />
+              </CardIcon>
+              <div>
+                <CardTitle>lunch-picker</CardTitle>
+                <CardSub>Featured agent</CardSub>
+              </div>
+            </CardHead>
+            <CardText>Collects votes each morning and announces the office lunch order at 11:30.</CardText>
+          </CardBody>
+          <CardFoot>
+            <Badge tone="ok" dot>
+              Healthy
+            </Badge>
+            <div className="flex-1" />
+            <Button variant="secondary">Open</Button>
+          </CardFoot>
         </Card>
       </div>
     </Section>
@@ -557,12 +621,13 @@ const TAB_LABELS: Record<string, string> = { overview: "Overview", logs: "Logs",
 
 export function TabsSection() {
   const [tab, setTab] = useState("overview");
+  const [panel, setPanel] = useState("changes");
   const idx = Object.keys(TAB_LABELS).indexOf(tab);
   return (
     <Section
       id="tabs"
       title="Tabs"
-      lede="Use tabs to switch between views of the same thing. The ink bar slides to the new tab, so you see where you came from. Arrows move and select; Home and End jump to the ends."
+      lede="Use tabs to switch between views of the same thing. The ink bar slides to the new tab, so you see where you came from. Inside a header or toolbar, the subtle variant fits the row: a pressed face glides instead. Arrows move and select; Home and End jump to the ends."
     >
       <Spec
         name="underline tabs with counts"
@@ -608,6 +673,30 @@ export function TabsSection() {
           </TabPanel>
           <TabPanel value="settings">
             Settings for this run are inherited from the agent. Change them on the agent page to affect future runs.
+          </TabPanel>
+        </Tabs>
+      </Spec>
+
+      <Spec name="subtle, in a panel header" state={[["variant", '"subtle"'], ["selected", `"${panel}"`]]} trackMotion canvasClassName="min-h-[220px]">
+        {/* A side panel's header: 44px, the tabs centred in it, its own line below. */}
+        <Tabs value={panel} onValueChange={(v) => setPanel(v as string)} className="w-full max-w-[420px] overflow-hidden border border-line bg-surface">
+          <div className="flex h-11 items-center border-b border-line ps-2 pe-1.5">
+            <TabList aria-label="Panel views" variant="subtle" className="min-w-0 flex-1">
+              <Tab value="changes" count={4}>
+                Changes
+              </Tab>
+              <Tab value="preview">Preview</Tab>
+              <Tab value="terminal">Terminal</Tab>
+            </TabList>
+          </div>
+          <TabPanel value="changes" className="min-h-[96px] px-3 pt-3">
+            Four files changed: <span className="text-success">+39</span> <span className="text-danger">−6</span>.
+          </TabPanel>
+          <TabPanel value="preview" className="min-h-[96px] px-3 pt-3">
+            The built page, live, in its own theme scope.
+          </TabPanel>
+          <TabPanel value="terminal" className="min-h-[96px] px-3 pt-3">
+            <span className="mono text-code">$ pnpm build</span>
           </TabPanel>
         </Tabs>
       </Spec>

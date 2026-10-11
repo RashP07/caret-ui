@@ -1,11 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { Code, type CodeProps } from "@/components";
 import { getMotionScale } from "@/lib/motion";
+import { Corners } from "./shell/construction";
 import { cn } from "@/lib/cn";
 
+
 /*
- * Docs chrome. Every specimen sits on a drafting-sheet canvas (dot grid,
- * registration marks) and carries its live state as a row of hairline tags
- * under it.
+ * Docs chrome. Every specimen is a square drafting cell: a plain canvas on the page ground (so
+ * cards, code and wells set on it stand off it, as they would in an app), one
+ * rule, and a caption strip on the hover tint carrying its name and its live
+ * state as a row of hairline tags. Nodes mark the cell's corners.
  */
 
 export type Pairs = [string, string][];
@@ -29,7 +33,7 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 /** An H2 anchor inside a page (scroll margin clears the sticky top bar). */
 export function PageHeading({ children, id }: { children: string; id?: string }) {
   return (
-    <h2 id={id ?? slugify(children)} className="mt-12 mb-3 scroll-mt-24 text-title font-heading text-balance">
+    <h2 id={id ?? slugify(children)} className="mt-12 mb-5 scroll-mt-24 text-title font-heading text-balance">
       {children}
     </h2>
   );
@@ -134,7 +138,8 @@ export function StateReadout({ pairs, className }: { pairs: Pairs; className?: s
             key={k}
             data-changed={on || undefined}
             className={cn(
-              "inline-flex h-5 items-stretch overflow-hidden rounded-inline border-stroke border-line whitespace-nowrap",
+              // line-strong: the tags sit on the caption's hover tint, where --line would barely show.
+              "inline-flex h-5 items-stretch overflow-hidden rounded-inline border-stroke border-line-strong whitespace-nowrap",
               // Out slowly on the hairline ease; in at once, so the change is read where it happens.
               "transition-colors duration-700 ease-drawer data-changed:border-accent-strong data-changed:duration-0",
             )}
@@ -156,16 +161,16 @@ export function StateReadout({ pairs, className }: { pairs: Pairs; className?: s
   );
 }
 
-/** The specimen's caption line: its name on the left, its live state on the right. One hairline above, no band. */
+/**
+ * The specimen's caption strip: its name on the left, its live state on the right. It sits on the
+ * hover tint, set off from the canvas by the cell's one inner rule (the landing cards' caption).
+ */
 export function SpecBar({ name, state, className }: { name: string; state: Pairs; className?: string }) {
   return (
     <figcaption
-      className={cn("flex min-h-10 items-center gap-3 border-t border-line px-3 py-2 text-caption", className)}
+      className={cn("flex min-h-10 items-center gap-3 border-t border-(--frame) bg-hover px-3 py-2 text-caption", className)}
     >
-      <span className="flex items-center gap-2 font-control whitespace-nowrap text-ink-3 max-[600px]:hidden">
-        <span aria-hidden className="h-px w-3 bg-line-strong" />
-        {name}
-      </span>
+      <span className="font-control whitespace-nowrap text-ink-2 max-[600px]:hidden">{name}</span>
       <StateReadout pairs={state} />
     </figcaption>
   );
@@ -188,11 +193,13 @@ export function Spec({ name, state, children, layout = "center", className, canv
   const [canvasRef, animating] = useAnimating<HTMLDivElement>();
   const pairs: Pairs = trackMotion ? [...state, ["animating", String(animating)]] : state;
   const figure = (
-    <figure className={cn("m-0 mb-4 overflow-hidden rounded-card border-stroke border-line bg-surface", className)}>
+    // A specimen frame: square and unclipped (nothing inside loses a focus ring), Nodes on its corners.
+    <figure className={cn("relative m-0 mb-4 min-w-0 border border-(--frame) bg-page", className)}>
+      <Corners />
       <div
         ref={canvasRef}
         className={cn(
-          "reg-marks relative flex min-h-[180px] flex-wrap items-center justify-center gap-4 bg-surface bg-pattern px-8 py-12 [background-position:-8px_-8px]",
+          "relative flex min-h-[180px] flex-wrap items-center justify-center gap-4 bg-page px-8 py-12",
           "max-[860px]:px-4 max-[860px]:py-8",
           layout === "left" && "items-start justify-start",
           layout === "stack" && "flex-col",
@@ -230,7 +237,7 @@ export function Section({
   if (page) {
     return (
       <article id={id} aria-labelledby={`h-${id}`}>
-        <header className="mb-8">
+        <header className="mb-4">
           <h1 id={`h-${id}`} className="m-0 text-h1 font-heading text-balance">
             {title}
           </h1>
@@ -242,15 +249,22 @@ export function Section({
   }
   return (
     <section id={id} aria-labelledby={`h-${id}`} className="scroll-mt-[72px] pt-16">
-      <div className="mb-6 grid grid-cols-2 items-end gap-8 max-[1000px]:grid-cols-1 max-[1000px]:gap-3">
+      {/* Title over lede, one reading column, the same as a page header. Never side by side: a
+          two-column split strands a short title against a paragraph and reads as two unrelated blocks. */}
+      <header className="mb-6">
         <h2 id={`h-${id}`} className="m-0 text-h2 font-heading text-balance">
           {title}
         </h2>
-        <p className="m-0 max-w-[52ch] text-body text-pretty text-ink-2">{lede}</p>
-      </div>
+        <p className="mt-3 mb-0 max-w-[64ch] text-body text-pretty text-ink-2">{lede}</p>
+      </header>
       {children}
     </section>
   );
+}
+
+/** A code block on a docs page: the library's Code as it ships. */
+export function SheetCode(props: CodeProps) {
+  return <Code {...props} />;
 }
 
 export function SubHead({ children }: { children: ReactNode }) {

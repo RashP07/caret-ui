@@ -7,6 +7,7 @@ import { WarningCircleIcon } from "@phosphor-icons/react";
 import { LayoutGroup, motion } from "motion/react";
 import { useId, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { pressClass, useModalityTransition } from "./modality";
 import { Tooltip } from "./tooltip";
 
@@ -92,7 +93,7 @@ export function ChoiceList({
 /* ---------- Checkbox ---------- */
 
 const boxClass = cn(
-  "relative mt-0.5 grid size-4.5 flex-none place-items-center rounded-inline border-stroke-bold border-border-control bg-surface text-on-ink",
+  "relative mt-0.5 grid size-4.5 flex-none place-items-center rounded-inline border-stroke border-border-control bg-surface text-on-ink",
   // 18px box, 26px to hit (46px on touch); inside a row the whole row is the target anyway.
   "before:absolute before:-inset-1 before:content-[''] touch:before:-inset-3.5",
   "transition-[background-color,border-color,scale] duration-quick [transition-timing-function:var(--ease-hover),var(--ease-hover),var(--ease-out)]",
@@ -138,9 +139,16 @@ function CheckMark({ checked, indeterminate }: { checked: boolean; indeterminate
 }
 
 /** The bare box. Wrap in <CheckboxChoice> for a labelled row. */
-export function Checkbox({ className, ...props }: CheckboxProps) {
+export function Checkbox({ className, onCheckedChange, ...props }: CheckboxProps) {
   return (
-    <BaseCheckbox.Root className={cn(boxClass, className)} {...props}>
+    <BaseCheckbox.Root
+      className={cn(boxClass, className)}
+      {...props}
+      onCheckedChange={(checked, details) => {
+        playSound(checked ? "check" : "uncheck");
+        onCheckedChange?.(checked, details);
+      }}
+    >
       <BaseCheckbox.Indicator
         keepMounted
         className="flex"
@@ -194,7 +202,7 @@ export function Nested({ className, ...props }: ComponentProps<"div">) {
 /* ---------- Radio ---------- */
 
 const radioClass = cn(
-  "relative mt-0.5 grid size-4.5 flex-none place-items-center rounded-full border-stroke-bold border-border-control bg-surface",
+  "relative mt-0.5 grid size-4.5 flex-none place-items-center rounded-full border-stroke border-border-control bg-surface",
   "before:absolute before:-inset-1 before:rounded-full before:content-[''] touch:before:-inset-3.5",
   "transition-[border-color,scale] duration-quick [transition-timing-function:var(--ease-hover),var(--ease-out)]",
   controlPressClass,
@@ -218,8 +226,17 @@ function RadioDot() {
   );
 }
 
-export function RadioGroup({ className, ...props }: Omit<ComponentProps<typeof BaseRadioGroup>, "className"> & { className?: string }) {
-  return <BaseRadioGroup className={cn("flex flex-col gap-0.5", className)} {...props} />;
+export function RadioGroup({ className, onValueChange, ...props }: Omit<ComponentProps<typeof BaseRadioGroup>, "className"> & { className?: string }) {
+  return (
+    <BaseRadioGroup
+      className={cn("flex flex-col gap-0.5", className)}
+      {...props}
+      onValueChange={(value, details) => {
+        playSound("select");
+        onValueChange?.(value, details);
+      }}
+    />
+  );
 }
 
 export interface RadioChoiceProps extends Omit<ComponentProps<typeof BaseRadio.Root>, "className"> {
@@ -280,7 +297,7 @@ export function RadioCard({ label, description, picture, media, meta, children, 
       )}
     >
       {media && (
-        <div inert aria-hidden className="-mx-4 -mt-4 mb-1 border-b border-line bg-page bg-pattern p-4">
+        <div inert aria-hidden className="-mx-4 -mt-4 mb-1 border-b border-line bg-page p-4">
           {media}
         </div>
       )}
@@ -333,7 +350,10 @@ export function Seg<V extends string = string>({ value, onValueChange, options, 
     <LayoutGroup id={id}>
       <BaseRadioGroup
         value={value ?? null}
-        onValueChange={(v) => onValueChange(v as V)}
+        onValueChange={(v) => {
+          playSound("select");
+          onValueChange(v as V);
+        }}
         aria-label={aria["aria-label"]}
         {...handlers}
         className={cn("inline-flex max-w-full gap-0.5 rounded-control border border-line bg-sunken p-0.75", className)}

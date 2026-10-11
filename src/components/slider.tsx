@@ -1,6 +1,7 @@
 import { Slider as BaseSlider } from "@base-ui/react/slider";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { fieldLabelClass, hintClass } from "./input";
 
 /*
@@ -86,7 +87,11 @@ export function Slider<V extends Value>({
   return (
     <BaseSlider.Root
       value={value}
-      onValueChange={(v) => onValueChange(v as V)}
+      onValueChange={(v) => {
+        // A detent per step; the 40ms guard keeps a fast drag from buzzing.
+        playSound("tick");
+        onValueChange(v as V);
+      }}
       onValueCommitted={onValueCommitted ? (v) => onValueCommitted(v as V) : undefined}
       min={min}
       max={max}

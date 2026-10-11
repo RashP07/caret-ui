@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import * as agentMod from "./agent-sections";
 import * as chatMod from "./chat-section";
 import * as paletteMod from "./command-palette-section";
 import * as componentMod from "./component-sections";
@@ -8,6 +9,7 @@ import * as inputMod from "./input-sections";
 import * as overlayMod from "./overlay-sections";
 import * as structureMod from "./structure-sections";
 import * as tableMod from "./table-section";
+import * as templateMod from "./template-sections";
 import * as builderMod from "./theme-builder";
 
 /*
@@ -75,6 +77,8 @@ const inputs = (name: string) => pick(inputMod, name);
 const overlays = (name: string) => pick(overlayMod, name);
 const structure = (name: string) => pick(structureMod, name);
 const chat = (name: string) => pick(chatMod, name);
+const agents = (name: string) => pick(agentMod, name);
+const templates = (name: string) => pick(templateMod, name);
 const palette = pick(paletteMod, "CommandPaletteSection");
 const table = pick(tableMod, "TableSection");
 const builder = pick(builderMod, "ThemeBuilderSection");
@@ -83,6 +87,7 @@ export const PAGES: DocPage[] = [
   // Getting started
   { slug: "getting-started", title: "Getting started", kind: "doc", group: "Getting started", load: docs("getting-started"), description: "What Caret is for, and the three principles every part of it follows." },
   { slug: "installation", title: "Installation", kind: "doc", group: "Getting started", load: docs("installation"), description: "Tokens, Tailwind v4, Base UI and the four providers at the root." },
+  { slug: "agents", title: "Agents guide", kind: "doc", group: "Getting started", load: docs("agents"), description: "llms.txt, an AGENTS.md for your repo, and what agents get wrong." },
 
   // Foundations
   { slug: "color", title: "Color", kind: "foundation", group: "Foundations", load: ctx("ColorPage"), description: "Role-named tokens, measured for contrast in every theme and mode." },
@@ -91,15 +96,18 @@ export const PAGES: DocPage[] = [
   { slug: "typography", title: "Typography", kind: "foundation", group: "Foundations", load: foundations("TypeSection"), description: "Schibsted Grotesk for the interface, Paper Mono for code." },
   { slug: "space", title: "Space & radius", kind: "foundation", group: "Foundations", load: foundations("SpaceSection"), description: "A 4px base, and radius by how far a thing floats." },
   { slug: "motion", title: "Motion", kind: "foundation", group: "Foundations", load: foundations("MotionSection"), description: "Three durations, five curves, springs for things that glide." },
+  { slug: "sound", title: "Sound", kind: "foundation", group: "Foundations", load: foundations("SoundSection"), description: "Off until it's turned on; then a quiet answer to what you did." },
   { slug: "focus", title: "Focus", kind: "foundation", group: "Foundations", load: ctx("FocusPage"), description: "One plain ring for keyboard focus, drawn on what you can see." },
 
   // Actions
   { slug: "button", title: "Button", kind: "component", group: "Actions", load: comp("ButtonSection"), imports: ["Button", "IconButton", "ButtonGroup"], baseUi: "button", description: "36px keys on a 2px ledge, with the shortcut printed on the face." },
   { slug: "toggle", title: "Toggle", kind: "component", group: "Actions", load: structure("ToggleSection"), imports: ["Toggle", "ToggleGroup"], baseUi: "toggle-group", description: "A button that stays pressed; a group shares one sliding face." },
   { slug: "kbd", title: "Kbd", kind: "component", group: "Actions", load: structure("KbdSection"), imports: ["Kbd"], description: "A shortcut, printed the same way everywhere." },
+  { slug: "link", title: "Link", kind: "component", group: "Actions", load: structure("LinkSection"), imports: ["Link", "LinkButton", "Citation"], description: "Inline, quiet, code, nav and button links; always a real link." },
 
   // Inputs
   { slug: "input", title: "Input", kind: "component", group: "Inputs", load: ctx("InputPage"), imports: ["Field", "Input"], baseUi: "field", description: "A tinted well with the label above and the rule below." },
+  { slug: "textarea", title: "Textarea", kind: "component", group: "Inputs", load: inputs("TextareaSection"), imports: ["Field", "Textarea"], baseUi: "field", description: "More than one line; it grows with the text, then scrolls." },
   { slug: "select", title: "Select", kind: "component", group: "Inputs", load: comp("DropdownSection"), imports: ["Select"], baseUi: "select", description: "A real listbox, with descriptions so no one has to guess." },
   { slug: "combobox", title: "Combobox", kind: "component", group: "Inputs", load: inputs("ComboboxSection"), imports: ["Combobox", "MultiCombobox"], baseUi: "combobox", description: "A select you can type into, single or with chips." },
   { slug: "autocomplete", title: "Autocomplete", kind: "component", group: "Inputs", load: inputs("AutocompleteSection"), imports: ["Autocomplete"], baseUi: "autocomplete", description: "Free text; the suggestions only offer to finish it." },
@@ -125,6 +133,7 @@ export const PAGES: DocPage[] = [
   // Structure
   { slug: "card", title: "Card", kind: "component", group: "Structure", load: comp("CardSection"), imports: ["Card", "CardBody", "CardHead", "CardIcon", "CardTitle", "CardSub", "CardText", "CardFoot"], description: "One thing and its actions; no shadow until it's openable." },
   { slug: "table", title: "Table", kind: "component", group: "Structure", load: table, imports: ["Table", "TableHeader", "TableBody", "TableFooter", "TableRow", "TableHead", "TableCell", "TableEmpty", "TableSkeleton"], description: "Rows to scan, sort and select; numbers line up on the end edge." },
+  { slug: "key-value", title: "Key value", kind: "component", group: "Structure", load: structure("KeyValueSection"), imports: ["KeyValue", "KeyValueItem"], description: "The properties of one thing, with a copy button where it helps." },
   { slug: "tabs", title: "Tabs", kind: "component", group: "Structure", load: comp("TabsSection"), imports: ["Tabs", "TabList", "Tab", "TabPanel"], baseUi: "tabs", description: "Views of the same thing; the ink slides from where you were." },
   { slug: "accordion", title: "Accordion", kind: "component", group: "Structure", load: structure("AccordionSection"), imports: ["Accordion", "AccordionItem"], baseUi: "accordion", description: "A stack of questions or settings in one hairline panel." },
   { slug: "collapsible", title: "Collapsible", kind: "component", group: "Structure", load: structure("CollapsibleSection"), imports: ["Collapsible", "CollapsibleTrigger", "CollapsiblePanel"], baseUi: "collapsible", description: "Detail only some people need, one trigger away." },
@@ -136,12 +145,17 @@ export const PAGES: DocPage[] = [
   { slug: "progress", title: "Progress", kind: "component", group: "Feedback", load: structure("ProgressSection"), imports: ["Progress"], baseUi: "progress", description: "Work with an end: never a fake percentage." },
   { slug: "meter", title: "Meter", kind: "component", group: "Feedback", load: structure("MeterSection"), imports: ["Meter"], baseUi: "meter", description: "A level in a known range; danger past the threshold." },
   { slug: "toast", title: "Toast", kind: "component", group: "Feedback", load: overlays("ToastSection"), imports: ["toast", "dismissToast", "ToastProvider"], baseUi: "toast", description: "What just happened, in one line; Undo when it can be undone." },
+  { slug: "callout", title: "Callout", kind: "component", group: "Feedback", load: structure("CalloutSection"), imports: ["Callout"], description: "What stays true until it's dealt with, in the page, not over it." },
 
   // Agents
   { slug: "chat", title: "Chat", kind: "component", group: "Agents", load: chat("ChatSection"), imports: ["Messages", "MsgUser", "MsgAgent", "Trace", "MsgActions", "Composer", "ComposerFoot", "ContextMeter", "Avatar", "Code", "Diff"], baseUi: "collapsible", description: "Messages, the trace, code, the composer and the context meter." },
+  { slug: "timeline", title: "Timeline", kind: "component", group: "Agents", load: agents("TimelineSection"), imports: ["Timeline", "TimelineItem"], baseUi: "collapsible", description: "What a whole run did, step by step, with detail behind each." },
+  { slug: "log-stream", title: "Log stream", kind: "component", group: "Agents", load: agents("LogStreamSection"), imports: ["LogStream"], description: "Output still arriving; it follows the tail until you scroll up." },
 
   // Templates
   { slug: "agent-workspace", title: "Agent workspace", kind: "template", group: "Templates", load: chat("WorkspaceSection"), description: "Threads, conversation and changes, composed only from Caret parts." },
+  { slug: "run-detail", title: "Run detail", kind: "template", group: "Templates", load: templates("RunDetailSection"), description: "A run's timeline, live logs, changes and properties, side by side." },
+  { slug: "settings", title: "Settings", kind: "template", group: "Templates", load: templates("SettingsSection"), description: "Workspace settings: a form, keys, usage and a danger zone." },
 ];
 
 export const GROUPS: { name: GroupName; pages: DocPage[] }[] = (

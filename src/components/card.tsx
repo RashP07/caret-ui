@@ -6,24 +6,45 @@ export interface CardProps extends ComponentProps<"article"> {
   link?: boolean;
   /** Empty state: dashed, transparent, centered. */
   empty?: boolean;
+  /**
+   * Frame: square, a darker hairline, a small square mark on each corner, like a part on a drawing.
+   * For a card that puts something on display (a specimen, a preview, a featured item), not for
+   * every card. The marks sit across the corners, so don't clip a framed card (no overflow-hidden).
+   */
+  frame?: boolean;
 }
 
+/** One corner mark: 9px, centred on the corner of a 1px border; it takes the card's border color, hover included. */
+const mark = "pointer-events-none absolute size-[9px] border border-solid [border-color:inherit] bg-page";
+
 /** Holds one thing and its actions. Hairline, no shadow at rest. */
-export function Card({ link, empty, className, ...props }: CardProps) {
+export function Card({ link, empty, frame, className, children, ...props }: CardProps) {
   return (
     <article
       tabIndex={link ? 0 : undefined}
       className={cn(
         "flex min-w-0 flex-col rounded-card border-stroke border-line bg-surface text-left",
+        frame && "relative rounded-none border-line-strong",
         link &&
           // Large surface: hover steps the one border darker, never lifts or shrinks on press.
           "cursor-pointer transition-[border-color] duration-quick ease-hover hover:border-line-strong",
         empty &&
           "items-center justify-center gap-3 border-dashed border-line-strong bg-transparent px-6 py-8 text-center [&_p]:max-w-[30ch]",
+        frame && link && "hover:border-ink-3",
         className,
       )}
       {...props}
-    />
+    >
+      {frame && (
+        <>
+          <span aria-hidden className={cn(mark, "-top-[5px] -left-[5px]")} />
+          <span aria-hidden className={cn(mark, "-top-[5px] -right-[5px]")} />
+          <span aria-hidden className={cn(mark, "-bottom-[5px] -left-[5px]")} />
+          <span aria-hidden className={cn(mark, "-right-[5px] -bottom-[5px]")} />
+        </>
+      )}
+      {children}
+    </article>
   );
 }
 
@@ -50,7 +71,7 @@ export function CardIcon({ className, ...props }: ComponentProps<"div">) {
 }
 
 export function CardTitle({ className, ...props }: ComponentProps<"div">) {
-  return <div className={cn("text-body leading-5 font-heading tracking-[-.01em] text-balance", className)} {...props} />;
+  return <div className={cn("text-subtitle font-heading text-balance", className)} {...props} />;
 }
 
 export function CardSub({ className, ...props }: ComponentProps<"div">) {

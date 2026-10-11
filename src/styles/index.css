@@ -25,6 +25,10 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-border-control: var(--border-control);
+  /* The resting edge of a text field: halfway from the control edge to the strong divider, so a
+     form reads quieter. Below 3:1 at rest by choice; hover, focus and invalid use the full edge.
+     In Contrast, border-control is ink, so the mix stays dark. Inline, so scoped themes resolve it. */
+  --color-border-field: color-mix(in srgb, var(--border-control) 50%, var(--line-strong));
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-accent-strong: var(--accent-strong);
@@ -90,6 +94,9 @@
   --text-title: 1.125rem;
   --text-title--line-height: 1.5rem;
   --text-title--letter-spacing: -.015em;
+  --text-subtitle: .9375rem;
+  --text-subtitle--line-height: 1.25rem;
+  --text-subtitle--letter-spacing: -.01em;
   --text-body: .9375rem;
   --text-body--line-height: 1.5rem;
   --text-control: .875rem;
@@ -243,6 +250,11 @@
   border-color: var(--field-focus, var(--focus));
 }
 
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
 @utility sr-only-caret {
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
@@ -260,16 +272,22 @@
     scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 72px);
     scroll-behavior: smooth;
     background: var(--page);
+    /* No rubber-band bounce past the page's ends (macOS and iOS Safari, trackpad and touch). */
+    overscroll-behavior: none;
   }
   body {
     position: relative; /* Base UI: backdrops cover the visual viewport on iOS 26+ */
     margin: 0;
+    overscroll-behavior: none;
     background: var(--page);
     color: var(--ink);
     font: 400 var(--text-body)/var(--text-body--line-height) var(--font-ui);
     caret-color: var(--caret);
     -webkit-font-smoothing: antialiased;
   }
+  /* Headings balance their lines; reading text never ends on a lone word. */
+  h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
+  p, li, dd, figcaption, blockquote { text-wrap: pretty; }
   #root { isolation: isolate; } /* Base UI: portals always stack above the page */
   ::selection { background: var(--accent-soft); color: var(--ink); }
   code, kbd { font-family: var(--font-mono); }

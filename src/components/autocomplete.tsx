@@ -3,6 +3,7 @@ import { Field as BaseField } from "@base-ui/react/field";
 import { XIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playOpenSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { FieldMessage, fieldLabelClass, fieldRootClass, hintClass, wellClass, wellInputAfterLeadClass, wellInputClass, wellLeadClass } from "./input";
 import { keyboardInstant, menuDescriptionClass, menuItemClass, menuMetaClass, menuPopupClass } from "./select";
@@ -76,7 +77,10 @@ export function Autocomplete({
         items={items}
         value={value}
         onValueChange={(v) => onValueChange(v)}
-        onOpenChange={(open) => onOpenChange?.(open)}
+        onOpenChange={(open, d) => {
+          playOpenSound(open, d);
+          onOpenChange?.(open);
+        }}
         itemToStringValue={(s: Suggestion) => s.value}
         mode={mode}
         disabled={disabled}

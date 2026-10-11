@@ -2,6 +2,7 @@ import { Menu as BaseMenu } from "@base-ui/react/menu";
 import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playOpenSound, playSound } from "@/lib/sound";
 import { Kbd } from "./kbd";
 import { usePortalTheme } from "@/lib/theme";
 import { keyboardInstant } from "./select";
@@ -83,7 +84,10 @@ export interface MenuProps {
 
 export function Menu({ trigger, children, open, onOpenChange, side = "bottom", align = "start", openOnHover, className }: MenuProps) {
   return (
-    <BaseMenu.Root open={open} onOpenChange={(o) => onOpenChange?.(o)}>
+    <BaseMenu.Root open={open} onOpenChange={(o, d) => {
+        playOpenSound(o, d);
+        onOpenChange?.(o);
+      }}>
       <BaseMenu.Trigger render={trigger} openOnHover={openOnHover} />
       <MenuPopup side={side} align={align} className={className}>
         {children}
@@ -141,9 +145,16 @@ export interface MenuItemProps extends Omit<ComponentProps<typeof BaseMenu.Item>
   className?: string;
 }
 
-export function MenuItem({ icon, kbd, danger, children, className, ...props }: MenuItemProps) {
+export function MenuItem({ icon, kbd, danger, children, className, onClick, ...props }: MenuItemProps) {
   return (
-    <BaseMenu.Item className={cn(actionMenuItemClass, danger && dangerItemClass, className)} {...props}>
+    <BaseMenu.Item
+      className={cn(actionMenuItemClass, danger && dangerItemClass, className)}
+      {...props}
+      onClick={(e) => {
+        playSound("select");
+        onClick?.(e);
+      }}
+    >
       <Lead icon={icon} />
       <span className="min-w-0 flex-1 truncate" title={textOf(children)}>{children}</span>
       <Shortcut keys={kbd} />
@@ -157,9 +168,16 @@ export interface MenuLinkItemProps extends Omit<ComponentProps<typeof BaseMenu.L
 }
 
 /** An item that navigates. Renders a real <a>, so it can open in a new tab. */
-export function MenuLinkItem({ icon, children, ...props }: MenuLinkItemProps) {
+export function MenuLinkItem({ icon, children, onClick, ...props }: MenuLinkItemProps) {
   return (
-    <BaseMenu.LinkItem className={cn(actionMenuItemClass, "no-underline")} {...props}>
+    <BaseMenu.LinkItem
+      className={cn(actionMenuItemClass, "no-underline")}
+      {...props}
+      onClick={(e) => {
+        playSound("select");
+        onClick?.(e);
+      }}
+    >
       <Lead icon={icon} />
       <span className="min-w-0 flex-1 truncate" title={textOf(children)}>{children}</span>
     </BaseMenu.LinkItem>
@@ -172,9 +190,16 @@ export interface MenuCheckboxItemProps extends Omit<ComponentProps<typeof BaseMe
 }
 
 /** An on/off setting. Stays open on click so several can be toggled in a row. */
-export function MenuCheckboxItem({ kbd, children, ...props }: MenuCheckboxItemProps) {
+export function MenuCheckboxItem({ kbd, children, onCheckedChange, ...props }: MenuCheckboxItemProps) {
   return (
-    <BaseMenu.CheckboxItem className={actionMenuItemClass} {...props}>
+    <BaseMenu.CheckboxItem
+      className={actionMenuItemClass}
+      {...props}
+      onCheckedChange={(checked, details) => {
+        playSound(checked ? "check" : "uncheck");
+        onCheckedChange?.(checked, details);
+      }}
+    >
       <Lead />
       <span className="min-w-0 flex-1 truncate" title={textOf(children)}>{children}</span>
       <Shortcut keys={kbd} />
@@ -185,8 +210,16 @@ export function MenuCheckboxItem({ kbd, children, ...props }: MenuCheckboxItemPr
   );
 }
 
-export function MenuRadioGroup(props: Omit<ComponentProps<typeof BaseMenu.RadioGroup>, "className">) {
-  return <BaseMenu.RadioGroup {...props} />;
+export function MenuRadioGroup({ onValueChange, ...props }: Omit<ComponentProps<typeof BaseMenu.RadioGroup>, "className">) {
+  return (
+    <BaseMenu.RadioGroup
+      {...props}
+      onValueChange={(value, details) => {
+        playSound("select");
+        onValueChange?.(value, details);
+      }}
+    />
+  );
 }
 
 export interface MenuRadioItemProps extends Omit<ComponentProps<typeof BaseMenu.RadioItem>, "className" | "children"> {

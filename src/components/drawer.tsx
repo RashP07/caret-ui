@@ -2,6 +2,7 @@ import { Drawer as BaseDrawer } from "@base-ui/react/drawer";
 import { XIcon } from "@phosphor-icons/react";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playOpenSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { IconButton } from "./button";
 import { overlayBackdropClass } from "./dialog";
@@ -11,8 +12,10 @@ import { overlayBackdropClass } from "./dialog";
  * not the whole page: run details, filters, a settings panel. It's modal
  * like a dialog (focus is trapped, Escape and the backdrop close it, focus
  * returns to the trigger) and it can be swiped away toward its edge.
- * It floats above everything, so it takes --e-modal and rounds only the
- * corners that face the page (--r-dialog).
+ * It floats above everything, so it takes --e-modal. From the right it is a
+ * column, like a sidebar: square, flush to the edge, one hairline on the side
+ * facing the page, and a 56px header row. From the bottom it is a sheet: a drag
+ * handle and --r-dialog on the corners facing the page.
  *
  * Motion: enters on the iOS sheet curve (ease-drawer, --d-settle) and leaves
  * on --d-quick. Base UI measures the release: a quick flick dismisses
@@ -43,7 +46,7 @@ export interface DrawerProps {
 
 const popupSide: Record<DrawerSide, string> = {
   right: cn(
-    "h-full w-[calc(min(400px,100vw-40px)+var(--bleed))] -mr-(--bleed) pr-(--bleed) rounded-l-dialog",
+    "h-full w-[calc(min(400px,100vw-40px)+var(--bleed))] -mr-(--bleed) pr-(--bleed) border-l border-line",
     "[transform:translateX(var(--drawer-swipe-movement-x,0px))]",
     "data-starting-style:[transform:translateX(calc(100%-var(--bleed)+2px))] data-ending-style:[transform:translateX(calc(100%-var(--bleed)+2px))]",
   ),
@@ -57,7 +60,10 @@ const popupSide: Record<DrawerSide, string> = {
 export function Drawer({ trigger, open, onOpenChange, side = "right", title, description, children, footer, initialFocus }: DrawerProps) {
   const portalTheme = usePortalTheme();
   return (
-    <BaseDrawer.Root open={open} onOpenChange={(o) => onOpenChange?.(o)} swipeDirection={side === "right" ? "right" : "down"}>
+    <BaseDrawer.Root open={open} onOpenChange={(o, d) => {
+        playOpenSound(o, d);
+        onOpenChange?.(o);
+      }} swipeDirection={side === "right" ? "right" : "down"}>
       {trigger && <BaseDrawer.Trigger render={trigger} />}
       <BaseDrawer.Portal {...portalTheme}>
         <BaseDrawer.Backdrop
@@ -79,16 +85,17 @@ export function Drawer({ trigger, open, onOpenChange, side = "right", title, des
           >
             {side === "bottom" && <div aria-hidden className="mx-auto mt-2 h-1 w-10 flex-none rounded-pill bg-line-strong" />}
             <BaseDrawer.Content className="flex min-h-0 flex-1 flex-col">
-              <div className="relative flex-none border-b border-line px-6 pt-5 pb-4">
-                <BaseDrawer.Title className="m-0 pr-9 text-title font-heading text-balance">{title}</BaseDrawer.Title>
+              {/* At least 56px, like the sidebar's top row; the close button sits centred in that first 56px. */}
+              <div className="relative flex min-h-14 flex-none flex-col justify-center border-b border-line py-3 ps-5 pe-12">
+                <BaseDrawer.Title className="m-0 text-subtitle font-heading text-balance">{title}</BaseDrawer.Title>
                 {description && (
-                  <BaseDrawer.Description className="m-0 mt-1 text-control text-pretty text-ink-2">{description}</BaseDrawer.Description>
+                  <BaseDrawer.Description className="m-0 mt-0.5 text-small text-pretty text-ink-2">{description}</BaseDrawer.Description>
                 )}
-                <BaseDrawer.Close render={<IconButton label="Close" icon={<XIcon />} className="absolute top-3 right-3" />} />
+                <BaseDrawer.Close render={<IconButton label="Close" icon={<XIcon />} className="absolute top-2.5 right-2" />} />
               </div>
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">{children}</div>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">{children}</div>
               {footer && (
-                <div className="flex flex-none flex-wrap justify-end gap-2 border-t border-line bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))] px-6 py-3">
+                <div className="flex flex-none flex-wrap justify-end gap-2 border-t border-line bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))] px-5 py-3">
                   {footer}
                 </div>
               )}

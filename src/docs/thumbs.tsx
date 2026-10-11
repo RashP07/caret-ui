@@ -28,6 +28,7 @@ import {
   Avatar,
   Badge,
   Button,
+  Callout,
   Card,
   CardBody,
   CardFoot,
@@ -48,6 +49,11 @@ import {
   IconButton,
   Input,
   Kbd,
+  KeyValue,
+  KeyValueItem,
+  Link,
+  LogStream,
+  NavLinks,
   Meter,
   MsgAgent,
   MsgUser,
@@ -72,8 +78,11 @@ import {
   TabList,
   TabPanel,
   Tabs,
+  Textarea,
   ThemeSwatch,
   Threads,
+  Timeline,
+  TimelineItem,
   Toggle,
   ToggleGroup,
 } from "@/components";
@@ -88,7 +97,7 @@ import { THEMES, ThemeScope } from "@/lib/theme";
  * built from real Caret components (or, where the real thing would portal,
  * static markup reusing the component's exported classes). Content is laid
  * out on a 420×252 artboard and scaled to .7, so it fits a ~300×180 stage.
- * The card supplies the stage (bg-page bg-pattern) and `inert`.
+ * The card supplies the stage (bg-page) and `inert`.
  */
 
 const noop = () => {};
@@ -110,10 +119,13 @@ function StaticOption({ label, description, meta, selected, highlighted }: { lab
   return (
     <div className={menuItemClass} data-selected={selected ? "" : undefined} data-highlighted={highlighted ? "" : undefined}>
       <span className="min-w-0">
-        <span className="block font-control">{label}</span>
+        <span className="flex min-w-0 items-baseline gap-1.5">
+          <span className="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap font-control">{label}</span>
+          {meta && <span className={cn(menuMetaClass, "flex-none")}>{meta}</span>}
+        </span>
         {description && <span className={menuDescriptionClass}>{description}</span>}
       </span>
-      {meta ? <span className={menuMetaClass}>{meta}</span> : <span />}
+      <span />
       <CheckIcon className={selectedTickClass} />
     </div>
   );
@@ -625,7 +637,7 @@ function DrawerThumb() {
     <Artboard className="justify-end bg-scrim p-0">
       <div className="flex h-full w-[220px] flex-col gap-3 rounded-l-dialog bg-surface p-4 shadow-modal">
         <div className="flex items-center justify-between">
-          <span className="text-body font-heading">Run details</span>
+          <span className="text-subtitle font-heading">Run details</span>
           <XIcon className="text-ink-3" />
         </div>
         <Badge tone="live" dot className="self-start">
@@ -914,7 +926,7 @@ function AgentWorkspaceThumb() {
               <Crumbs items={["console", "toggle"]} />
             </div>
             <div className="flex flex-1 flex-col gap-2 p-3 text-small">
-              <div className="self-end rounded-[var(--r-card)_var(--r-card)_var(--r-inline)_var(--r-card)] border border-line bg-page px-2.5 py-1">Add a theme toggle.</div>
+              <div className="self-end rounded-control bg-page px-2.5 py-1">Add a theme toggle.</div>
               <div className="text-ink-2">Done. Tokens under data-theme.</div>
               <div className="mt-auto rounded-control border border-line-strong bg-surface px-2.5 py-2 text-ink-3">Ask for a change…</div>
             </div>
@@ -941,6 +953,170 @@ function AgentWorkspaceThumb() {
   );
 }
 
+function TextareaThumb() {
+  return (
+    <Artboard className="flex-col items-stretch px-12">
+      <Field label="Default instructions" count="96/600" hint="The agent reads this before every run." className="max-w-none">
+        <Textarea rows={3} defaultValue="You maintain the agent-console repo. Keep changes small and explain each one in a sentence." />
+      </Field>
+    </Artboard>
+  );
+}
+
+function CalloutThumb() {
+  return (
+    <Artboard className="flex-col items-stretch gap-3 px-10">
+      <Callout
+        tone="warning"
+        title="The deploy key expires in 3 days"
+        action={
+          <Button size="sm" variant="secondary">
+            Rotate key
+          </Button>
+        }
+      >
+        Runs that deploy will fail after Friday.
+      </Callout>
+      <Callout tone="info" title="Runs on main start automatically" />
+    </Artboard>
+  );
+}
+
+function LinkThumb() {
+  return (
+    <Artboard className="flex-col items-stretch gap-4 px-10">
+      <NavLinks aria-label="Workspace" className="h-11 border-b border-line">
+        <Link variant="nav" href="#">Overview</Link>
+        <Link variant="nav" href="#" current>Runs</Link>
+        <Link variant="nav" href="#">Agents</Link>
+      </NavLinks>
+      <p className="m-0 text-small text-ink">
+        Fixed in <Link variant="code" href="#">theme.ts:42</Link>, see <Link href="#">PR #128</Link>.
+      </p>
+    </Artboard>
+  );
+}
+
+function KeyValueThumb() {
+  return (
+    <Artboard className="flex-col items-stretch px-14">
+      <KeyValue>
+        <KeyValueItem label="Run ID" mono copy="run_8f2a91">
+          run_8f2a91
+        </KeyValueItem>
+        <KeyValueItem label="Branch" mono>
+          theme-toggle
+        </KeyValueItem>
+        <KeyValueItem label="Duration" numeric>
+          2m 41s
+        </KeyValueItem>
+        <KeyValueItem label="Cost" numeric>
+          $0.37
+        </KeyValueItem>
+      </KeyValue>
+    </Artboard>
+  );
+}
+
+function TimelineThumb() {
+  return (
+    <Artboard className="flex-col items-stretch px-12">
+      <Timeline>
+        <TimelineItem status="done" title="Install dependencies" time="14:02:20" duration="18s" />
+        <TimelineItem status="done" title="Edit 3 files" time="14:02:47" duration="24s" />
+        <TimelineItem status="running" title="Run tests" time="14:03:11" duration="…" />
+        <TimelineItem status="pending" title="Deploy preview" duration="—" />
+      </Timeline>
+    </Artboard>
+  );
+}
+
+function LogStreamThumb() {
+  return (
+    <Artboard className="items-stretch px-8 py-6">
+      <LogStream
+        className="w-full"
+        name="pnpm test"
+        live
+        lines={[
+          { text: "$ pnpm test", level: "muted" },
+          { text: "✓ src/lib/theme.test.ts (12 tests)", level: "ok" },
+          { text: "Hue drift above 4° in sand/dark", level: "warn" },
+          { text: "× invoices.test.ts > groups by month", level: "error" },
+          { text: "✓ src/components/table.test.tsx", level: "ok" },
+        ]}
+      />
+    </Artboard>
+  );
+}
+
+function SettingsThumb() {
+  return (
+    <Artboard className="items-start justify-start p-0">
+      <div className="h-[360px] w-[600px] flex-none origin-top-left scale-[.7] p-4">
+        <div className="grid h-full w-full grid-cols-[150px_1fr] overflow-hidden rounded-card border border-line bg-page shadow-float">
+          <div className="flex min-w-0 flex-col gap-px border-e border-line bg-surface p-2">
+            <NavItem icon={<GearIcon />} current>
+              General
+            </NavItem>
+            <NavItem icon={<RobotIcon />}>Models</NavItem>
+            <NavItem icon={<LinkIcon />}>API keys</NavItem>
+            <NavItem icon={<WarningCircleIcon />}>Danger zone</NavItem>
+          </div>
+          <div className="flex min-w-0 flex-col gap-3 p-4">
+            <Field label="Workspace name" count="11/32" className="max-w-none">
+              <Input defaultValue="Acme agents" />
+            </Field>
+            <Field label="Default instructions" className="max-w-none">
+              <Textarea rows={2} defaultValue="Keep changes small and open a pull request instead of pushing to main." />
+            </Field>
+            <Callout tone="warning" title="ci-runner expires in 3 days" />
+          </div>
+        </div>
+      </div>
+    </Artboard>
+  );
+}
+
+function RunDetailThumb() {
+  return (
+    <Artboard className="items-start justify-start p-0">
+      <div className="h-[360px] w-[600px] flex-none origin-top-left scale-[.7] p-4">
+        <div className="grid h-full w-full grid-cols-[1fr_190px] overflow-hidden rounded-card border border-line bg-page shadow-float">
+          <div className="flex min-w-0 flex-col gap-3 p-4">
+            <div className="flex items-center gap-2">
+              <Crumbs items={["agent-console", "Runs", "run_8f2a91"]} />
+              <Badge tone="live" dot className="ms-auto">
+                Running
+              </Badge>
+            </div>
+            <Timeline>
+              <TimelineItem status="done" title="Install dependencies" duration="18s" />
+              <TimelineItem status="done" title="Edit 3 files" duration="24s" />
+              <TimelineItem status="running" title="Run tests" duration="…" />
+              <TimelineItem status="pending" title="Deploy a preview" duration="—" />
+            </Timeline>
+          </div>
+          <div className="flex min-w-0 flex-col border-s border-line bg-surface px-3 py-2">
+            <KeyValue>
+              <KeyValueItem label="Agent">lunch-picker</KeyValueItem>
+              <KeyValueItem label="Branch" mono>
+                theme-toggle
+              </KeyValueItem>
+              <KeyValueItem label="Tokens" numeric>
+                18,400
+              </KeyValueItem>
+              <KeyValueItem label="Cost" numeric>
+                $0.06
+              </KeyValueItem>
+            </KeyValue>
+          </div>
+        </div>
+      </div>
+    </Artboard>
+  );
+}
+
 const THUMBS: Record<string, () => ReactNode> = {
   color: ColorThumb,
   themes: ThemesThumb,
@@ -951,6 +1127,7 @@ const THUMBS: Record<string, () => ReactNode> = {
   button: ButtonThumb,
   toggle: ToggleThumb,
   input: InputThumb,
+  textarea: TextareaThumb,
   select: SelectThumb,
   combobox: ComboboxThumb,
   autocomplete: AutocompleteThumb,
@@ -972,6 +1149,8 @@ const THUMBS: Record<string, () => ReactNode> = {
   drawer: DrawerThumb,
   card: CardThumb,
   table: TableThumb,
+  "key-value": KeyValueThumb,
+  link: LinkThumb,
   tabs: TabsThumb,
   accordion: AccordionThumb,
   collapsible: CollapsibleThumb,
@@ -980,8 +1159,13 @@ const THUMBS: Record<string, () => ReactNode> = {
   "navigation-menu": NavigationMenuThumb,
   progress: ProgressThumb,
   meter: MeterThumb,
+  callout: CalloutThumb,
   chat: ChatThumb,
+  timeline: TimelineThumb,
+  "log-stream": LogStreamThumb,
   "agent-workspace": AgentWorkspaceThumb,
+  "run-detail": RunDetailThumb,
+  settings: SettingsThumb,
 };
 
 /** Slugs that have a dedicated thumbnail. */
@@ -998,7 +1182,7 @@ function FallbackThumb({ slug }: { slug: string }) {
 
 /**
  * A small, inert, live preview of a page's component for the index grid.
- * Renders a 294×176 box; give it a ~300×180 stage (bg-page bg-pattern) and
+ * Renders a 294×176 box; give it a ~300×180 stage (bg-page) and
  * wrap it in `inert` so nothing inside takes focus.
  */
 export function Thumb({ slug }: { slug: string }): ReactNode {

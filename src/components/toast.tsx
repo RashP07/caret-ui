@@ -2,6 +2,7 @@ import { Toast } from "@base-ui/react/toast";
 import { CheckIcon, ExclamationMarkIcon, XIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { Button } from "./button";
 
 /**
@@ -35,6 +36,8 @@ interface ToastData {
  */
 export function toast(message: string, options: ToastOptions = {}) {
   const { tone = "neutral", description, action, timeout } = options;
+  // Neutral toasts are most toasts, and stay silent; the toned ones carry their tone's sound.
+  if (tone !== "neutral" && tone !== "info") playSound(tone);
   return manager.add({
     title: message,
     description,
@@ -63,12 +66,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 /*
- * The toast is inverted (ink ground, on-ink text). A tone mark is a
- * {tone}-solid disc with an on-{tone} glyph: that pair is solved to ≥4.5:1
- * in every theme, whatever the ink ground does, and each tone has its own
- * glyph so color isn't the only cue. Info's "i" is an inverted "!".
+ * The toast is a floating panel like a menu or popover: surface ground, one
+ * hairline, the soft --e-float drop, ink text. A tone mark is a {tone}-solid
+ * disc with an on-{tone} glyph: that pair is solved to ≥4.5:1 in every theme,
+ * and each tone has its own glyph so color isn't the only cue. Info's "i" is
+ * an inverted "!".
  */
-const toneMark: Record<Exclude<ToastTone, "neutral">, { disc: string; glyph: ReactNode }> = {
+export const toneMark: Record<Exclude<ToastTone, "neutral">, { disc: string; glyph: ReactNode }> = {
   success: { disc: "bg-success-solid text-on-success", glyph: <CheckIcon size={12} weight="bold" /> },
   danger: { disc: "bg-danger-solid text-on-danger", glyph: <XIcon size={12} weight="bold" /> },
   warning: { disc: "bg-warning-solid text-on-warning", glyph: <ExclamationMarkIcon size={12} weight="bold" /> },
@@ -86,7 +90,7 @@ function ToastList() {
         key={t.id}
         toast={t}
         className={cn(
-          "flex max-w-[min(420px,calc(100vw-32px))] items-start gap-2.5 rounded-card bg-ink px-3 py-2.5 text-control text-on-ink shadow-float",
+          "flex max-w-[min(420px,calc(100vw-32px))] items-start gap-2.5 rounded-card border border-line bg-surface px-3 py-2.5 text-control text-ink shadow-float",
           // Enters from, and leaves toward, the bottom edge it lives on (its own height, so
           // it works for any toast). Transitions, not keyframes: rapid toasts retarget smoothly.
           "transition-[opacity,translate] duration-settle ease-out",
@@ -105,7 +109,7 @@ function ToastList() {
         )}
         <div className="min-w-0 flex-1">
           <Toast.Title className="m-0 text-control font-normal text-pretty" />
-          {t.description && <Toast.Description className="m-0 mt-0.5 text-small text-pretty text-on-ink" />}
+          {t.description && <Toast.Description className="m-0 mt-0.5 text-small text-pretty text-ink-2" />}
         </div>
         {action && (
           <Toast.Action

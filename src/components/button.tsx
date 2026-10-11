@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState, type ComponentProps, type KeyboardEvent, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { scaled } from "@/lib/motion";
+import { playSound } from "@/lib/sound";
 import { Kbd } from "./kbd";
 import { Tooltip } from "./tooltip";
 
@@ -29,7 +30,7 @@ export type ButtonSize = "default" | "sm";
 const base = [
   "relative inline-flex min-w-0 max-w-full items-center justify-center gap-2 rounded-button",
   "[--pad:--spacing(3.5)] [--pad-icon:--spacing(2.5)] px-(--pad) data-lead:ps-(--pad-icon) data-trail:pe-(--pad-icon)",
-  "border border-(--bd) bg-(--bg) text-(--fg) text-control font-control tracking-[-.005em] whitespace-nowrap no-underline select-none",
+  "border border-(--bd) bg-(--bg) text-(--fg) text-control font-control whitespace-nowrap no-underline select-none",
   "[-webkit-tap-highlight-color:transparent] mb-(--btn-ledge) [--lift:var(--btn-ledge)]",
   "shadow-[inset_0_1px_0_var(--hl),0_var(--lift)_0_0_var(--ledge)]",
   // Focus: the global inset outline. The ring sits inside the face, over its border, so it never
@@ -80,12 +81,14 @@ const variants: Record<ButtonVariant, { rest: string; pressed: string }> = {
     pressed: cn(ledgePressed, "not-disabled:[--bg:var(--pressed)]"),
   },
   ghost: {
-    // Pressed (aria-pressed) is a stronger fill than hover plus a hairline mark, and hover doesn't wash it out.
+    // Pressed (aria-pressed) is a stronger fill than hover plus a hairline, and hover doesn't wash it out.
+    // The hairline is the button's own border, so the fill and the line meet at the edge: one line, not
+    // a fill ring outside an inset shadow.
     rest: cn(
       "mb-0 [--lift:0px] [--fg:var(--ink-2)]",
       "not-disabled:not-aria-pressed:hover:[--bg:var(--hover)] not-disabled:hover:[--fg:var(--ink)]",
       "not-disabled:active:translate-y-px",
-      "aria-pressed:[--bg:var(--pressed)] aria-pressed:[--fg:var(--ink)] aria-pressed:shadow-[inset_0_0_0_1px_var(--line-strong)]",
+      "aria-pressed:[--bg:var(--pressed)] aria-pressed:[--fg:var(--ink)] aria-pressed:[--bd:var(--line-strong)]",
     ),
     pressed: "not-disabled:translate-y-px",
   },
@@ -170,6 +173,8 @@ export interface ButtonProps extends ComponentProps<typeof BaseButton> {
   tipKbd?: string;
   /** Fires when the tooltip opens or closes (for state readouts). */
   onTipOpenChange?: (open: boolean) => void;
+  /** Play the press sound (when sound is on). Off for controls that play their own, like Toggle. */
+  sound?: boolean;
 }
 
 export function Button({
@@ -188,6 +193,8 @@ export function Button({
   onKeyDown,
   onKeyUp,
   onBlur,
+  onPointerDown,
+  sound = true,
   ...props
 }: ButtonProps) {
   // Keyboard presses show the pressed state too, not just the pointer.
@@ -207,7 +214,11 @@ export function Button({
         )
       }
       onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
-        if ((e.key === "Enter" || e.key === " ") && !props.disabled) setKeyDown(true);
+        if ((e.key === "Enter" || e.key === " ") && !props.disabled) {
+          setKeyDown(true);
+          // Sound answers the key going down, once: never on key repeat.
+          if (sound && !e.repeat) playSound("press");
+        }
         onKeyDown?.(e as never);
       }}
       onKeyUp={(e: KeyboardEvent<HTMLElement>) => {
@@ -217,6 +228,10 @@ export function Button({
       onBlur={(e) => {
         setKeyDown(false);
         onBlur?.(e as never);
+      }}
+      onPointerDown={(e) => {
+        if (sound && e.button === 0 && !props.disabled) playSound("press");
+        onPointerDown?.(e as never);
       }}
       {...props}
     >

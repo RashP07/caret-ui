@@ -2,6 +2,7 @@ import { Tabs as BaseTabs } from "@base-ui/react/tabs";
 import { LayoutGroup, motion, type Transition } from "motion/react";
 import { createContext, useContext, useEffect, useId, useRef, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { settle } from "@/lib/motion";
 import { pressClass, useModalityTransition } from "./modality";
 
@@ -12,22 +13,42 @@ import { pressClass, useModalityTransition } from "./modality";
  * keyboard changes snap, because keyboard motion only reads as delay.
  * `Seg` is the compact sibling. When the tabs don't fit, the list scrolls
  * sideways and fades the edge that has more tabs past it.
+ *
+ * Two looks, set on the TabList:
+ *   line    (default) 38px tabs standing on a baseline, an ink bar under the active one.
+ *   subtle  28px tabs for a header or toolbar row: no baseline; the active tab wears a pressed
+ *           face (the pressed ghost button's fill and hairline) that glides the same way. The
+ *           count is a plain number, not a pill.
  */
 
 type RootProps = Omit<ComponentProps<typeof BaseTabs.Root>, "className"> & { className?: string };
 
-export function Tabs({ className, ...props }: RootProps) {
-  return <BaseTabs.Root className={cn("w-full", className)} {...props} />;
+export function Tabs({ className, onValueChange, ...props }: RootProps) {
+  return (
+    <BaseTabs.Root
+      className={cn("w-full", className)}
+      {...props}
+      onValueChange={(value, details) => {
+        playSound("select");
+        onValueChange?.(value, details);
+      }}
+    />
+  );
 }
 
 /** The ink's transition for this list: glide on pointer, snap on keyboard. */
 const InkTransition = createContext<() => Transition>(() => settle);
+
+export type TabsVariant = "line" | "subtle";
+const VariantContext = createContext<TabsVariant>("line");
 
 type ListProps = Omit<ComponentProps<typeof BaseTabs.List>, "className"> & {
   className?: string;
   children: ReactNode;
   /** No baseline rule: for tab bars inside a header that draws its own. */
   flush?: boolean;
+  /** `subtle`: compact tabs with a gliding pressed face, for headers and toolbars. */
+  variant?: TabsVariant;
 };
 
 /**
@@ -58,13 +79,14 @@ function useEdgeFade<T extends HTMLElement>() {
   return ref;
 }
 
-export function TabList({ className, children, flush, ...props }: ListProps) {
+export function TabList({ className, children, flush, variant = "line", ...props }: ListProps) {
   const id = useId();
   const { handlers, transition } = useModalityTransition();
   const fadeRef = useEdgeFade<HTMLDivElement>();
   return (
     <LayoutGroup id={id}>
       <InkTransition.Provider value={transition}>
+        <VariantContext.Provider value={variant}>
         <BaseTabs.List
           ref={fadeRef}
           activateOnFocus
@@ -72,14 +94,16 @@ export function TabList({ className, children, flush, ...props }: ListProps) {
           className={cn(
             // Scrolls sideways when the tabs don't fit (phones), fading the edge with more past it.
             // The baseline is an inset hairline so the scroll box never clips it.
-            "scroll-fade-x relative flex gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-            !flush && "shadow-[inset_0_-1px_0_var(--line)]",
+            "scroll-fade-x relative flex overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            variant === "subtle" ? "items-center gap-0.5" : "gap-1",
+            !flush && variant === "line" && "shadow-[inset_0_-1px_0_var(--line)]",
             className,
           )}
           {...props}
         >
           {children}
         </BaseTabs.List>
+        </VariantContext.Provider>
       </InkTransition.Provider>
     </LayoutGroup>
   );
@@ -93,42 +117,58 @@ type TabProps = Omit<ComponentProps<typeof BaseTabs.Tab>, "className" | "render"
 
 export function Tab({ className, count, children, ...props }: TabProps) {
   const inkTransition = useContext(InkTransition);
+  const subtle = useContext(VariantContext) === "subtle";
   return (
     <BaseTabs.Tab
       className={cn(
-        "group/tab relative inline-flex flex-none h-[38px] items-center gap-2 rounded-t-button border-0 bg-transparent px-2.5 text-control font-control text-ink-3",
+        "group/tab relative inline-flex flex-none items-center border-0 bg-transparent font-control",
         "transition-[color,scale] duration-instant [transition-timing-function:var(--ease-hover),var(--ease-out)]",
         "hover:text-ink data-active:text-ink",
+        subtle
+          ? // The face sits behind the label (isolate + -z-1), so the label never needs its own layer.
+            "isolate h-7 gap-1.5 rounded-button px-2.5 text-small text-ink-2 not-data-active:hover:bg-hover"
+          : "h-[38px] gap-2 rounded-t-button px-2.5 text-control text-ink-3",
         pressClass,
         className,
       )}
       render={(tabProps, state) => (
         <button {...tabProps}>
           {tabProps.children}
-          {state.active && (
-            <motion.span
-              aria-hidden
-              layoutId="tab-ink"
-              transition={inkTransition()}
-              className="absolute inset-x-0 bottom-0 h-0.5 rounded-t-[2px] bg-ink"
-            />
-          )}
+          {state.active &&
+            (subtle ? (
+              <motion.span
+                aria-hidden
+                layoutId="tab-face"
+                transition={inkTransition()}
+                className="absolute inset-0 -z-1 rounded-button border border-line-strong bg-pressed"
+              />
+            ) : (
+              <motion.span
+                aria-hidden
+                layoutId="tab-ink"
+                transition={inkTransition()}
+                className="absolute inset-x-0 bottom-0 h-0.5 rounded-t-[2px] bg-ink"
+              />
+            ))}
         </button>
       )}
       {...props}
     >
       {children}
-      {count != null && (
-        <span
-          className={cn(
-            "rounded-pill bg-sunken px-1.5 py-px text-caption tabular-nums text-ink-3",
-            "transition-[color,background-color] duration-quick ease-hover",
-            "group-data-active/tab:bg-accent-soft group-data-active/tab:text-ink",
-          )}
-        >
-          {count}
-        </span>
-      )}
+      {count != null &&
+        (subtle ? (
+          <span className="text-caption tabular-nums text-ink-3 group-data-active/tab:text-ink-2">{count}</span>
+        ) : (
+          <span
+            className={cn(
+              "rounded-pill bg-sunken px-1.5 py-px text-caption tabular-nums text-ink-3",
+              "transition-[color,background-color] duration-quick ease-hover",
+              "group-data-active/tab:bg-accent-soft group-data-active/tab:text-ink",
+            )}
+          >
+            {count}
+          </span>
+        ))}
     </BaseTabs.Tab>
   );
 }

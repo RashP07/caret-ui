@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger, MenuLabel, NavGroup, NavItem, Threads } from "@/components";
 import { cn } from "@/lib/cn";
+import { COLUMN_PAD } from "./construction";
 
 interface Entry {
   id: string;
@@ -104,7 +105,8 @@ export function OnThisPage({ containerId }: { containerId: string }) {
 
 /**
  * "On this page" where there's no room for the column: a disclosure at the top
- * of the page listing the same headings. Following a link closes it.
+ * of the page listing the same headings. Following a link closes it. Drawn as a band
+ * across the reading column, closed by a rule with Nodes where it meets the frame lines.
  */
 export function OnThisPageCompact({ containerId, className }: { containerId: string; className?: string }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -116,7 +118,7 @@ export function OnThisPageCompact({ containerId, className }: { containerId: str
   if (entries.length < 2) return null;
 
   return (
-    <nav aria-label="On this page" className={cn("mb-6 border-b border-line pb-2", className)}>
+    <nav aria-label="On this page" className={cn("py-2", COLUMN_PAD, className)}>
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger meta={entries.length}>On this page</CollapsibleTrigger>
         <CollapsiblePanel>

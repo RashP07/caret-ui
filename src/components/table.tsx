@@ -1,6 +1,7 @@
 import { CaretDownIcon, CaretUpDownIcon, CaretUpIcon } from "@phosphor-icons/react";
 import { createContext, useContext, useEffect, useRef, useState, type ComponentProps, type ReactNode, type RefObject } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { pressColorTransition } from "./modality";
 import { ScrollArea } from "./scroll-area";
 
@@ -172,7 +173,10 @@ export function TableHead({ align = "start", sort, onSort, scope = "col", classN
       {onSort ? (
         <button
           type="button"
-          onClick={onSort}
+          onClick={() => {
+            playSound("select");
+            onSort();
+          }}
           className={cn(
             // Negative margin keeps the label on the column's edge; the ring sits inside the clipped frame.
             "-mx-1.5 inline-flex min-h-6 items-center gap-1 rounded-inline border-0 bg-transparent px-1.5 text-inherit",

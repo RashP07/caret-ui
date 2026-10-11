@@ -1,9 +1,5 @@
 import {
-  ArrowsInIcon,
-  ArrowsOutIcon,
   ArrowUUpLeftIcon,
-  DotsThreeIcon,
-  ExportIcon,
   FileIcon,
   FolderIcon,
   GearIcon,
@@ -15,13 +11,11 @@ import {
   QuestionIcon,
   RobotIcon,
   SidebarSimpleIcon,
-  SlidersHorizontalIcon,
   SunIcon,
-  TerminalIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import { motion } from "motion/react";
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -40,7 +34,6 @@ import {
   ComposerFoot,
   Consequences,
   ContextMeter,
-  Crumbs,
   Diff,
   Diffstat,
   diffStatOf,
@@ -73,32 +66,22 @@ import { cn } from "@/lib/cn";
 import { MODE_INFO, ThemeScope, type ResolvedMode } from "@/lib/theme";
 import { usePageScheme } from "@/lib/use-page-scheme";
 import { SeedConversation } from "./seed-conversation";
-import {
-  ago,
-  BRANCHES,
-  DIRS,
-  FILES,
-  MODEL_GROUPS,
-  MODES,
-  PROJECTS,
-  REPLY,
-  RUN_STEPS,
-  WORKSPACES,
-} from "./workspace-data";
+import { ago, BRANCHES, DIRS, FILES, MODEL_GROUPS, MODES, PROJECTS, REPLY, RUN_STEPS, WORKSPACES } from "./workspace-data";
 
 /*
- * Template: agent workspace. Threads on the left, the conversation in the
- * middle, the agent's changes on the right.
+ * Template: agent workspace. Threads on the left, the conversation in the middle, the agent's
+ * changes on the right: three flush columns split by single hairlines, like the docs shell. One
+ * 44px header row runs across all three, so their bottom lines read as one line. No cards inside
+ * cards, no gutters: the columns are the structure.
  *
- * Layout only. Every piece inside is an existing Caret component: Select,
- * Input, NavItem, Threads, MenuLabel, Seg, Card, Crumbs, Tabs, Diff, Composer,
- * Badge, Trace, MsgActions. The classes in this file are grid, flex, gap,
- * padding, width, overflow, visibility and positioning — nothing else.
+ * Layout only. Every piece inside is an existing Caret component (Select, Input, NavItem, Threads,
+ * Seg, Tabs, Diff, Composer, Trace, MsgActions, AlertDialog…); the classes here are grid, flex,
+ * gap, padding, size, borders between columns, overflow and position.
  *
- * It lays out by its own width, not the viewport's, so it works inside a docs
- * column or a split pane: below 1180px the changes panel becomes a slide-over,
- * below 860px the sidebar does too. Its height is the host's: give it one
- * (e.g. `className="h-[780px]"`), or place it in a sized box.
+ * It lays out by its own width, not the viewport's, so it works in a docs column or a split pane:
+ * under 1180px the changes panel slides over the conversation, under 860px the sidebar does too,
+ * each as the same flush column with --e-modal. Its height is the host's: give it one
+ * (`className="h-[780px]"`) or put it in a sized box.
  */
 
 type Run = {
@@ -123,9 +106,10 @@ type Msg =
 let nextId = 1;
 const uid = () => nextId++;
 
-const SIDE = "260px";
-/** The changes panel, docked or as a slide-over. */
-const PANEL = "448px";
+const SIDE = 248;
+const PANEL = 420;
+/** Every column's header: 44px, border-box, so the three bottom lines are one. */
+const HEAD = "flex h-11 flex-none items-center gap-1 border-b border-line";
 
 const files = (n: number) => `${n} ${new Intl.PluralRules("en").select(n) === "one" ? "file" : "files"}`;
 
@@ -144,6 +128,17 @@ function useWidth<T extends HTMLElement>() {
   return [ref, width] as const;
 }
 
+/** A quiet centred message for an empty conversation or panel. */
+function Empty({ icon, title, children }: { icon?: ReactNode; title: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 px-6 text-center">
+      {icon && <CardIcon className="mb-1.5">{icon}</CardIcon>}
+      <CardTitle>{title}</CardTitle>
+      <CardText className="max-w-[34ch]">{children}</CardText>
+    </div>
+  );
+}
+
 export function AgentWorkspace({ className }: { className?: string }) {
   /* ---------- layout: by the template's own width ---------- */
   const [rootRef, width] = useWidth<HTMLDivElement>();
@@ -153,21 +148,19 @@ export function AgentWorkspace({ className }: { className?: string }) {
   const [sideOpen, setSideOpen] = useState(false);
   const [panelHidden, setPanelHidden] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [full, setFull] = useState(false);
 
-  const sideInGrid = !narrow && !sideHidden;
+  const sideDocked = !narrow && !sideHidden;
   const sideVisible = narrow ? sideOpen : !sideHidden;
-  const panelInGrid = !mid && !panelHidden;
+  const panelDocked = !mid && !panelHidden;
   const panelVisible = mid ? panelOpen : !panelHidden;
 
   const toggleSide = () => (narrow ? setSideOpen((o) => !o) : setSideHidden((h) => !h));
   const togglePanel = () => (mid ? setPanelOpen((o) => !o) : setPanelHidden((h) => !h));
   const closePanel = () => (mid ? setPanelOpen(false) : setPanelHidden(true));
 
-  /* ---------- scoped mode: the theme follows the page ---------- */
+  /* ---------- scoped mode: follows the page until you pick ---------- */
   const [scopeMode, setScopeMode] = useState<ResolvedMode | undefined>();
   const pageScheme = usePageScheme();
-  const segMode = scopeMode ?? pageScheme;
 
   /* ---------- sidebar ---------- */
   const [workspace, setWorkspace] = useState("PR");
@@ -178,8 +171,7 @@ export function AgentWorkspace({ className }: { className?: string }) {
   const q = query.trim().toLowerCase();
   const tree = PROJECTS.map((p) => {
     const threads = (p.threads ?? []).filter((t) => !q || t.name.includes(q));
-    const show = !q || p.name.includes(q) || threads.length > 0;
-    return { ...p, threads, show };
+    return { ...p, threads, show: !q || p.name.includes(q) || threads.length > 0 };
   });
   const anyMatch = tree.some((p) => p.show);
 
@@ -208,6 +200,7 @@ export function AgentWorkspace({ className }: { className?: string }) {
     stopRef.current?.();
     setThread(name);
     setMsgs(name === "theme toggle" ? [{ id: uid(), kind: "seed" }] : [{ id: uid(), kind: "note", minutes }]);
+    if (narrow) setSideOpen(false);
     scrollDown();
   }
 
@@ -215,6 +208,7 @@ export function AgentWorkspace({ className }: { className?: string }) {
     stopRef.current?.();
     setThread(null);
     setMsgs([{ id: uid(), kind: "empty" }]);
+    if (narrow) setSideOpen(false);
     taRef.current?.focus();
   }
 
@@ -222,7 +216,7 @@ export function AgentWorkspace({ className }: { className?: string }) {
     setMsgs((all) => all.map((m) => (m.id === id && m.kind === "run" ? { ...m, ...patch(m) } : m)));
   }
 
-  // The run: send → trace streams → reply streams with the caret as write head.
+  // The run: send → the trace streams → the reply streams with the caret as its write head.
   function send(text: string) {
     const runId = uid();
     setMsgs((all) => [
@@ -301,9 +295,7 @@ export function AgentWorkspace({ className }: { className?: string }) {
   function discard() {
     setConfirmDiscard(false);
     setDiscarded(true);
-    toast(`Discarded changes to ${files(FILES.length)}`, {
-      action: { label: "Undo", onClick: () => setDiscarded(false) },
-    });
+    toast(`Discarded changes to ${files(FILES.length)}`, { action: { label: "Undo", onClick: () => setDiscarded(false) } });
   }
 
   function pickFile(i: number) {
@@ -311,7 +303,7 @@ export function AgentWorkspace({ className }: { className?: string }) {
     requestAnimationFrame(() => (filesRef.current?.querySelector("[aria-current='true']") as HTMLElement | null)?.focus());
   }
 
-  /* ---------- keyboard ---------- */
+  /* ---------- keyboard: ⌘K searches threads, ⌘\ toggles the sidebar ---------- */
   function onAppKeyDown(e: KeyboardEvent<HTMLDivElement>) {
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key.toLowerCase() === "k") {
@@ -326,25 +318,6 @@ export function AgentWorkspace({ className }: { className?: string }) {
     }
   }
 
-  useEffect(() => {
-    if (!full) return;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key !== "Escape" || e.defaultPrevented || busy) return;
-      if (document.querySelector("[data-popup-open]")) return;
-      setFull(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [full, busy]);
-
-  const modelPicker = (
-    <Select label="Model" hideLabel density="compact" value={model} onValueChange={setModel} groups={MODEL_GROUPS} side="top" align="end" menuWidth={260} />
-  );
-
   return (
     <ThemeScope
       ref={rootRef}
@@ -353,29 +326,25 @@ export function AgentWorkspace({ className }: { className?: string }) {
       role="region"
       onKeyDown={onAppKeyDown}
       className={cn(
-        // The outer frame of a full app template. Concentric: the 12px cards sit 8px in.
-        "relative grid h-full min-h-0 grid-cols-[var(--side)_minmax(0,1fr)_var(--panel)] overflow-hidden rounded-[calc(var(--r-card)+8px)] border border-line bg-page p-2 text-ink shadow-float",
-        "transition-[grid-template-columns] duration-settle ease-out",
+        "relative grid h-full min-h-0 grid-cols-[var(--side)_minmax(0,1fr)_var(--panel)] overflow-hidden border border-line bg-page text-ink",
+        "transition-[grid-template-columns] duration-settle ease-drawer",
         className,
-        full && "fixed inset-0 z-[85] h-auto rounded-none border-0 pt-[calc(8px+env(safe-area-inset-top,0px))] pb-[calc(8px+env(safe-area-inset-bottom,0px))]",
       )}
-      style={{ "--side": sideInGrid ? SIDE : "0px", "--panel": panelInGrid ? PANEL : "0px", "--panel-w": PANEL } as React.CSSProperties}
+      style={{ "--side": sideDocked ? `${SIDE}px` : "0px", "--panel": panelDocked ? `${PANEL}px` : "0px" } as React.CSSProperties}
     >
       {/* ---------- sidebar ---------- */}
       <aside
-        aria-label="Workspace"
+        aria-label="Threads"
+        style={narrow ? { width: SIDE + 12 } : undefined}
         className={cn(
-          "flex min-w-0 flex-col gap-3 overflow-hidden pt-1.5 pr-3 pb-1 pl-1",
+          "flex min-h-0 min-w-0 flex-col overflow-hidden bg-surface",
           !sideVisible && "invisible",
-          !narrow && "col-start-1 row-start-1",
-          // phones: a slide-over panel, --e-modal (DESIGN.md §3)
-          narrow && "absolute top-2 bottom-2 left-2 z-[6] w-[260px] rounded-card border border-line bg-page p-2 shadow-modal",
+          narrow ? "absolute inset-y-0 left-0 z-[6] border-r border-line shadow-modal" : "col-start-1 row-start-1 border-r border-line",
         )}
       >
-        <div className="flex items-center gap-1">
+        <div className={cn(HEAD, "ps-1.5 pe-1.5")}>
           <Select
             className="min-w-0 flex-1"
-            triggerClassName="h-9"
             label="Workspace"
             hideLabel
             density="compact"
@@ -383,140 +352,128 @@ export function AgentWorkspace({ className }: { className?: string }) {
             onValueChange={setWorkspace}
             groups={WORKSPACES}
             menuWidth={220}
-            lead={<Avatar small initials={workspace} />}
+            lead={<Avatar small tone="soft" initials={workspace} />}
           />
-          <IconButton label={narrow ? "Close sidebar" : "Hide sidebar"} kbd="⌘ \" icon={<SidebarSimpleIcon />} onClick={toggleSide} />
+          <IconButton size="sm" label={narrow ? "Close sidebar" : "Hide sidebar"} kbd="⌘ \" icon={<SidebarSimpleIcon />} onClick={toggleSide} />
         </div>
 
-        <Input
-          ref={searchRef}
-          aria-label="Search threads"
-          placeholder="Search threads"
-          autoComplete="off"
-          value={query}
-          onValueChange={(v: string) => setQuery(v)}
-          lead={<MagnifyingGlassIcon />}
-          trail={<Kbd keys="⌘K" />}
-        />
+        <div className="flex flex-none flex-col gap-2 p-2">
+          <Input
+            ref={searchRef}
+            aria-label="Search threads"
+            placeholder="Search threads"
+            autoComplete="off"
+            value={query}
+            onValueChange={(v: string) => setQuery(v)}
+            lead={<MagnifyingGlassIcon />}
+            trail={<Kbd keys="⌘K" size="sm" />}
+          />
+          <nav aria-label="Primary" className="flex flex-col gap-px">
+            <NavItem icon={<PlusIcon />} onClick={newThread}>
+              New thread
+            </NavItem>
+            <NavItem icon={<RobotIcon />}>Automations</NavItem>
+          </nav>
+        </div>
 
-        <nav aria-label="Primary" className="flex flex-col gap-px">
-          <NavItem icon={<PlusIcon />} onClick={newThread}>
-            New thread
-          </NavItem>
-          <NavItem icon={<RobotIcon />}>Automations</NavItem>
-          <NavItem icon={<SlidersHorizontalIcon />}>Customize</NavItem>
-        </nav>
-
-        <motion.div layoutScroll className="-mx-1 flex min-h-0 flex-1 flex-col gap-px overflow-y-auto px-1">
+        <motion.div layoutScroll className="flex min-h-0 flex-1 flex-col gap-px overflow-y-auto overscroll-contain px-2 pb-2">
           <NavGroup>
-          <MenuLabel>Projects</MenuLabel>
-          {tree.map((p) =>
-            p.show ? (
-              <div key={p.name} className="flex flex-col gap-px">
-                <NavItem icon={<FolderIcon />}>{p.name}</NavItem>
-                {p.threads.length > 0 && (
-                  <Threads>
-                    {p.threads.map((t) => {
-                      const when = ago(t.minutes);
-                      return (
-                        <NavItem
-                          key={t.name}
-                          // "34m" reads as meters: the short form is for the eye, the long one for screen readers.
-                          meta={
-                            <>
-                              <span aria-hidden>{when.short}</span>
-                              <span className="sr-only-caret">{when.long}</span>
-                            </>
-                          }
-                          live={t.live}
-                          current={thread === t.name}
-                          onClick={() => openThread(t.name, t.minutes)}
-                        >
-                          {t.name}
-                        </NavItem>
-                      );
-                    })}
-                  </Threads>
-                )}
+            <MenuLabel>Projects</MenuLabel>
+            {tree.map((p) =>
+              p.show ? (
+                <div key={p.name} className="flex flex-col gap-px">
+                  <NavItem icon={<FolderIcon />}>{p.name}</NavItem>
+                  {p.threads.length > 0 && (
+                    <Threads>
+                      {p.threads.map((t) => {
+                        const when = ago(t.minutes);
+                        return (
+                          <NavItem
+                            key={t.name}
+                            // "34m" reads as meters: the short form is for the eye, the long one for screen readers.
+                            meta={
+                              <>
+                                <span aria-hidden>{when.short}</span>
+                                <span className="sr-only-caret">{when.long}</span>
+                              </>
+                            }
+                            live={t.live}
+                            current={thread === t.name}
+                            onClick={() => openThread(t.name, t.minutes)}
+                          >
+                            {t.name}
+                          </NavItem>
+                        );
+                      })}
+                    </Threads>
+                  )}
+                </div>
+              ) : null,
+            )}
+            {!anyMatch && (
+              <div className="flex flex-col items-start gap-1.5 px-2 py-1.5">
+                <Hint className="break-all">No threads match “{query.trim()}”.</Hint>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2"
+                  onClick={() => {
+                    setQuery("");
+                    searchRef.current?.focus();
+                  }}
+                >
+                  Clear search
+                </Button>
               </div>
-            ) : null,
-          )}
-          {!anyMatch && (
-            <div className="flex flex-col items-start gap-1.5 px-2 py-1.5">
-              <Hint className="break-all">No threads match “{query.trim()}”.</Hint>
-              <Button
-                variant="ghost"
-                className="-ml-2"
-                onClick={() => {
-                  setQuery("");
-                  searchRef.current?.focus();
-                }}
-              >
-                Clear search
-              </Button>
-            </div>
-          )}
+            )}
           </NavGroup>
         </motion.div>
 
-        <div className="flex flex-col gap-px border-t border-line pt-2">
+        <div className="flex flex-none items-center gap-0.5 border-t border-line p-1.5">
           <Seg
-            className="mb-1.5 ml-1 self-start"
             aria-label="Template mode"
-            value={segMode}
+            value={scopeMode ?? pageScheme}
             onValueChange={setScopeMode}
             options={[
-              { value: "light", label: "Light", icon: <SunIcon size={14} />, iconOnly: true },
-              { value: "dark", label: "Dark", icon: <MoonIcon size={14} />, iconOnly: true },
+              { value: "light", label: MODE_INFO.light.label, icon: <SunIcon size={14} />, iconOnly: true },
+              { value: "dark", label: MODE_INFO.dark.label, icon: <MoonIcon size={14} />, iconOnly: true },
             ]}
           />
-          <NavItem icon={<QuestionIcon />}>Help</NavItem>
-          <NavItem icon={<GearIcon />}>Settings</NavItem>
-          <Card className="mt-1.5">
-            <CardHead className="m-0 items-center gap-2 p-3">
-              <Avatar tone="soft" initials="S" />
-              <div className="min-w-0">
-                <CardTitle className="truncate">Pro plan</CardTitle>
-                <CardSub>studio team</CardSub>
-              </div>
-              <Button variant="secondary" className="ml-auto">
-                Upgrade
-              </Button>
-            </CardHead>
-          </Card>
+          <div className="flex-1" />
+          <TooltipGroup>
+            <IconButton size="sm" label="Help" icon={<QuestionIcon />} />
+            <IconButton size="sm" label="Settings" icon={<GearIcon />} />
+          </TooltipGroup>
         </div>
       </aside>
 
       {/* ---------- conversation ---------- */}
-      <Card aria-label="Conversation" className="col-start-2 row-start-1 min-h-0 overflow-hidden">
-        <header className="flex h-13 flex-none items-center gap-1 border-b border-line pr-2 pl-3">
-          {/* One shared tooltip for the header's icon row. */}
+      <section aria-label="Conversation" className="col-start-2 row-start-1 flex min-h-0 min-w-0 flex-col">
+        <header className={cn(HEAD, "ps-2 pe-1.5")}>
           <TooltipGroup side="bottom">
-          {(narrow || sideHidden) && <IconButton label="Show sidebar" icon={<SidebarSimpleIcon />} onClick={toggleSide} />}
-          <Crumbs icon={<FolderIcon size={14} />} items={["agent-console", thread ?? "New thread"]} />
-          <div className="flex-1" />
-          <IconButton label="Share thread" icon={<ExportIcon />} />
-          <IconButton label="More thread actions" icon={<DotsThreeIcon weight="bold" />} />
-          <IconButton
-            label={full ? "Exit full screen" : "Full screen"}
-            kbd={full ? "Esc" : undefined}
-            icon={full ? <ArrowsInIcon /> : <ArrowsOutIcon />}
-            onClick={() => {
-              setFull((f) => !f);
-              scrollDown();
-            }}
-          />
-          <IconButton
-            label={panelVisible ? "Hide changes panel" : "Show changes panel"}
-            icon={<SidebarSimpleIcon className="-scale-x-100" />}
-            onClick={togglePanel}
-          />
+            {!sideDocked && <IconButton size="sm" label="Show sidebar" kbd="⌘ \" icon={<SidebarSimpleIcon />} onClick={toggleSide} />}
+            <h2 className="m-0 flex min-w-0 items-center gap-1.5 ps-1.5 text-control font-control">
+              <span className="truncate">{thread ?? "New thread"}</span>
+              {busy && (
+                <Badge tone="live" dot className="flex-none">
+                  Working
+                </Badge>
+              )}
+            </h2>
+            <div className="flex-1" />
+            {/* Pressed while the panel shows; the stat says what's waiting before you open it. */}
+            <Button size="sm" variant="ghost" aria-pressed={panelVisible} onClick={togglePanel} className="flex-none">
+              <span className="inline-flex items-center gap-2">
+                Changes
+                {changed.length > 0 && <Diffstat {...total} />}
+              </span>
+            </Button>
           </TooltipGroup>
         </header>
 
-        <div ref={bodyRef} className={cn("min-h-0 flex-1 overflow-y-auto px-6 pt-8 pb-6", narrow && "px-3 pt-6")}>
+        <div ref={bodyRef} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pt-6 pb-4", narrow && "px-3 pt-4")}>
           {/* Keyed by thread: opening a thread remounts the column, so its messages stagger in. */}
-          <Messages key={thread ?? "new"} className="mx-auto max-w-[760px]">
+          <Messages key={thread ?? "new"} className="mx-auto min-h-full max-w-[720px]">
             {msgs.map((m) => {
               switch (m.kind) {
                 case "seed":
@@ -525,26 +482,19 @@ export function AgentWorkspace({ className }: { className?: string }) {
                   return <MsgUser key={m.id}>{m.text}</MsgUser>;
                 case "note":
                   return (
-                    <div key={m.id} className="flex flex-col gap-6">
-                      <Badge className="self-center">Last active {ago(m.minutes).long}</Badge>
-                      <Card empty>
-                        <CardIcon>
-                          <RobotIcon />
-                        </CardIcon>
-                        <CardTitle>Pick up where you left off</CardTitle>
-                        <CardText>Send a message to continue this thread.</CardText>
-                      </Card>
+                    <div key={m.id} className="my-auto">
+                      <Empty icon={<RobotIcon />} title="Pick up where you left off">
+                        Last active {ago(m.minutes).long}. Send a message to continue this thread.
+                      </Empty>
                     </div>
                   );
                 case "empty":
                   return (
-                    <Card key={m.id} empty className="mt-[12%]">
-                      <CardIcon>
-                        <RobotIcon />
-                      </CardIcon>
-                      <CardTitle>What should we build?</CardTitle>
-                      <CardText>The agent can read this project, edit files, and run commands.</CardText>
-                    </Card>
+                    <div key={m.id} className="my-auto">
+                      <Empty icon={<RobotIcon />} title="What should we build?">
+                        The agent can read this project, edit files and run commands.
+                      </Empty>
+                    </div>
                   );
                 case "run":
                   return (
@@ -573,18 +523,18 @@ export function AgentWorkspace({ className }: { className?: string }) {
           </Messages>
         </div>
 
-        <div className={cn("flex-none px-4 pb-3", narrow && "px-2 pb-2")}>
-          <div className="mx-auto max-w-[760px]">
+        <div className={cn("flex-none px-6 pb-4", narrow && "px-3 pb-3")}>
+          <div className="mx-auto max-w-[720px]">
             <Composer
               textareaRef={taRef}
               busy={busy}
               onSend={send}
               onStop={() => stopRef.current?.()}
-              tools={<IconButton label="Attach files" icon={<PlusIcon />} />}
+              tools={<IconButton size="sm" label="Attach files" icon={<PlusIcon />} />}
               controls={
                 <>
-                  {modelPicker}
-                  <IconButton label="Dictate" kbd="⌥ Space" icon={<MicrophoneIcon />} />
+                  <Select label="Model" hideLabel density="xs" value={model} onValueChange={setModel} groups={MODEL_GROUPS} side="top" align="end" menuWidth={260} />
+                  <IconButton size="sm" label="Dictate" kbd="⌥ Space" icon={<MicrophoneIcon />} />
                 </>
               }
             />
@@ -597,129 +547,121 @@ export function AgentWorkspace({ className }: { className?: string }) {
             </ComposerFoot>
           </div>
         </div>
-      </Card>
+      </section>
 
       {/* ---------- changes panel ---------- */}
-      <div
+      <aside
+        aria-label="Changes"
+        style={mid ? { width: `min(${PANEL}px, 100%)` } : undefined}
         className={cn(
-          "flex min-h-0 min-w-0 overflow-hidden pl-2",
+          "flex min-h-0 min-w-0 flex-col overflow-hidden bg-surface",
           !panelVisible && "invisible",
-          !mid && "col-start-3 row-start-1",
-          // below 1180px of its own width: a slide-over panel, --e-modal (DESIGN.md §3)
-          mid && "absolute top-2 right-2 bottom-2 z-[5] w-[min(var(--panel-w),calc(100%-16px))] pl-0 [&>*]:shadow-modal",
+          mid ? "absolute inset-y-0 right-0 z-[5] border-l border-line shadow-modal" : "col-start-3 row-start-1 border-l border-line",
         )}
       >
-        <Card aria-label="Changes panel" className="min-h-0 w-full min-w-0 overflow-hidden">
-          <Tabs value={panelTab} onValueChange={(v) => setPanelTab(v as string)} className="flex min-h-0 max-w-none flex-1 flex-col">
-            <div className="flex h-13 flex-none items-end gap-1 border-b border-line pr-2 pl-3">
-              <TabList aria-label="Changes panel views" flush className="min-w-0 flex-1">
-                <Tab value="changes" count={changed.length}>
-                  Changes
-                </Tab>
-                <Tab value="preview">Preview</Tab>
-              </TabList>
-              <div className="flex self-center">
-                <TooltipGroup side="bottom">
-                  <IconButton label="Open terminal" kbd="⌃ `" icon={<TerminalIcon />} />
-                  <IconButton label="Hide changes panel" icon={<XIcon />} onClick={closePanel} />
-                </TooltipGroup>
+        <Tabs value={panelTab} onValueChange={(v) => setPanelTab(v as string)} className="flex min-h-0 max-w-none flex-1 flex-col">
+          <div className={cn(HEAD, "ps-2 pe-1.5")}>
+            <TabList aria-label="Panel views" variant="subtle" className="min-w-0 flex-1">
+              <Tab value="changes" count={changed.length}>
+                Changes
+              </Tab>
+              <Tab value="preview">Preview</Tab>
+            </TabList>
+            <IconButton size="sm" className="flex-none" label="Close panel" icon={<XIcon />} onClick={closePanel} />
+          </div>
+
+          <TabPanel value="changes" className="flex min-h-0 flex-1 flex-col p-0 data-hidden:hidden">
+            {changed.length === 0 ? (
+              <div className="grid flex-1 place-items-center">
+                <Empty title="No changes">Files the agent edits show up here.</Empty>
+              </div>
+            ) : (
+              <>
+                <div className="flex h-10 flex-none items-center gap-2.5 border-b border-line ps-3 pe-1.5">
+                  <Hint>{files(changed.length)} changed</Hint>
+                  <Diffstat {...total} />
+                  <AlertDialog
+                    open={confirmDiscard}
+                    onOpenChange={setConfirmDiscard}
+                    trigger={<IconButton size="sm" className="ml-auto" label="Discard all changes" icon={<ArrowUUpLeftIcon />} />}
+                    icon={<ArrowUUpLeftIcon size={18} />}
+                    title="Discard all changes?"
+                    description="The agent's edits to these files are reverted. You can undo this right after."
+                    footer={
+                      <>
+                        <AlertDialogClose render={<Button variant="secondary">Keep changes</Button>} />
+                        <Button variant="danger" onClick={discard}>
+                          Discard changes
+                        </Button>
+                      </>
+                    }
+                  >
+                    <Consequences items={changed.map((f) => <span className="mono min-w-0 truncate" title={f.path}>{f.path}</span>)} />
+                  </AlertDialog>
+                </div>
+                <nav
+                  ref={filesRef}
+                  aria-label="Changed files"
+                  className="flex flex-none flex-col gap-px border-b border-line p-1.5"
+                  onKeyDown={(e) => {
+                    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+                    e.preventDefault();
+                    pickFile((fileIdx + (e.key === "ArrowDown" ? 1 : -1) + changed.length) % changed.length);
+                  }}
+                >
+                  <NavGroup>
+                    {changed.map((f, i) => (
+                      <NavItem
+                        key={f.path}
+                        icon={<FileIcon />}
+                        path={f.path}
+                        current={i === fileIdx}
+                        meta={<Diffstat {...diffStatOf(f.lines)} />}
+                        trail={f.status && <Badge>{f.status}</Badge>}
+                        onClick={() => pickFile(i)}
+                      />
+                    ))}
+                  </NavGroup>
+                </nav>
+                {/* Flush: the panel is its frame. */}
+                <Diff key={file.path} className="flex-1 rounded-none border-0" lang={file.lang} path={file.path} lines={file.lines} hunk={file.hunk} />
+              </>
+            )}
+          </TabPanel>
+
+          <TabPanel value="preview" className="flex min-h-0 flex-1 flex-col p-0 data-hidden:hidden">
+            <div className="grid flex-1 place-items-center bg-page p-6">
+              <div className="flex w-[min(300px,100%)] flex-col gap-3">
+                <ThemeScope mode={preview} className="flex">
+                  <Card className="w-full">
+                    <CardBody>
+                      <CardHead>
+                        <CardIcon>{preview === "dark" ? <MoonIcon /> : <SunIcon />}</CardIcon>
+                        <div>
+                          <CardTitle>Appearance</CardTitle>
+                          <CardSub>caret-mode</CardSub>
+                        </div>
+                      </CardHead>
+                      <CardText>The ThemeToggle from the diff, switching the mode of its own scope.</CardText>
+                    </CardBody>
+                    <CardFoot>
+                      <Badge>{MODE_INFO[preview].label}</Badge>
+                      <div className="flex-1" />
+                      <IconButton
+                        variant="secondary"
+                        label={preview === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                        icon={preview === "dark" ? <SunIcon /> : <MoonIcon />}
+                        onClick={() => setPreview((p) => (p === "dark" ? "light" : "dark"))}
+                      />
+                    </CardFoot>
+                  </Card>
+                </ThemeScope>
+                <Hint className="justify-center">Preview of theme-toggle.tsx</Hint>
               </div>
             </div>
-
-            {/* 8px in from the 12px card: the 4px rows and diff are concentric with it. */}
-            <TabPanel value="changes" className="flex min-h-0 flex-1 flex-col gap-2 p-2 data-hidden:hidden">
-              {changed.length === 0 ? (
-                <Card empty className="flex-1">
-                  <CardTitle>No changes</CardTitle>
-                  <CardText>Files the agent edits show up here.</CardText>
-                </Card>
-              ) : (
-                <>
-                  <div className="flex flex-none items-center gap-2.5 pl-2">
-                    <Hint>{files(changed.length)} changed</Hint>
-                    <Diffstat {...total} />
-                    <AlertDialog
-                      open={confirmDiscard}
-                      onOpenChange={setConfirmDiscard}
-                      trigger={<IconButton className="ml-auto" label="Discard all changes" icon={<ArrowUUpLeftIcon />} />}
-                      icon={<ArrowUUpLeftIcon size={18} />}
-                      title="Discard all changes?"
-                      description="The agent's edits to these files are reverted. You can undo this right after."
-                      footer={
-                        <>
-                          <AlertDialogClose render={<Button variant="secondary">Keep changes</Button>} />
-                          <Button variant="danger" onClick={discard}>
-                            Discard changes
-                          </Button>
-                        </>
-                      }
-                    >
-                      <Consequences items={changed.map((f) => <span className="mono min-w-0 truncate" title={f.path}>{f.path}</span>)} />
-                    </AlertDialog>
-                  </div>
-                  <nav
-                    ref={filesRef}
-                    aria-label="Changed files"
-                    className="flex flex-none flex-col gap-px"
-                    onKeyDown={(e) => {
-                      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
-                      e.preventDefault();
-                      pickFile((fileIdx + (e.key === "ArrowDown" ? 1 : -1) + changed.length) % changed.length);
-                    }}
-                  >
-                    <NavGroup>
-                      {changed.map((f, i) => (
-                        <NavItem
-                          key={f.path}
-                          icon={<FileIcon />}
-                          path={f.path}
-                          current={i === fileIdx}
-                          meta={<Diffstat {...diffStatOf(f.lines)} />}
-                          trail={f.status && <Badge>{f.status}</Badge>}
-                          onClick={() => pickFile(i)}
-                        />
-                      ))}
-                    </NavGroup>
-                  </nav>
-                  <Diff key={file.path} className="flex-1 rounded-button" lang={file.lang} path={file.path} lines={file.lines} hunk={file.hunk} />
-                </>
-              )}
-            </TabPanel>
-
-            <TabPanel value="preview" className="flex min-h-0 flex-1 flex-col p-0 data-hidden:hidden">
-              <div className="grid flex-1 place-items-center bg-page bg-pattern p-6">
-                <div className="flex w-[min(300px,100%)] flex-col gap-3">
-                  <ThemeScope mode={preview} className="flex">
-                    <Card className="w-full">
-                      <CardBody>
-                        <CardHead>
-                          <CardIcon>{preview === "dark" ? <MoonIcon /> : <SunIcon />}</CardIcon>
-                          <div>
-                            <CardTitle>Appearance</CardTitle>
-                            <CardSub>caret-mode</CardSub>
-                          </div>
-                        </CardHead>
-                        <CardText>This is the ThemeToggle from the diff, switching the mode of its own scope.</CardText>
-                      </CardBody>
-                      <CardFoot>
-                        <Badge>{MODE_INFO[preview].label}</Badge>
-                        <div className="flex-1" />
-                        <IconButton
-                          variant="secondary"
-                          label={preview === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                          icon={preview === "dark" ? <SunIcon /> : <MoonIcon />}
-                          onClick={() => setPreview((p) => (p === "dark" ? "light" : "dark"))}
-                        />
-                      </CardFoot>
-                    </Card>
-                  </ThemeScope>
-                  <Hint className="justify-center">Preview of theme-toggle.tsx</Hint>
-                </div>
-              </div>
-            </TabPanel>
-          </Tabs>
-        </Card>
-      </div>
+          </TabPanel>
+        </Tabs>
+      </aside>
     </ThemeScope>
   );
 }

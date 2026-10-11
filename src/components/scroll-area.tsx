@@ -27,6 +27,8 @@ export interface ScrollAreaProps {
    * (e.g. a NavGroup's gliding highlight), so they measure through the scroll.
    */
   layoutScroll?: boolean;
+  /** Hide the bars; the area still scrolls by wheel, touch and keyboard. */
+  hideScrollbar?: boolean;
 }
 
 const bar = cn(
@@ -40,7 +42,7 @@ const thumb = cn(
   "data-scrolling:bg-ink-3",
 );
 
-export function ScrollArea({ children, className, contentClassName, onScroll, fade, layoutScroll, ...aria }: ScrollAreaProps) {
+export function ScrollArea({ children, className, contentClassName, onScroll, fade, layoutScroll, hideScrollbar, ...aria }: ScrollAreaProps) {
   return (
     <BaseScrollArea.Root className={cn("relative min-h-0 overflow-hidden", className)}>
       <BaseScrollArea.Viewport
@@ -49,17 +51,21 @@ export function ScrollArea({ children, className, contentClassName, onScroll, fa
         role={aria["aria-label"] ? "region" : undefined}
         aria-label={aria["aria-label"]}
         onScroll={onScroll}
-        className={cn("size-full overscroll-contain rounded-[inherit]", fade && "scroll-fade-y")}
+        className={cn("size-full overscroll-contain rounded-[inherit]", fade && "scroll-fade-y", hideScrollbar && "scrollbar-none")}
       >
         <BaseScrollArea.Content className={contentClassName}>{children}</BaseScrollArea.Content>
       </BaseScrollArea.Viewport>
-      <BaseScrollArea.Scrollbar orientation="vertical" className={bar}>
-        <BaseScrollArea.Thumb className={thumb} />
-      </BaseScrollArea.Scrollbar>
-      <BaseScrollArea.Scrollbar orientation="horizontal" className={bar}>
-        <BaseScrollArea.Thumb className={thumb} />
-      </BaseScrollArea.Scrollbar>
-      <BaseScrollArea.Corner />
+      {!hideScrollbar && (
+        <>
+          <BaseScrollArea.Scrollbar orientation="vertical" className={bar}>
+            <BaseScrollArea.Thumb className={thumb} />
+          </BaseScrollArea.Scrollbar>
+          <BaseScrollArea.Scrollbar orientation="horizontal" className={bar}>
+            <BaseScrollArea.Thumb className={thumb} />
+          </BaseScrollArea.Scrollbar>
+          <BaseScrollArea.Corner />
+        </>
+      )}
     </BaseScrollArea.Root>
   );
 }

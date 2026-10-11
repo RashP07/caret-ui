@@ -23,7 +23,7 @@ Three principles. Every decision should trace back to at least one of them.
    that a token exists for.
 3. **One proportion, finished.** Each component has one proportion (controls are 36px tall),
    tuned until it feels right and works fully with a keyboard. A smaller size exists only where
-   dense chrome needs it (`Button size="sm"`, `Select density="compact" / "xs"`). Don't add
+   dense chrome needs it (`Button size="sm"`, `Input size="sm"`, `Select density="compact" / "xs"`). Don't add
    variants for taste or override heights ad hoc.
 
 Supporting beliefs:
@@ -33,7 +33,7 @@ Supporting beliefs:
   activity, the current item). It's never a large decorative fill.
 - **Motion only answers something you did.** Nothing animates for its own sake.
 - **The keyboard story ships with the component.** Not later.
-- **Drafting-sheet aesthetic.** Dot-grid canvases, registration marks,
+- **Drafting-sheet aesthetic.** Plain canvases, registration marks,
   a file-tree sidebar, mono token names. It should feel like a precise working surface, not
   a marketing page.
 
@@ -61,14 +61,18 @@ Before you write any new class, map the need to an existing component:
 | Switching views | `<Tabs>` / `<TabList>` / `<Tab count>` / `<TabPanel>` (ink bar built in) | `.tabs`, `.tab-ink` |
 | Compact 2–4 way switch | `<Seg>` | `.seg` |
 | A container holding one thing and its actions | `<Card>` + `CardBody / CardHead / CardIcon / CardTitle / CardSub / CardText / CardFoot` | `.card` |
+| The properties of one thing (a run's ID, model, duration, cost) | `<KeyValue layout="columns / stack">` + `<KeyValueItem label mono numeric copy>` | — |
 | Records to scan, sort and select (deployments, runs, invoices) | `<Table density stickyHeader caption>` + `TableHeader / TableBody / TableFooter / TableRow selected / TableHead sort onSort align / TableCell numeric truncate`; `<TableEmpty>`, `<TableSkeleton>` | — |
 | Empty state | `<Card empty>` | `.card.empty` |
 | Status / count / date pill | `<Badge tone="neutral / ok / live / danger / warning / info" solid dot>` | `.badge` |
 | Code or a diff | `<Code>`, `<Diff>`, `<Lang>`, `<Diffstat>` | `.code`, `.diffstat` |
-| Text entry | `<Field label hint error>` + `<Input lead affix trail valid>` | `.field` + `.control` |
+| Text entry | `<Field label hint error>` + `<Input lead affix trail valid>` (`variant="filled"`: no edge until focused; `size="sm"`: a 28px well for dense chrome, like a filter in a panel head) | `.field` + `.control` |
+| Text longer than a line (instructions, a description, a note) | `<Field label count hint error>` + `<Textarea rows maxRows>` | — |
 | Helper / empty text | `<Hint>` | `.hint` |
 | Breadcrumbs | `<Crumbs items>` (last item is current) | `.crumbs` |
 | Chat | `MsgUser`, `MsgAgent`, `Trace`, `MsgActions`, `Composer`, `ComposerFoot`, `ContextMeter`, `Avatar`, `StreamCaret` | `.msg-*`, `.trace`, `.composer`, `.ctx` |
+| What a whole run did, step by step | `<Timeline>` + `<TimelineItem status="done / running / failed / pending / skipped" title time duration description>` (children = detail behind the step) | — |
+| Output still arriving (build, tests, a shell) | `<LogStream name lines live filterable wrap>` (`LogLine`: `text`, `level`, `time`) | — |
 | Label for an icon-only control | `<IconButton label>` (required: it is both the accessible name and the tooltip); `<Button tip tipKbd>` for a tooltip on a labelled button; `<Tooltip label>` for anything else | `data-tip` |
 | A row of icon actions | `<Toolbar>` + `<ToolbarButton render={<IconButton/>}>` | `.toolbar` |
 | A decision that can't wait | `<AlertDialog>`; destructive confirm: `<DestructiveDialog>` | `dialog.dlg` |
@@ -78,6 +82,7 @@ Before you write any new class, map the need to an existing component:
 | The same actions at the pointer (a shortcut, never the only path) | `<ContextMenu area>` filled with Menu parts | — |
 | App-chrome menus | `<Menubar>` + `<MenubarMenu label>` filled with Menu parts | — |
 | Details or a quick action anchored to a button; infotip behind a help icon | `<Popover trigger title description>` (+ `openOnHover`), `<PopoverClose>` | — |
+| Anything that goes somewhere | `<Link>` (`variant="inline"` in prose, `"quiet"` in meta lines and footers, `"code"` for a file or symbol in a reply, `"nav"` + `current` inside `<NavLinks aria-label>` in a top bar; `render` for a router link); `<LinkButton variant size icon>` when the main action navigates; `<Citation n title source href>` for a source in an agent reply | `.link` |
 | A link that previews its destination | `<PreviewCard href preview>` (fill with Card parts) | — |
 | A theme's colors (pickers, theme cards) | `<ThemeSwatch theme form="dots" / "strip">` | `.chips` |
 | A setting that applies the moment it flips | `<SwitchChoice label description>` (bare: `<Switch>`) | — |
@@ -95,6 +100,7 @@ Before you write any new class, map the need to an existing component:
 | Work with an end (deploy, index, tests) | `<Progress label value>` (`value={null}` = indeterminate, `tone="danger"`) | — |
 | A level within a known range (quota, storage) | `<Meter label value threshold valueText>` | — |
 | Site navigation with sections of links | `<NavigationMenu>` + `<NavigationMenuGroup links>` + `<NavigationMenuLink>` | — |
+| Something true until it's dealt with (a key expiring, a quota spent) | `<Callout tone="neutral / info / success / warning / danger" title action onDismiss>` | — |
 | Confirmation feedback, or a way back | `toast("Agent deleted", { action: { label: "Undo", onClick } })`; options `tone`, `description`, `action`, `timeout` (returns an id; `dismissToast(id)` closes it early) | `toast()` |
 | Find anything, run a command (⌘K) | `<CommandPalette groups>` (opens with no animation) | — |
 | One choice among a few / independent on-off | `<RadioGroup>` + `<RadioChoice>` / `<RadioCard>` (`picture`, or `media` for a live preview); `<CheckboxGroup>` + `<CheckboxChoice parent>` | `.choice`, `.rcard`, `.cb` |
@@ -135,7 +141,8 @@ by hand.
 | `--ink-disabled` | Disabled text | ≥ 3:1 |
 | `--on-ink`, `--btn-primary*` | Primary button face and text | ≥ 7:1 |
 | `--line` / `--line-strong` | Decorative hairlines / strong dividers, ledges | **not** control boundaries |
-| `--border-control` | Edges of inputs, selects, checkboxes, radios, switches, OTP cells | ≥ 3:1 (WCAG 1.4.11) |
+| `--border-control` | Edges of checkboxes, radios, switches; every text field on hover | ≥ 3:1 (WCAG 1.4.11) |
+| `border-field` (Tailwind color, a mix of `--border-control` and `--line-strong`) | The resting edge of text fields: inputs, textareas, selects, OTP cells, the composer | ~2:1 by choice; hover, focus and invalid use the full edge |
 | `--accent` / `--on-accent` | Brand fill and its text (small doses) | text ≥ 4.5:1 |
 | `--accent-strong` | Indicators: current marks, live dot, active tab | ≥ 3:1 |
 | `--accent-soft` | Selection, highlights | — |
@@ -181,7 +188,8 @@ every theme. Never hard-code syntax colors.
 | display | `clamp(2.75rem,7vw,4.75rem)` / .98 / −4.5% | hero |
 | h1 | 2.5rem (40) / 2.75rem (44) / −3.5% | page title |
 | h2 | 1.75rem (28) / 2rem (32) / −3% | section title |
-| title | 1.125rem (18) / 1.5rem (24) / −1.5% | dialog, drawer, card group titles |
+| title | 1.125rem (18) / 1.5rem (24) / −1.5% | dialog and card group titles |
+| subtitle | .9375rem (15) / 1.25rem (20) / −1% | card, popover and drawer titles, panel headers, list headings (with `font-heading`) |
 | body | .9375rem (15) / 1.5rem (24) | reading text, chat |
 | control | .875rem (14) / 1.25rem (20) | buttons, inputs, menu items |
 | small | .8125rem (13) / 1.25rem (20) | labels, hints, descriptions |
@@ -191,6 +199,34 @@ every theme. Never hard-code syntax colors.
 Line heights are rem, not ratios, so every line box is a whole even pixel (13px text on a
 20px line, not 18.85px) and rows stack on the pixel grid. Only display, whose size is fluid,
 keeps a ratio. Override with a `leading-*` step (`leading-5` = 20px), never a bare ratio.
+
+**Rules.** Hierarchy comes from size, weight and the three inks, and from nothing else.
+
+- **One step per role.** Pick the step for what the text *is* (a card title is `subtitle`, a
+  description is `small`), never a size that happens to look right. No `text-[13px]`, and no
+  hand-built combos like `text-body leading-5 font-heading`: if a combo repeats, it's a step.
+- **Tracking lives in the scale.** Schibsted Grotesk has no optical size axis, so large steps
+  carry their own negative tracking in the token. Never add `tracking-*` by hand.
+- **No uppercase, no eyebrows.** A section opens with its title. No small lowercase or
+  all-caps label above a heading; if the group matters, it's in the breadcrumb or the title.
+  Mono is for code only, so a mono label that isn't code is wrong twice.
+- **No opacity on text.** Use `ink`, `ink-2` or `ink-3`; never `text-ink/60` or `opacity-*` on
+  a text element. Each ink is contrast-checked in every theme; an opacity isn't.
+- **Steady numbers.** Anything that shows a number that changes or lines up (counts, timers,
+  prices, percentages, table columns) sets `tabular-nums`, so its digits are one width and never
+  nudge the text beside them. Not on prose: Schibsted's tabular set also widens `,` and `.` to a
+  figure, which opens a gap before every comma.
+- **Weight without reflow.** When a state changes weight (the current nav row goes 550 → 620), the
+  element reserves the heavier width with an invisible copy in the same grid cell, so nothing beside
+  it moves and truncation doesn't jump.
+- **Balanced headings, pretty paragraphs.** `h1`–`h6` get `text-wrap: balance` and `p`, `li`,
+  `dd`, `figcaption` get `text-wrap: pretty` from the base styles. Add them by class only on
+  elements that aren't those tags.
+- **Space above, not below.** In streamed or growing text (chat, logs), each block carries the space
+  above it, so a block that is still arriving never pushes on what's already there.
+- **No text-box trim.** Schibsted's caps already sit within half a pixel of the line box's centre at
+  every UI step, so controls centre their labels with the line box alone. Trimming would move text
+  onto fractional pixels for no visible gain.
 
 ### Space
 
@@ -209,9 +245,10 @@ two-pixel line. Whole CSS pixels in even steps stay sharp at all three.
   its box, a thumb on its track, a dot in a pill. Box and content are both even (16 in 20,
   6 in 14) so the leftover splits into whole pixels. An odd box (`size-[15px]`) or an odd
   content box (a 17px key-cap face) puts the child on a half pixel; fix the box, or pad it even.
-- **Strokes are 1px or 2px.** `--stroke` is 1px (2px in Contrast); `--stroke-bold`, the edge of
-  the 18px checkbox and radio, the switch and the slider thumb, is 2px in every theme, so a 12px
-  tick or a 6px dot sits in a 14px face with whole pixels around it; `--focus-width` is 1px (2px
+- **Strokes are 1px or 2px.** `--stroke` is 1px in every theme (Contrast gets its strength from full-ink borders, not width); the 18px checkbox
+  and radio take it too, so a 12px tick or a 6px dot sits in a 16px face with whole pixels around
+  it (a 2px edge read as heavy at 18px); `--stroke-bold`, the edge of the switch and the slider
+  thumb, is 2px in every theme; `--focus-width` is 1px (2px
   in Contrast).
 - **Icons are even**: 10, 12, 14, 16, 20. 16 in a 36px icon button, 14 in a 28px one or beside
   13px text, 12 in a key cap; never 11, 13 or 15.
@@ -235,6 +272,7 @@ the same at the end for a trailing icon, chevron or key cap. Material 3 does the
 | Button, Toggle | 14px | 10px |
 | Button `sm` | 10px | 6px |
 | Input, Combobox, Autocomplete well; Select trigger | 12px | 8px |
+| Input `sm` | 10px | 6px |
 | Select `compact` / `xs` | 10px / 8px | 6px / 4px |
 | Accordion, navigation menu trigger (chevron) | 16px / 12px | 12px / 8px |
 
@@ -351,6 +389,32 @@ Rules that follow from it:
   color changes stay, so state still reads. `MotionConfig reducedMotion="user"` and the global rule
   in `index.css` handle it. Don't bypass them.
 
+### Sound
+
+Off by default, behind one flag: `setSoundEnabled(true)` from `src/lib/sound.ts` (persisted per
+browser; `useSound()` reads `{ enabled, volume }`, `setSoundVolume(0–1)`). While it's off,
+`playSound` returns at once and no `AudioContext` is created. Every sound is synthesized (no
+files): a few milliseconds of sine, triangle or band-passed noise, quiet enough to sit under music.
+Sounds are named by role, like tokens:
+
+| Sound | Plays on |
+|---|---|
+| `press` | Button, IconButton, LinkButton: pointer down, or Enter/Space down |
+| `on` / `off` | Switch, Toggle; the composer's Stop is `off` |
+| `check` / `uncheck` | Checkbox |
+| `select` | Tabs, Seg, RadioGroup: a new pick |
+| `copy` | `useCopy` succeeded (a failed copy is `danger`) |
+| `send` | Composer: a message sent |
+| `success` / `warning` / `danger` | `toast()` with that tone; neutral and info stay silent |
+
+Rules, the same as motion's:
+- **Sound answers what you did.** Play it from the handler of a press, flip or pick, never on
+  hover, focus, scroll-spy or a change the app made by itself, and never on key repeat.
+- **One sound per action.** A control that plays its own sound turns the press off
+  (`<Button sound={false}>`, as Toggle, Send and the copy buttons do).
+- **Never the only cue.** Every sound repeats something already visible on screen.
+- `playSound(name, { force: true })` is only for a preview the person asked to hear.
+
 ---
 
 ## 4. Themes
@@ -367,7 +431,7 @@ its variant. Components never contain theme-specific overrides.
 | Indigo | Cool grey, indigo accent; modern product tools |
 | Teal | Cool neutral, muted teal accent |
 | Sand | Warm sand, brown ink, terracotta accent; long sessions |
-| Contrast | Black and white, 2px strokes, 2px focus ring, AAA text everywhere |
+| Contrast | Black and white, full-ink 1px borders, 2px focus ring, AAA text everywhere |
 
 - `data-theme="neutral|zinc|stone|slate|indigo|teal|sand|contrast"` picks the palette; `data-mode="light|dark"` picks
   the variant. With no `data-mode` the page follows the OS. Both **scope to any element**
@@ -426,7 +490,7 @@ both the accessible name and the tooltip. Ghost buttons have no ledge. Padding i
 14px on a text side, 10px beside `icon`, `trail` (a chevron) or `kbd` (10px / 6px at `sm`);
 `ButtonGroup` joins with logical corners, so it mirrors in RTL.
 
-**Input.** The label always sits above and stays visible. The hint explains the rule *before* it's broken;
+**Input.** The label always sits above and stays visible. The resting edge is the quiet `border-field`; hover steps it to `--border-control` and focus to the focus line. `variant="filled"` drops the edge until you type: a `sunken` fill marks the field and never changes; hover shows only the quiet `border-field` edge, focus turns it the focus color, invalid keeps its danger edge. Use filled on page or surface grounds, never sunken (Textarea takes the same variant). The hint explains the rule *before* it's broken;
 the error says exactly what to change. Text sits 12px in; a `lead` icon and the trail sit 8px in
 (§3, optical spacing). At rest the field is a tinted well. On focus it sits flush
 and its one border line turns the focus color. No glow. The text caret is `--caret`, set once on `body`. Editable text is 16px
@@ -455,7 +519,10 @@ Toolbar adds one itself) there is one shared tooltip: moving to a neighbour glid
 resizes it and crossfades the label with a 2px blur. Keyboard moves snap.
 
 **Tabs.** The ink bar slides so you can see where you came from. Arrow keys move and select;
-Home and End jump to the ends. `<Seg>` is the compact sibling.
+Home and End jump to the ends. `<Seg>` is the compact sibling. In a header or toolbar row use
+`<TabList variant="subtle">`: 28px tabs centred in the row, no baseline, the active tab in a pressed
+face (a pressed ghost button's fill and border) that glides; counts are plain numbers. The default
+`line` tabs stand on a baseline and suit page sections.
 
 **Dialog.** Two kinds, one look. `Dialog` is for a focused task you can walk away from: Escape,
 the backdrop and the close button all dismiss it, and focus starts on the first field. `AlertDialog`
@@ -466,7 +533,8 @@ takes initial focus. `size` picks the width: `sm` 400px, `md` 480px (default), `
 capped at the viewport less 32px. The header (title, description, close) and the footer stay put;
 only the body scrolls, so a long form never pushes its actions out of view. The footer wraps.
 
-**Toast.** `toast(message, { tone, description, action, timeout })`. The default tone is
+**Toast.** A floating panel like a menu: `surface`, one `--line` hairline, `--e-float`, ink text.
+`toast(message, { tone, description, action, timeout })`. The default tone is
 `neutral`, with no mark: most toasts just say what happened. `success`, `danger`, `warning` and
 `info` add a solid disc with a distinct glyph; `success` marks an outcome worth confirming
 ("Settings saved", "Device verified").
@@ -483,8 +551,10 @@ outgrows its container; pass `title` when that can happen. Text sits 10px in fro
 a dot sits 8px in, centered in the end cap.
 
 **Drawer.** Modal like a dialog (focus trapped, returned on close) and swipeable back toward its
-edge. `--e-modal`, with `--r-dialog` only on the corners facing the page. `bottom` shows a drag
-handle and is the phone-friendly form.
+edge. `--e-modal`. From the right it's a column like the sidebar: square, flush to the edge, one
+hairline on the side facing the page, a header row of at least 56px with a `subtitle` title. `bottom`
+is a sheet with a drag handle and `--r-dialog` on the corners facing the page; it's the
+phone-friendly form.
 
 **Theme swatch.** A theme's colors read live from its own tokens (each swatch is a `ThemeScope`), so
 it can't drift from the theme it names. `dots` for pickers, `strip` for cards, `pair` for the light
@@ -513,6 +583,8 @@ across (keyboard moves snap). Triggers are dense
 **Popover.** A floating panel that may hold actions. Opens on click; `openOnHover` only for
 infotips. Focus goes to the panel on open; Escape or an outside click closes and returns focus.
 `--r-card` + `--e-float` with a hairline arrow.
+
+**Link.** Goes somewhere; a Button does something. Always an `<a>` (or the router link passed as `render`), so Enter follows it and it opens in a new tab. Never color alone: `inline` and `code` keep the underline, `quiet` underlines in `line-strong` and turns ink on hover, `nav` is plain text with no face (hover is color only); it stretches to the bar's height inside `NavLinks`, and the current page is ink with a 2px `--accent-strong` bar on the bar's bottom hairline, one shared element that glides between links (snaps from the keyboard). Links to another origin get a 12px ↗ (joined to the last word so it never wraps alone), `target="_blank"` and a spoken "opens in a new tab"; `external` overrides the guess. `LinkButton` wears `buttonClass`, presses on Enter, and has no disabled form. `Citation` is a 20px pill with a tabular number, a tooltip naming the source and an accessible name "Source 1: …".
 
 **Preview card.** Stays a real link (Enter follows it). The card waits 500ms and is never the only
 way to see the content.
@@ -598,6 +670,41 @@ closes and returns focus. The panel resizes as you move between sections.
 **Chat.** The trace shows what the agent did before answering, and it collapses once the
 answer is done ("Worked for 41s"). The reply streams with the accent caret as the write head. The
 composer's Send becomes Stop while busy (Esc stops). The context meter turns danger-colored at ≥85%.
+No bubbles: your message is a plain `surface` block with no edge (`--r-control`), the reply is
+plain text on the page. The composer is a field (`--r-control`) with its 28px controls 4px in, so they
+sit concentric; reply actions are 28px too. Inside the composer, pickers use `density="xs"`.
+
+**Textarea.** Input's multi-line sibling: the same well, focus line and Field wiring (label above, hint
+below, `count` in the label row, error replaces the hint). It starts at `rows` and grows with its text
+up to `maxRows`, then scrolls, so a long prompt never pushes the form's actions out of view. No resize
+handle. 12px text inset, 16px text on phones.
+
+**Callout.** A notice that stays in the page until its cause goes away; a toast says what just
+happened and leaves. Surface ground, `--r-card`, edged in `--{tone}-line`, with the toast's tone mark
+(a solid disc and its own glyph per tone), so color is never the only cue and screen readers hear the
+tone first. The title says what is true; the body says what it means and what to do. An `action`
+(`Button size="sm"`) sits at the end and wraps under the text when narrow; with an action or
+`onDismiss` the end padding drops to 8px, concentric like a toast. Not a live region unless you pass
+`role`; only something that must stay until it's fixed has no close button.
+
+**Key value.** A real `<dl>`, one row per property, rows split by `--line`. Keys are `ink-3`, values
+`ink`; `mono` for values that are code (IDs, SHAs, paths), `numeric` for numbers (`tabular-nums`).
+`copy` adds a 28px copy button with the shared copy confirmation. Every row is at least 36px so rows
+with and without a button line up. `columns` shares the longest key's width (subgrid); `stack` puts
+the key above, for narrow panels.
+
+**Timeline.** A whole run, step by step (Trace is the version folded inside one reply). Each step has
+a 16px mark on one hairline rail: a glyph and a color per status (done, running, failed, pending,
+skipped), spoken as a word. Only the running mark moves (it spins, in `--accent-strong`). Time and
+duration sit at the end in `tabular-nums`. A step with children is a Collapsible: the whole row is the
+trigger, a full-width row that answers press in color, and its caret turns.
+
+**Log stream.** Output that is still arriving. Code is for finished text. It follows the tail while
+you're at the bottom; scroll up and it stops, counts what arrived since and floats a "12 new lines"
+button (End jumps there). Lines keep their real numbers when filtered. Warnings and errors get a
+status color, a tinted row and a spoken prefix; errors are heavier too. The head matches Code's
+(sunken, 12px around the tag, `sm` controls 8px from the edge) with a line count, an optional `Input size="sm"` filter and Copy. The body is a focusable
+`role="log"` region, quiet (`aria-live="off"`) unless you pass `announce`.
 
 **Focus.** One plain ring on `:focus-visible`: `--focus-width` (1px; 2px in Contrast) of
 `--focus`, drawn *inside* the border box (`outline-offset: calc(-1 * var(--focus-width))`), from
@@ -627,7 +734,8 @@ to `--danger`. Don't remove the outline without replacing it.
 - Contrast is measured, not eyeballed: `npm run tokens` fails if any pairing drops below its
   target, in every theme and both modes. Text ≥ 4.5:1 (`--ink` and `--ink-2`
   ≥ 7:1); control boundaries (`--border-control`), focus, caret, indicators and chart colors
-  ≥ 3:1 (WCAG 1.4.11); disabled text ≥ 3:1. Contrast raises all text to 7:1 (AAA).
+  ≥ 3:1 (WCAG 1.4.11), except a text field's resting edge (`border-field`, ~2:1, a deliberate quiet
+  default: its label, fill and hover/focus edge identify it); disabled text ≥ 3:1. Contrast raises all text to 7:1 (AAA).
 - Never lower a guaranteed pairing with `opacity`; pick the token that holds the role.
 - Nothing that carries information is smaller than 12px (`text-caption`): shortcuts, counts,
   timestamps, badges, kbd. Sizes are in rem, so they follow the reader's font size.
@@ -680,6 +788,7 @@ the object.
 - [ ] Works at phone width and with reduced motion
 - [ ] New component? It has its own documented section and a state readout, and it came *before* the template that uses it
 - [ ] Built on a Base UI primitive when one exists; icons are Phosphor
+- [ ] Sound (if any): from `playSound` by role, only for something the person did, one per action
 - [ ] Motion: justified by how often it's seen, right curve for the job, under 300ms, exit faster than enter
 - [ ] Keyboard-initiated changes don't animate; moving indicators are shared (`layoutId`)
 - [ ] Only `transform`/`opacity` on frequent motion; reviewed at 5× (`setMotionScale(5)`)
@@ -701,7 +810,7 @@ src/
   styles/components.css  the few things utilities can't say (line counters, meter ring, scroll fades)
   components/            the system: one file per component family, exported from index.ts
   components/table.tsx   Table and its parts (density, sticky header, sort, empty, skeleton)
-  templates/             compositions only (agent-workspace.tsx)
+  templates/             compositions only (agent-workspace.tsx, settings.tsx, run-detail.tsx)
   routes/                TanStack Router file routes (routeTree.gen.ts is generated — don't edit)
   docs/registry.ts       every docs page: slug, title, group, one-line description, body, exports
   docs/shell/            the docs frame: sidebar, top bar, On this page, page view, home, index, search
@@ -750,7 +859,7 @@ palette, radii, shadows and type scale are cleared, so only Caret values exist.
 | `--link` | `link` (color, underline, hover) |
 | coarse pointer | `touch:` variant (`@media (pointer: coarse)`) |
 | `--pattern` | `bg-pattern` |
-| `--stroke` | `border-stroke` (hairline that thickens in Contrast) |
+| `--stroke` | `border-stroke` (the hairline on fields and ledged buttons) |
 | Paper Mono | `mono` |
 
 `cn()` is `clsx` + `tailwind-merge` taught these names, so a caller's `className` overrides a
@@ -765,7 +874,7 @@ Avatar → `Avatar`; NavItem → `useRender`. Dialog → `Dialog`, AlertDialog /
 `AlertDialog`; Drawer → `Drawer`; Menu / ContextMenu / Menubar → `Menu`, `ContextMenu`, `Menubar`;
 Popover → `Popover`; PreviewCard → `PreviewCard`; Switch → `Switch`; Slider → `Slider`; NumberField
 → `NumberField`; OTPField → `OTPField`; Combobox / MultiCombobox → `Combobox`; Autocomplete →
-`Autocomplete`; Form → `Form` (+ `Field.Error`); Toggle / ToggleGroup → `Toggle`, `ToggleGroup`;
+`Autocomplete`; Form → `Form` (+ `Field.Error`); Textarea → `Field.Control` rendering a `<textarea>`; Timeline → `Collapsible`; Toggle / ToggleGroup → `Toggle`, `ToggleGroup`;
 Accordion → `Accordion`; Collapsible → `Collapsible`; Separator → `Separator`; ScrollArea →
 `ScrollArea`; Progress → `Progress`; Meter → `Meter`; NavigationMenu → `NavigationMenu`. Every Base UI
 component now has a Caret counterpart. Table has no Base UI primitive: it's a native `<table>` in a

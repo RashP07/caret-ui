@@ -3,6 +3,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useId, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { Kbd } from "./kbd";
 import { ScrollArea } from "./scroll-area";
@@ -100,6 +101,7 @@ export function CommandPalette({
   }
 
   function run(item: CommandItem) {
+    playSound("select");
     change(false);
     item.onSelect();
   }

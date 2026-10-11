@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { CaretDownIcon, CheckIcon, GitBranchIcon, PauseIcon, PlayIcon } from "@phosphor-icons/react";
-import { Fragment, useLayoutEffect, useState } from "react";
+import { CaretDownIcon, CheckIcon, GitBranchIcon, PauseIcon, PlayIcon, SpeakerHighIcon, TextBIcon } from "@phosphor-icons/react";
+import { Fragment, useLayoutEffect, useState, type ReactNode } from "react";
 import {
   Badge,
   Button,
@@ -10,16 +10,21 @@ import {
   CardText,
   CardTitle,
   CheckboxChoice,
+  Hint,
+  IconButton,
   Input,
   Seg,
+  Slider,
+  SwitchChoice,
   toast,
+  Toggle,
   Tooltip,
 } from "@/components";
 import { cn } from "@/lib/cn";
+import { playSound, setSoundEnabled, setSoundVolume, SOUND_INFO, SOUNDS, useSound, type SoundName } from "@/lib/sound";
 import { MODE_INFO, MODES, THEME_INFO, type Accent, type Mode, type ThemeName } from "@/lib/theme";
 import { usePageScheme } from "@/lib/use-page-scheme";
 import { useDocs } from "./docs-context";
-import { Node } from "./shell/construction";
 import { AccentRow, ThemeList } from "./shell/theme-panel";
 import { Section, Spec, SpecBar, type Pairs } from "./spec";
 
@@ -78,7 +83,7 @@ export function Hero({ pressB }: { pressB: boolean }) {
               i > 0 && "border-l border-line pl-6 max-[860px]:border-t max-[860px]:border-l-0 max-[860px]:pl-0",
             )}
           >
-            <strong className="mb-1 block text-body font-heading text-ink">{t}</strong>
+            <strong className="mb-1 block text-subtitle font-heading text-ink">{t}</strong>
             {d}
           </div>
         ))}
@@ -87,14 +92,8 @@ export function Hero({ pressB }: { pressB: boolean }) {
   );
 }
 
-/**
- * Hero composition: an agent run, built from Caret parts.
- * `variant="sheet"` frames it as a drafting-sheet cell (the landing page): square 1px frame in
- * `--rule` with Nodes at its corners, no shadow, square inner tile and diff, and the footer set
- * off by one rule instead of a tinted band. Needs the SHEET line colors from an ancestor.
- */
-export function RunCard({ variant = "card" }: { variant?: "card" | "sheet" }) {
-  const sheet = variant === "sheet";
+/** Hero composition: an agent run, built from Caret parts. */
+export function RunCard() {
   const steps: { label: string; t: string; s: "done" | "now" | "todo" }[] = [
     { label: "Read 14 route handlers", t: "0:12", s: "done" },
     { label: "Draft migration plan", t: "0:41", s: "done" },
@@ -104,25 +103,14 @@ export function RunCard({ variant = "card" }: { variant?: "card" | "sheet" }) {
   return (
     <Card
       aria-label="Example: an agent run composed from Caret components"
-      className={cn(
-        "rm-fade animate-fade-in",
-        sheet ? "relative rounded-none border border-(--rule)" : "overflow-hidden shadow-float",
-      )}
+      className="rm-fade animate-fade-in overflow-hidden shadow-float"
     >
-      {sheet && (
-        <>
-          <Node className="-top-[5px] -left-[5px]" />
-          <Node className="-top-[5px] -right-[5px]" />
-          <Node className="-bottom-[5px] -left-[5px]" />
-          <Node className="-right-[5px] -bottom-[5px]" />
-        </>
-      )}
       <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
-        <CardIcon className={cn(sheet && "rounded-none")}>
+        <CardIcon>
           <GitBranchIcon />
         </CardIcon>
         <div className="min-w-0">
-          <div className="truncate text-body font-heading tracking-[-.01em]" title="Move billing routes to the new router">
+          <div className="truncate text-subtitle font-heading" title="Move billing routes to the new router">
             Move billing routes to the new router
           </div>
           <div className="text-small text-ink-3">Started by you, 4 minutes ago</div>
@@ -161,20 +149,14 @@ export function RunCard({ variant = "card" }: { variant?: "card" | "sheet" }) {
       </ol>
       <div
         aria-label="Diff preview"
-        className={cn(
-          "mono mx-4 mb-3 overflow-x-auto rounded-control border border-line bg-sunken py-2 text-code [&>div]:px-3 [&>div]:whitespace-pre",
-          sheet && "rounded-none",
-        )}
+        className="mono mx-4 mb-3 overflow-x-auto rounded-control border border-line bg-sunken py-2 text-code [&>div]:px-3 [&>div]:whitespace-pre"
       >
         <div className="bg-danger-soft text-ink-2">- let app = Router::new().route("/invoices", legacy)</div>
         <div className="bg-success-soft text-ink">+ let app = Router::new().route("/invoices", get(list))</div>
         <div>{"      .layer(auth_layer());"}</div>
       </div>
       <div
-        className={cn(
-          "flex items-center gap-2 border-t px-4 py-3",
-          sheet ? "border-(--rule)" : "border-line bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))]",
-        )}
+        className="flex items-center gap-2 border-t border-line bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))] px-4 py-3"
       >
         <Button variant="ghost" icon={<PauseIcon />} tip="Pause after the current step" tipKbd="⌘ .">
           Pause
@@ -374,6 +356,18 @@ export function ThemesSection({
    Typography
    ========================================================= */
 
+/** The type rules, as DESIGN.md states them. If you change one there, change it here. */
+const TYPE_RULES: [string, ReactNode][] = [
+  ["One step per role", <>Pick the step for what the text is. A repeated combo becomes a step, like <code>text-subtitle</code>.</>],
+  ["Tracking lives in the scale", <>Large steps carry their own tracking. Never add <code>tracking-*</code> by hand.</>],
+  ["No uppercase, no eyebrows", "A section opens with its title. Mono is for code only."],
+  ["No opacity on text", <>Three inks, each contrast-checked: <code>ink</code>, <code>ink-2</code>, <code>ink-3</code>.</>],
+  ["Steady numbers", <>Every changing number sets <code>tabular-nums</code>, so a ticking count never moves its neighbours. Never on prose: it widens commas.</>],
+  ["Weight without reflow", "A row that turns heavier reserves its heavier width up front."],
+  ["Balanced and pretty", "Headings balance their lines; paragraphs never end on a lone word."],
+  ["Space above, not below", "Growing text keeps its space on top, so arriving lines never push."],
+];
+
 export function TypeSection() {
   // Each specimen is set with the utility it documents.
   const scale: [string, string, string, string][] = [
@@ -381,6 +375,7 @@ export function TypeSection() {
     ["h1", "2.5rem (40) / 44px / −3.5%", "Agent settings", "text-h1 font-heading"],
     ["h2", "1.75rem (28) / 32px / −3%", "Scheduled runs", "text-h2 font-heading"],
     ["title", "1.125rem (18) / 24px / −1.5%", "Connected tools", "text-title font-heading"],
+    ["subtitle", ".9375rem (15) / 20px / −1%", "lunch-picker", "text-subtitle font-heading"],
     ["body", ".9375rem (15) / 24px", "The agent keeps its state between runs, so it can pick up where it left off when a reply arrives hours later.", "text-body text-ink-2 whitespace-normal text-pretty"],
     ["control", ".875rem (14) / 20px", "Deploy agent", "text-control font-control"],
     ["small", ".8125rem (13) / 20px", "Last deployed 12 minutes ago by Priya", "text-small text-ink-2"],
@@ -401,13 +396,13 @@ export function TypeSection() {
       <div className="mb-4 grid grid-cols-2 gap-4 max-[860px]:grid-cols-1">
         <div className="flex min-h-[220px] flex-col gap-3 rounded-card border border-line bg-surface p-6">
           <div aria-hidden className="text-display font-heading">Rg</div>
-          <div className="text-body font-heading">Schibsted Grotesk</div>
+          <div className="text-subtitle font-heading">Schibsted Grotesk</div>
           <p className="m-0 text-control text-pretty text-ink-2">Interface and display, in three weights. Tracking gets tighter as the size grows.</p>
           <div className="mt-auto text-small break-all text-ink-3">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</div>
         </div>
         <div className="flex min-h-[220px] flex-col gap-3 rounded-card border border-line bg-surface p-6">
           <div aria-hidden className="mono text-display font-normal tracking-normal">{"{}"}</div>
-          <div className="text-body font-heading">Paper Mono</div>
+          <div className="text-subtitle font-heading">Paper Mono</div>
           <p className="m-0 text-control text-pretty text-ink-2 [&_code]:text-small">
             Code, keyboard keys and token names (<code>mono</code>), with clearly distinct 0/O and 1/l/I. Counts, times
             and percentages stay in the grotesk with tabular figures.
@@ -422,7 +417,9 @@ export function TypeSection() {
               <b className="mono block font-control text-ink-2">text-{n}</b>
               <span className="tabular-nums">{m}</span>
             </div>
-            <div className={cn("truncate", c)}>{s}</div>
+            {/* Clip, never hide: overflow:hidden drops the text baseline (the box's bottom edge stands
+                in), and the token name would sit on the specimen's bottom instead of its first line. */}
+            <div className={cn("overflow-x-clip text-ellipsis whitespace-nowrap", c)}>{s}</div>
           </div>
         ))}
       </div>
@@ -435,6 +432,14 @@ export function TypeSection() {
           </div>
         ))}
       </div>
+      <dl className="mt-4 mb-0 grid grid-cols-2 gap-x-6 gap-y-4 rounded-card border border-line bg-surface p-6 max-[860px]:grid-cols-1 [&_code]:text-caption">
+        {TYPE_RULES.map(([t, d]) => (
+          <div key={t}>
+            <dt className="text-subtitle font-heading">{t}</dt>
+            <dd className="m-0 mt-1 text-small text-ink-2">{d}</dd>
+          </div>
+        ))}
+      </dl>
       <p className="mt-4 mb-0 max-w-[64ch] text-small text-pretty text-ink-2 [&_code]:text-caption">
         Nothing that carries information goes below <code>text-caption</code> (12px): shortcuts, counts, timestamps and badges
         included. Editable fields use 16px below the <code>sm</code> breakpoint (<code>text-input-touch</code>) so iOS
@@ -489,7 +494,7 @@ export function SpaceSection() {
       </div>
       <div className="mt-4 grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-center gap-6 rounded-card border border-line bg-surface p-6 max-[860px]:grid-cols-1">
         <div>
-          <b className="block text-body font-heading">Nested corners are concentric</b>
+          <b className="block text-subtitle font-heading">Nested corners are concentric</b>
           <p className="m-0 mt-1 text-small text-pretty text-ink-2">
             Outer radius = inner radius + padding. An 8px control with a 4px inset holds 4px segments; a 16px frame with
             4px padding holds 12px cards. Equal radii on nested boxes make the inner corners look fat.
@@ -676,6 +681,95 @@ export function FocusSection() {
           </Card>
         ))}
       </div>
+    </Section>
+  );
+}
+
+/* =========================================================
+   Sound
+   ========================================================= */
+
+export function SoundSection() {
+  const { enabled, volume } = useSound();
+  const [last, setLast] = useState<SoundName | null>(null);
+  const [mode, setMode] = useState<"chat" | "code">("chat");
+  const [notify, setNotify] = useState(true);
+  return (
+    <Section
+      id="sound"
+      title="Sound"
+      lede="Sound is off until someone turns it on. When it's on, it answers what you did, like motion does: a key going down, a switch flipping, a copy landing. It never plays on hover, on focus, or for something the app did by itself. Every sound is a few milliseconds of synthesized tone, quiet enough to sit under music."
+    >
+      <Spec name="the flag" state={[["enabled", String(enabled)], ["volume", `${Math.round(volume * 100)}%`], ["stored", "localStorage"]]} layout="stack" canvasClassName="gap-6">
+        <div className="flex w-full max-w-[360px] flex-col gap-5">
+          <SwitchChoice
+            label="Sound feedback"
+            description="Off by default. Saved in this browser, for every page."
+            checked={enabled}
+            onCheckedChange={(on) => {
+              setSoundEnabled(on);
+              if (on) playSound("on");
+            }}
+          />
+          <Slider
+            label="Volume"
+            value={Math.round(volume * 100)}
+            onValueChange={(v) => setSoundVolume(v / 100)}
+            onValueCommitted={() => playSound("press", { force: true })}
+            renderValue={(f) => `${f[0]}%`}
+            disabled={!enabled}
+          />
+        </div>
+      </Spec>
+
+      <Spec name="sounds by role" state={[["last", last ?? "none"], ["preview", "plays with the flag off"]]} layout="block" canvasClassName="px-6 py-8">
+        <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-x-6 gap-y-3 p-0">
+          {SOUNDS.map((name) => (
+            <li key={name} className="flex min-w-0 items-start gap-3">
+              <IconButton
+                variant="secondary"
+                size="sm"
+                label={`Play ${SOUND_INFO[name].label}`}
+                icon={<SpeakerHighIcon size={14} />}
+                sound={false}
+                onClick={() => {
+                  playSound(name, { force: true });
+                  setLast(name);
+                }}
+              />
+              <span className="flex min-w-0 flex-col">
+                <span className="mono text-small text-ink">{name}</span>
+                <span className="text-small text-ink-3">{SOUND_INFO[name].use}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Spec>
+
+      <Spec name="in components" state={[["enabled", String(enabled)], ["mode", mode], ["notify", String(notify)]]} layout="stack" canvasClassName="gap-5">
+        {!enabled && <Hint>Turn sound on above to hear these.</Hint>}
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Button variant="primary">Deploy</Button>
+          <Seg
+            aria-label="Mode"
+            value={mode}
+            onValueChange={setMode}
+            options={[
+              { value: "chat", label: "Chat" },
+              { value: "code", label: "Code" },
+            ]}
+          />
+          <Toggle label="Bold" icon={<TextBIcon size={16} />} />
+          <Button onClick={() => toast("Settings saved", { tone: "success" })}>Save</Button>
+          <Button variant="danger" onClick={() => toast("Deploy failed", { tone: "danger", description: "Build step exited with code 1." })}>
+            Fail a deploy
+          </Button>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-6">
+          <SwitchChoice label="Notify me" checked={notify} onCheckedChange={setNotify} />
+          <CheckboxChoice label="Run tests first" defaultChecked />
+        </div>
+      </Spec>
     </Section>
   );
 }

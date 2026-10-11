@@ -14,10 +14,17 @@ import { cn } from "@/lib/cn";
    whole-px gradients; moving lines translate by rounded px only.
    ========================================================= */
 
-/** Sets the two line colors for everything inside. `--rule` is the frame; `--rule-faint` the construction. */
+/**
+ * The docs' line colors. Two kinds of edge, two jobs:
+ *   --rule   structure: the sidebar's edge, the top bar's. Quiet.
+ *   --frame  a specimen: the square hairline frame around something on display (a live demo, a
+ *            showcase cell, an index thumbnail), with a Node on its outer corners only.
+ * Everything else is a Caret component doing its own job (Card, Code), with its own radius.
+ */
 export const SHEET: CSSProperties = {
   ["--rule" as string]: "var(--line)",
-  ["--rule-faint" as string]: "color-mix(in oklab, var(--line) 60%, var(--page))",
+  ["--frame" as string]: "var(--line-strong)",
+  ["--rule-faint" as string]: "var(--line)",
 };
 
 /** A hollow square where two lines meet. Place it with offsets; it centers on a 1px line at -4px (-5px across a border). */
@@ -25,7 +32,7 @@ export function Node({ className }: { className?: string }) {
   return (
     <span
       aria-hidden
-      className={cn("pointer-events-none absolute z-[1] size-[9px] border border-(--rule) bg-page", className)}
+      className={cn("pointer-events-none absolute z-[1] size-[9px] border border-(--frame) bg-page", className)}
     />
   );
 }
@@ -73,6 +80,38 @@ export function Rule({ bleed = true, nodes = true, className }: { bleed?: boolea
   );
 }
 
+/** A Node on each corner of a box drawn with a 1px border (its positioned parent). */
+export function Corners() {
+  return (
+    <>
+      <Node className="-top-[5px] -left-[5px]" />
+      <Node className="-top-[5px] -right-[5px]" />
+      <Node className="-bottom-[5px] -left-[5px]" />
+      <Node className="-right-[5px] -bottom-[5px]" />
+    </>
+  );
+}
+
+/** A specimen frame: square, a 1px `--frame` hairline, a Node on each corner. Nothing clips inside it. */
+export function Cell({ className, children, ...props }: ComponentProps<"div">) {
+  return (
+    <div className={cn("relative min-w-0 border border-(--frame)", className)} {...props}>
+      <Corners />
+      {children}
+    </div>
+  );
+}
+
+/* The docs sheet's reading column: its padding inside the frame lines, and the negative margin that
+   lets a rule or a band run edge to edge, from frame line to frame line (or the TOC's line). */
+export const COLUMN_PAD = "px-10 max-[1000px]:px-6 max-[600px]:px-4";
+export const COLUMN_BLEED = "-mx-10 max-[1000px]:-mx-6 max-[600px]:-mx-4";
+
+/** A rule across the docs reading column, with Nodes where it meets the frame lines on either side. */
+export function ColumnRule({ className }: { className?: string }) {
+  return <Rule bleed={false} className={cn(COLUMN_BLEED, className)} />;
+}
+
 /**
  * Dashed column guides, centered in the gaps of a grid with the same `columns` and `gap`.
  * Fills its positioned parent; inset it to the grid's content box with `className`.
@@ -93,21 +132,166 @@ export function Guides({ columns, gap = 16, className }: { columns: number; gap?
   );
 }
 
-/** Ruler ticks down the outside of a Frame's left edge: a short tick every 8px, a long one every 64px. */
-export function Ruler({ className }: { className?: string }) {
+/**
+ * Ruler ticks, a short one every 8px and a long one every 64px. `frame` (the default) hangs them
+ * down the outside of a Frame's left edge; `edge` down the right edge of its positioned parent,
+ * the far right of the page when that parent is full width.
+ */
+export function Ruler({ at = "frame", className }: { at?: "frame" | "edge"; className?: string }) {
   const ticks = (color: string, every: number) =>
     `repeating-linear-gradient(to bottom, ${color} 0 1px, transparent 1px ${every}px)`;
   return (
     <div
       aria-hidden
-      className={cn("pointer-events-none absolute inset-y-0 w-2 bg-no-repeat", className)}
+      className={cn("pointer-events-none absolute inset-y-0 z-[1] w-2 bg-no-repeat", className)}
       style={{
-        right: "calc(100% + 1px)",
+        right: at === "edge" ? 0 : "calc(100% + 1px)",
         backgroundImage: `${ticks("var(--rule-faint)", 8)}, ${ticks("var(--rule)", 64)}`,
         backgroundSize: "4px 100%, 8px 100%",
         backgroundPosition: "right top, right top",
       }}
     />
+  );
+}
+
+/* One 128px cell of the margin grid as a mask: a dashed vertical on the side nearest the frame, a
+   dashed horizontal on the bottom. Each margin's tile starts on the frame's border pixel, which the
+   panel then clips off, so the first guide falls a full cell out and none doubles the border. */
+const cell = (x: number) =>
+  `url("data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><path d='M${x} 0V128M0 127.5H128' stroke='black' stroke-dasharray='4 4' fill='none'/></svg>`,
+  )}")`;
+
+/**
+ * A dashed 128px grid in both margins of a Frame, square to its edges, in `--rule-faint` toned toward the page. Fills the
+ * frame's height; the page's horizontal clip trims it at the viewport. Render it first in the Frame.
+ */
+export function MarginGrid({ className }: { className?: string }) {
+  // Toned toward the page: a whole margin of dashes reads heavier than one guide in the same color.
+  const panel = "pointer-events-none absolute inset-y-0 w-[100vw] bg-[color-mix(in_oklab,var(--rule-faint)_60%,var(--page))]";
+  return (
+    <div aria-hidden className={cn("contents", className)}>
+      <span
+        className={cn(panel, "right-full [clip-path:inset(0_1px_0_0)]")}
+        style={{ maskImage: cell(127.5), maskPosition: "right top", maskSize: "128px 128px" }}
+      />
+      <span
+        className={cn(panel, "left-full [clip-path:inset(0_0_0_1px)]")}
+        style={{ maskImage: cell(0.5), maskPosition: "left top", maskSize: "128px 128px" }}
+      />
+    </div>
+  );
+}
+
+const FADE = {
+  "to-bottom-left": { corner: "top-0 right-0", x: "to left", y: "to bottom", mask: "to bottom left" },
+  "to-bottom-right": { corner: "top-0 left-0", x: "to right", y: "to bottom", mask: "to bottom right" },
+  "to-top-left": { corner: "bottom-0 right-0", x: "to left", y: "to top", mask: "to top left" },
+  "to-top-right": { corner: "bottom-0 left-0", x: "to right", y: "to top", mask: "to top right" },
+} as const;
+
+/**
+ * A patch of graph paper (8px squares, 1px `--rule-faint` lines) in one corner of its positioned
+ * parent, fading out along the diagonal named by `fade`: `to-bottom-left` sits top right. Lines are
+ * counted from that corner, 8px in, so the parent's own edge lines close the first row of squares.
+ * Size it with `className` in multiples of 8px; the default is 384 × 256.
+ */
+export function GraphPaper({
+  fade = "to-bottom-left",
+  className,
+}: {
+  fade?: keyof typeof FADE;
+  className?: string;
+}) {
+  const f = FADE[fade];
+  const lines = (dir: string) => `repeating-linear-gradient(${dir}, transparent 0 7px, var(--rule-faint) 7px 8px)`;
+  const mask = `linear-gradient(${f.mask}, black, transparent 75%)`;
+  return (
+    <div
+      aria-hidden
+      className={cn("pointer-events-none absolute h-64 w-96", f.corner, className)}
+      style={{ backgroundImage: `${lines(f.x)}, ${lines(f.y)}`, maskImage: mask, WebkitMaskImage: mask }}
+    />
+  );
+}
+
+/**
+ * A diamond glyph drawn as construction lines, stretched to fill its positioned parent: a flat table
+ * along the top, a short crown of four facets, the girdle running edge to edge at `girdle` (a fraction
+ * of the height), and a pavilion closing on the culet at the middle of the bottom edge, where a
+ * Crosshair resting at { x: 0.5, y: 1 } meets it. One 1px stroke in three tiers: the silhouette and
+ * girdle in `--rule`, facets in `--rule-faint`, one short glint on the table a step brighter.
+ * `clear` fades the lines out in a soft ellipse around the middle, so text set over it never fights them.
+ */
+export function DiamondFigure({
+  girdle = 0.34,
+  clear = true,
+  className,
+}: {
+  girdle?: number;
+  clear?: boolean;
+  className?: string;
+}) {
+  const G = Math.round(girdle * 1000);
+  const mask = "radial-gradient(ellipse 38% 50% at 50% 46%, transparent 45%, black 100%)";
+  const stroke = { fill: "none", strokeWidth: 1, vectorEffect: "non-scaling-stroke" } as const;
+  // The box takes the insets and the mask; the svg fills it (an absolute svg alone keeps its intrinsic size).
+  return (
+    <div
+      aria-hidden
+      className={cn("pointer-events-none absolute inset-0", className)}
+      style={clear ? { maskImage: mask, WebkitMaskImage: mask } : undefined}
+    >
+      <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" className="size-full overflow-visible">
+        {/* Crown facets from the table down to the girdle's quarter points, then the pavilion's two mains. */}
+        <path
+          d={`M300 0L250 ${G}L500 0L750 ${G}L700 0 M250 ${G}L500 1000L750 ${G}`}
+          stroke="var(--rule-faint)"
+          strokeLinejoin="miter"
+          {...stroke}
+        />
+        <path d={`M300 0H700L1000 ${G}L500 1000L0 ${G}Z M0 ${G}H1000`} stroke="var(--rule)" strokeLinejoin="miter" {...stroke} />
+        {/* Where the light catches: the table's front-left edge. */}
+        <path d="M300 0H420" stroke="color-mix(in oklab, var(--ink) 40%, transparent)" {...stroke} />
+      </svg>
+    </div>
+  );
+}
+
+/**
+ * A prism seen from above, stretched to fill its positioned parent: one large upward triangle with
+ * its apex at the top centre and its base on the parent's bottom edge (left undrawn: the rule below
+ * is the base), and a concentric triangle at half scale, its corners joined to the outer ones.
+ * The outer sides are `--rule`; the inner triangle and its joins `--rule-faint`, with one short
+ * highlight a step brighter on the inner left edge. `clear` dims the lines in a soft ellipse around
+ * the middle (to a fifth, not out), so text set over it never fights them yet the figure still reads.
+ */
+export function PrismFigure({ clear = true, className }: { clear?: boolean; className?: string }) {
+  // Inner triangle: the outer one scaled by half about its centroid (500, 667).
+  const [l, r, top, base] = [250, 750, 333, 833];
+  const mask = "radial-gradient(ellipse 38% 50% at 50% 46%, rgb(0 0 0 / .2) 45%, black 100%)";
+  const stroke = { fill: "none", strokeWidth: 1, strokeLinejoin: "miter", vectorEffect: "non-scaling-stroke" } as const;
+  return (
+    <div
+      aria-hidden
+      className={cn("pointer-events-none absolute inset-0", className)}
+      style={clear ? { maskImage: mask, WebkitMaskImage: mask } : undefined}
+    >
+      <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" className="size-full overflow-visible">
+        <path
+          d={`M${l} ${base}L500 ${top}L${r} ${base}Z M0 1000L${l} ${base} M500 0V${top} M1000 1000L${r} ${base}`}
+          stroke="var(--rule-faint)"
+          {...stroke}
+        />
+        <path d="M0 1000L500 0L1000 1000" stroke="var(--rule)" {...stroke} />
+        {/* Where the light catches: the upper part of the inner left edge. */}
+        <path
+          d={`M500 ${top}L${500 - (500 - l) * 0.3} ${top + (base - top) * 0.3}`}
+          stroke="color-mix(in oklab, var(--ink) 40%, transparent)"
+          {...stroke}
+        />
+      </svg>
+    </div>
   );
 }
 
@@ -203,7 +387,8 @@ export function Diagonal({ className }: { className?: string }) {
   );
 }
 
-const SPRING = { stiffness: 100, damping: 18 };
+/* Critically damped (damping = 2√(stiffness × mass)): it settles fast and never overshoots. */
+const SPRING = { stiffness: 400, damping: 40, mass: 1 };
 
 /**
  * Two full-length guides crossing at an accent `+`. They rest at `rest` (fractions of the

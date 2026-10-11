@@ -3,6 +3,7 @@ import { NumberField as BaseNumberField } from "@base-ui/react/number-field";
 import { ArrowsHorizontalIcon, MinusIcon, PlusIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { FieldMessage, fieldLabelClass, fieldRootClass, wellClass, wellInputClass } from "./input";
 import { Tooltip } from "./tooltip";
 
@@ -74,7 +75,10 @@ export function NumberField({
     >
       <BaseNumberField.Root
         value={value}
-        onValueChange={(v) => onValueChange(v)}
+        onValueChange={(v) => {
+          playSound("tick");
+          onValueChange(v);
+        }}
         min={min}
         max={max}
         step={step}

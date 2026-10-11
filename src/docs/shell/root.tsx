@@ -70,7 +70,7 @@ export function DocsRoot({ children }: { children: ReactNode }) {
     >
       <div
         className="transition-[padding] duration-settle ease-drawer"
-        style={{ paddingRight: themePanelOpen && docked ? THEME_PANEL_WIDTH + 12 : 0 }}
+        style={{ paddingRight: themePanelOpen && docked ? THEME_PANEL_WIDTH : 0 }}
       >
         {children}
       </div>

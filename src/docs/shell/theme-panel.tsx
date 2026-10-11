@@ -10,7 +10,8 @@ import { useMediaQuery } from "@/lib/use-media-query";
 import { useDocs } from "../docs-context";
 
 /** Width of the docked panel; the page makes room for it (see DocsRoot). */
-export const THEME_PANEL_WIDTH = 288;
+/** The left sidebar's width, so the page sits between two columns of the same size. */
+export const THEME_PANEL_WIDTH = 272;
 
 /** Opens and closes the theme side panel. Shows the current theme's swatch and name. */
 export function ThemePanelButton() {
@@ -70,21 +71,23 @@ export function ThemePanel() {
             }
           }}
           // Arrives on the sheet curve; leaves faster than it came.
-          initial={{ transform: "translateX(calc(100% + 16px))" }}
+          initial={{ transform: "translateX(100%)" }}
           animate={{ transform: "translateX(0%)", transition: { duration: duration.settle, ease: ease.drawer } }}
-          exit={{ transform: "translateX(calc(100% + 16px))", transition: { duration: duration.quick, ease: ease.out } }}
+          exit={{ transform: "translateX(100%)", transition: { duration: duration.quick, ease: ease.out } }}
           style={{ width: docked ? THEME_PANEL_WIDTH : undefined }}
           className={[
-            "fixed top-3 right-3 bottom-3 z-30 flex flex-col overflow-hidden rounded-card border border-line bg-surface text-ink",
-            // docked: a hairline panel beside the page; phones: a slide-over above it
-            docked ? "" : "left-auto w-[min(288px,calc(100vw-24px))] shadow-modal",
+            // The left sidebar's mirror: a full-height column on the surface, flush to the edge, one line on its inner side.
+            "fixed inset-y-0 right-0 z-30 flex flex-col border-l border-line bg-surface text-ink",
+            // phones: the same column, sliding over the page
+            docked ? "" : "w-[min(272px,calc(100vw-48px))] shadow-modal",
           ].join(" ")}
         >
-          <header className="flex flex-none items-center gap-2 border-b border-line py-2 pr-2 pl-4">
-            <h2 className="m-0 flex-1 text-control font-heading">Theme</h2>
+          {/* 56px, border-box, like the sidebar's brand row: its bottom line continues the top bar's. */}
+          <header className="flex h-14 flex-none items-center gap-2 border-b border-line ps-5 pe-2">
+            <h2 className="m-0 flex-1 text-subtitle font-heading">Theme</h2>
             <IconButton label="Close theme panel" kbd="Esc" icon={<XIcon />} onClick={close} />
           </header>
-          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3">
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain px-3 pt-3 pb-6">
             <Seg
               aria-label="Mode"
               value={mode}

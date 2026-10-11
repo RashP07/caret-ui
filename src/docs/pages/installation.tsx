@@ -1,5 +1,5 @@
-import { Code, Hint } from "@/components";
-import { PageHeading, Section } from "../spec";
+import { Hint } from "@/components";
+import { PageHeading, Section, SheetCode } from "../spec";
 
 /** Installation: the stack, the tokens, the providers. */
 export default function Installation() {
@@ -10,7 +10,7 @@ export default function Installation() {
       lede="Caret is source you own: React 19, Tailwind CSS v4 and Base UI, with Phosphor icons and Motion. Copy the tokens and components into your app, mount four providers at the root, and every component works in every theme, light and dark."
     >
       <PageHeading>1. Install the stack</PageHeading>
-      <Code
+      <SheetCode
         lang="SH"
         name="terminal"
         lines={[
@@ -27,10 +27,10 @@ export default function Installation() {
         <code>scripts/themes/</code> and run <code>npm run tokens</code>, which fails if any pairing drops below its
         contrast target.
       </p>
-      <Code lang="CSS" name="src/styles/index.css" lines={['@import "tailwindcss";', '@import "./tokens.css";', '@import "./components.css";']} />
+      <SheetCode lang="CSS" name="src/styles/index.css" lines={['@import "tailwindcss";', '@import "./tokens.css";', '@import "./components.css";']} />
 
       <PageHeading>3. Mount the providers</PageHeading>
-      <Code
+      <SheetCode
         lang="TSX"
         name="src/main.tsx"
         lines={[
@@ -57,7 +57,7 @@ export default function Installation() {
       </Hint>
 
       <PageHeading>4. Use a component</PageHeading>
-      <Code
+      <SheetCode
         lang="TSX"
         name="deploy.tsx"
         lines={[
@@ -76,7 +76,7 @@ export default function Installation() {
         light or dark. Leave <code>data-mode</code> off to follow the OS. Both work on <code>html</code> for the page, or on
         any element to scope one part of it.
       </p>
-      <Code
+      <SheetCode
         lang="HTML"
         name="index.html"
         lines={['<html data-theme="slate">', '  <aside data-mode="dark">…</aside>', '  <section data-theme="contrast" data-mode="light">…</section>', "</html>"]}

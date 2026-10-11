@@ -1,6 +1,7 @@
 import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playOpenSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { actionMenuPopupClass } from "./menu";
 import { keyboardInstant } from "./select";
@@ -26,7 +27,10 @@ export interface ContextMenuProps {
 export function ContextMenu({ area, children, onOpenChange, className, areaProps }: ContextMenuProps) {
   const portalTheme = usePortalTheme();
   return (
-    <BaseContextMenu.Root onOpenChange={(o) => onOpenChange?.(o)}>
+    <BaseContextMenu.Root onOpenChange={(o, d) => {
+        playOpenSound(o, d);
+        onOpenChange?.(o);
+      }}>
       <BaseContextMenu.Trigger className={cn("select-none", className)} {...areaProps}>
         {area}
       </BaseContextMenu.Trigger>

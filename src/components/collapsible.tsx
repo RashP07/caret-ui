@@ -2,6 +2,7 @@ import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible";
 import { CaretRightIcon } from "@phosphor-icons/react";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { pressClass, pressColorTransition } from "./modality";
 
 /*
@@ -31,8 +32,17 @@ export const panelContentClass = cn(
 
 type RootProps = Omit<ComponentProps<typeof BaseCollapsible.Root>, "className"> & { className?: string };
 
-export function Collapsible({ className, ...props }: RootProps) {
-  return <BaseCollapsible.Root className={cn("flex flex-col gap-1", className)} {...props} />;
+export function Collapsible({ className, onOpenChange, ...props }: RootProps) {
+  return (
+    <BaseCollapsible.Root
+      className={cn("flex flex-col gap-1", className)}
+      {...props}
+      onOpenChange={(open, details) => {
+        playSound(open ? "open" : "close");
+        onOpenChange?.(open, details);
+      }}
+    />
+  );
 }
 
 type TriggerProps = Omit<ComponentProps<typeof BaseCollapsible.Trigger>, "className"> & {

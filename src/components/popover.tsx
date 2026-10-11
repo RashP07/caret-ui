@@ -2,6 +2,7 @@ import { Popover as BasePopover } from "@base-ui/react/popover";
 import { XIcon } from "@phosphor-icons/react";
 import { useRef, type ReactElement, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playOpenSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { IconButton } from "./button";
 
@@ -66,7 +67,10 @@ export function Popover({
   // Focus the panel itself on open: keyboard users read it first, then Tab to its actions.
   const popupRef = useRef<HTMLDivElement>(null);
   return (
-    <BasePopover.Root open={open} onOpenChange={(o) => onOpenChange?.(o)}>
+    <BasePopover.Root open={open} onOpenChange={(o, d) => {
+        playOpenSound(o, d);
+        onOpenChange?.(o);
+      }}>
       <BasePopover.Trigger render={trigger} openOnHover={openOnHover} />
       <BasePopover.Portal {...portalTheme}>
         <BasePopover.Positioner side={side} align={align} sideOffset={10} collisionPadding={8} className="z-[70]">
@@ -77,7 +81,7 @@ export function Popover({
             style={{ width: `min(${width}px, var(--available-width))` }}
           >
             <BasePopover.Arrow className={floatingArrowClass} />
-            <BasePopover.Title className={cn("m-0 text-body leading-5 font-heading tracking-[-.01em] text-balance", !hideClose && "pr-9")}>
+            <BasePopover.Title className={cn("m-0 text-subtitle font-heading text-balance", !hideClose && "pr-9")}>
               {title}
             </BasePopover.Title>
             {description && (

@@ -4,6 +4,8 @@ import {
   Button,
   Card,
   CardBody,
+  CardFoot,
+  CardSub,
   CardTitle,
   CheckboxChoice,
   Field,
@@ -21,6 +23,7 @@ import {
   ThemeSwatch,
   toast,
 } from "@/components";
+import { MoonIcon, SunIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/cn";
 import {
   buildTheme,
@@ -100,48 +103,84 @@ export function SampleSettings({ className }: { className?: string }) {
   return (
     <div className={cn("flex min-w-0 flex-col gap-3", className)}>
       <Card>
-        <CardBody className="flex flex-col gap-3">
-          <CardTitle>Deploy settings</CardTitle>
+        <CardBody className="flex flex-col gap-4 p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <CardTitle>Deploy settings</CardTitle>
+              <CardSub>lunch-picker · main</CardSub>
+            </div>
+            <Badge tone="live" dot>
+              Running
+            </Badge>
+          </div>
           <Field label="Agent name" hint="Lowercase letters, numbers and dashes.">
             <Input defaultValue="lunch-picker" />
           </Field>
-          <SwitchChoice label="Deploy on push" defaultChecked />
-          <CheckboxChoice label="Notify the team" defaultChecked />
-          <Progress label="Build" value={64} />
-          <div className="flex flex-wrap gap-2">
-            <Button variant="primary">Deploy</Button>
-            <Button variant="secondary">Preview</Button>
-            <Button variant="danger">Delete</Button>
+          {/* Choice rows carry 8px of hover face each side; pull them out so their text lines up with the field. */}
+          <div className="-mx-2 flex flex-col">
+            <SwitchChoice label="Deploy on push" defaultChecked />
+            <CheckboxChoice label="Notify the team" defaultChecked />
           </div>
+          <Progress label="Build" value={64} />
+        </CardBody>
+        <CardFoot className="px-5">
+          <Button variant="primary">Deploy</Button>
+          <Button variant="secondary">Preview</Button>
+          <Button variant="danger" className="ms-auto">
+            Delete
+          </Button>
+        </CardFoot>
+      </Card>
+      <Card>
+        <CardBody className="flex flex-col gap-3 p-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <CardTitle>Runs this week</CardTitle>
+            <span className="text-caption text-ink-3 tabular-nums">412 total</span>
+          </div>
+          <div aria-hidden className="flex h-14 items-end gap-1.5 border-b border-line">
+            {[70, 45, 90, 55, 30, 65].map((h, i) => (
+              <span key={i} className={cn("w-full rounded-t-[3px]", CHART[i])} style={{ height: `${h}%` }} />
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <Badge tone="ok">Ready</Badge>
+            <Badge tone="warning">Queued</Badge>
+            <Badge tone="danger">Failed</Badge>
+            <Badge tone="info">Info</Badge>
+          </div>
+          <p className="m-0 text-small text-pretty text-ink-2">
+            Read the <a className="link" href="#top">deploy guide</a> before you ship.
+          </p>
         </CardBody>
       </Card>
-      <div className="flex flex-wrap gap-1.5">
-        <Badge tone="ok">Ready</Badge>
-        <Badge tone="live" dot>
-          Running
-        </Badge>
-        <Badge tone="warning">Queued</Badge>
-        <Badge tone="danger">Failed</Badge>
-        <Badge tone="info">Info</Badge>
-      </div>
-      <p className="m-0 text-small text-pretty text-ink-2">
-        Read the <a className="link" href="#top">deploy guide</a> before you ship.
-      </p>
-      <div aria-hidden className="flex h-12 items-end gap-1.5">
-        {[70, 45, 90, 55, 30, 65].map((h, i) => (
-          <span key={i} className={cn("w-full rounded-t-[3px]", CHART[i])} style={{ height: `${h}%` }} />
-        ))}
-      </div>
     </div>
   );
 }
 
+const SWATCHES = [
+  { name: "page", className: "bg-page" },
+  { name: "surface", className: "bg-surface" },
+  { name: "accent", className: "bg-accent" },
+  { name: "ink", className: "bg-ink" },
+];
+
 /** The sample on the candidate theme's tokens, scoped by inline style, so the page itself doesn't change. */
 function Preview({ style, mode }: { style: CSSProperties; mode: "light" | "dark" }) {
+  const Icon = mode === "light" ? SunIcon : MoonIcon;
   return (
-    <div data-theme="custom" data-mode={mode} style={style} className="flex min-w-0 flex-col gap-3 rounded-card border border-line bg-page p-4 text-ink">
-      <span className="text-caption text-ink-3">{mode === "light" ? "Light" : "Dark"}</span>
-      <SampleSettings />
+    <div data-theme="custom" data-mode={mode} style={style} className="flex min-w-0 flex-col overflow-hidden rounded-card border border-line bg-page text-ink">
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-2.5">
+        <span className="inline-flex items-center gap-1.5 text-small font-control text-ink-2">
+          <Icon size={14} aria-hidden />
+          {mode === "light" ? "Light" : "Dark"}
+        </span>
+        <span className="flex items-center gap-1" aria-hidden>
+          {SWATCHES.map((w) => (
+            <span key={w.name} title={w.name} className={cn("size-3.5 rounded-full border border-line-strong", w.className)} />
+          ))}
+        </span>
+      </div>
+      <SampleSettings className="p-4" />
     </div>
   );
 }
@@ -291,11 +330,11 @@ export function ThemeBuilderSection() {
         {/* Controls stay in view beside the preview, and scroll on their own when taller than the screen. */}
         <aside
           aria-label="Theme controls"
-          className="sticky top-20 -mx-1 flex max-h-[calc(100dvh-6rem)] flex-col gap-5 self-start overflow-y-auto px-1 pb-2 max-[1100px]:static max-[1100px]:max-h-none max-[1100px]:overflow-visible"
+          className="sticky top-20 -mx-2 flex max-h-[calc(100dvh-6rem)] flex-col gap-5 self-start overflow-y-auto px-2 pb-2 max-[1100px]:static max-[1100px]:max-h-none max-[1100px]:overflow-visible"
         >
           <div className="flex flex-col gap-2">
             <Label>Start from</Label>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="-mx-2 grid grid-cols-2 gap-1.5">
               {THEMES.map((p: PresetName) => (
                 <Button
                   key={p}
@@ -333,7 +372,9 @@ export function ThemeBuilderSection() {
             onValueChange={(v) => update({ tint: v / 100 })}
             renderValue={(f) => `${f[0]}%`}
           />
-          <SwitchChoice label="Monochrome" description="The ink is the accent." checked={!!spec.mono} onCheckedChange={(m) => update({ mono: m || undefined })} />
+          <div className="-mx-2">
+            <SwitchChoice label="Monochrome" description="The ink is the accent." checked={!!spec.mono} onCheckedChange={(m) => update({ mono: m || undefined })} />
+          </div>
 
           <div className="flex flex-col gap-2">
             <Label>Primary buttons</Label>

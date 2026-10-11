@@ -3,6 +3,7 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { LayoutGroup, motion, type Transition } from "motion/react";
 import { createContext, useContext, useId, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { glide, instant as instantTransition } from "@/lib/motion";
 import { pressColorTransition } from "./modality";
 
@@ -62,7 +63,22 @@ export function NavItem({ icon, children, meta, trail, current, live, path, rend
   const nested = useContext(ThreadsContext);
   const shared = useContext(NavGroupContext);
 
-  let name: ReactNode = <span className="min-w-0 flex-1 truncate">{children}</span>;
+  // Weight without reflow: the current row sets its label at 620, which is wider. A text label
+  // carries a zero-height 620 copy in ::after (generated content: not in the text or the
+  // accessible name), so the row is always as wide as its heaviest state and turning current
+  // never nudges a neighbour.
+  const text = typeof children === "string" || typeof children === "number" ? String(children) : undefined;
+  let name: ReactNode = (
+    <span
+      data-label={text}
+      className={cn(
+        "min-w-0 flex-1 truncate",
+        text && "after:invisible after:block after:h-0 after:overflow-hidden after:font-heading after:content-[attr(data-label)]",
+      )}
+    >
+      {children}
+    </span>
+  );
   if (path) {
     const parts = path.split("/");
     const file = parts.pop();
@@ -123,6 +139,8 @@ export function NavItem({ icon, children, meta, trail, current, live, path, rend
     props: mergeProps<"button">(
       {
         type: render ? undefined : "button",
+        // Going to a row is a pick, like a tab.
+        onClick: () => playSound("select"),
         "aria-current": current ? "true" : undefined,
         className: cn(
           "group/nav relative flex w-full items-center gap-2.5 rounded-button border-0 bg-transparent px-2 text-left font-control text-ink-2 no-underline",

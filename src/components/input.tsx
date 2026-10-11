@@ -25,16 +25,16 @@ export const fieldRootClass = "group/field flex w-full min-w-0 flex-col gap-1.5"
 /**
  * The recessed well: a tinted ground at rest; on focus it turns flush with the shared field
  * focus ring (one 2px line over the border, see field-focus), danger when the enclosing Field
- * (group/field) or the control is invalid. Its edge is border-control (3:1), so the box reads
- * as a control on every ground. Disabled goes sunken; read-only keeps full ink on a flat
+ * (group/field) or the control is invalid. Its resting edge is the dimmer border-field; hover
+ * steps it up to border-control (3:1). Disabled goes sunken; read-only keeps full ink on a flat
  * surface. 36px tall (44px on touch) unless it wraps (chips).
  */
 export const wellClass = cn(
-  "flex items-stretch overflow-hidden rounded-control border-stroke border-border-control",
+  "flex items-stretch overflow-hidden rounded-control border-stroke border-border-field",
   "bg-[color-mix(in_srgb,var(--sunken)_45%,var(--surface))]",
   "transition-[border-color,background-color] duration-quick",
   // Hover darkens the edge only while unfocused; focus owns the border.
-  "not-focus-within:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
+  "not-focus-within:hover:border-border-control",
   // Focus shows on click too (focus-within), as text entry should.
   "focus-within:field-focus focus-within:bg-surface",
   "group-data-invalid/field:border-danger-line has-[[aria-invalid=true]]:border-danger-line",
@@ -42,6 +42,22 @@ export const wellClass = cn(
   "has-[input[readonly]]:bg-surface",
   "has-[input:disabled]:cursor-not-allowed has-[input:disabled]:border-line-strong has-[input:disabled]:bg-sunken",
 );
+
+/**
+ * The filled well: no edge at rest, only a sunken fill, so dense forms and settings pages read as
+ * quiet text areas instead of a stack of boxes. The fill never changes: hover only shows the quiet
+ * resting edge (border-field), and focus only turns that edge the focus color (the shared field
+ * focus); invalid keeps its danger edge, so state is never hidden. The fill is the boundary here,
+ * so use it on page or surface grounds, never on a sunken one.
+ */
+export const wellFilledClass = cn(
+  "border-transparent bg-sunken focus-within:bg-sunken",
+  "not-focus-within:hover:border-border-field",
+  "has-[input:disabled]:border-transparent has-[textarea:disabled]:border-transparent",
+  "has-[input:disabled]:hover:border-transparent has-[textarea:disabled]:hover:border-transparent",
+);
+
+export type WellVariant = "outline" | "filled";
 
 /** The text inside a well. Mark it data-focus-proxy: the well shows focus for it. 16px on phones so iOS doesn't zoom. */
 export const wellInputClass = cn(
@@ -135,7 +151,7 @@ export function Field({ label, optional, count, hint, error, invalid, className,
   );
 }
 
-export interface InputProps extends Omit<ComponentProps<typeof BaseInput>, "className"> {
+export interface InputProps extends Omit<ComponentProps<typeof BaseInput>, "className" | "size"> {
   /** Leading icon inside the well. */
   lead?: ReactNode;
   /** Mono prefix segment, e.g. "https://". */
@@ -144,6 +160,13 @@ export interface InputProps extends Omit<ComponentProps<typeof BaseInput>, "clas
   trail?: ReactNode;
   /** Show a success tick in the trail. */
   valid?: boolean;
+  /**
+   * `sm`: a 28px well at text-small, for dense chrome (a filter in a panel head, a toolbar). It
+   * lines up with Button size="sm". Text sits 10px in, an icon 6px. Forms use the default.
+   */
+  size?: "default" | "sm";
+  /** `filled`: no edge until focused, a sunken fill instead. For quiet, dense forms. */
+  variant?: WellVariant;
   className?: string;
 }
 
@@ -151,20 +174,28 @@ export interface InputProps extends Omit<ComponentProps<typeof BaseInput>, "clas
  * The control well and its input. Use inside <Field>, or alone with an aria-label.
  * The well wears the input's focus ring; anything focusable in `trail` keeps its own.
  */
-export function Input({ lead, affix, trail, valid, className, ...props }: InputProps) {
+export function Input({ lead, affix, trail, valid, size = "default", variant = "outline", className, ...props }: InputProps) {
+  const sm = size === "sm";
   return (
-    <div data-focus-target data-readonly={props.readOnly || undefined} className={cn(wellClass, "h-9 touch:h-11", className)}>
+    <div
+      data-focus-target
+      data-readonly={props.readOnly || undefined}
+      // sm reaches 36px on touch, not 44: it lives in dense chrome, beside sm buttons.
+      className={cn(wellClass, variant === "filled" && wellFilledClass, sm ? "h-7 touch:h-9" : "h-9 touch:h-11", className)}
+    >
       {affix != null && (
-        <span className="mono flex flex-none items-center border-r border-line bg-sunken px-2.5 text-caption text-ink-3">{affix}</span>
+        <span className={cn("mono flex flex-none items-center border-r border-line bg-sunken px-2.5 text-caption text-ink-3", sm && "px-2")}>
+          {affix}
+        </span>
       )}
-      {lead != null && <span className={wellLeadClass}>{lead}</span>}
+      {lead != null && <span className={cn(wellLeadClass, sm && "ps-1.5 [&_svg]:size-3.5")}>{lead}</span>}
       <BaseInput
         data-focus-proxy
-        className={cn(wellInputClass, lead != null && wellInputAfterLeadClass)}
+        className={cn(wellInputClass, lead != null && wellInputAfterLeadClass, sm && "px-2.5 sm:text-small", sm && lead != null && "ps-1.5")}
         {...props}
       />
       {(trail != null || valid) && (
-        <span className={cn("flex flex-none items-center px-2 text-ink-3", valid && "text-success")}>
+        <span className={cn("flex flex-none items-center px-2 text-ink-3", sm && "px-1.5", valid && "text-success")}>
           {valid ? <CheckIcon aria-hidden /> : trail}
         </span>
       )}

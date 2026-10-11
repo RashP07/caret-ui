@@ -2,6 +2,7 @@ import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { panelContentClass, panelHeightClass } from "./collapsible";
 
 /*
@@ -39,6 +40,7 @@ export function AccordionItem({ value, title, meta, disabled, children, classNam
     <BaseAccordion.Item
       value={value}
       disabled={disabled}
+      onOpenChange={(open) => playSound(open ? "open" : "close")}
       className={cn("border-b border-line last:border-b-0", className)}
     >
       <BaseAccordion.Header className="m-0 text-[inherit] font-[inherit]">

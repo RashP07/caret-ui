@@ -9,22 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocsRouteImport } from './routes/_docs'
+import { Route as DocsIndexRouteImport } from './routes/_docs/index'
 import { Route as DocsComponentsIndexRouteImport } from './routes/_docs/components.index'
 import { Route as DocsComponentsSlugRouteImport } from './routes/_docs/components.$slug'
 import { Route as DocsDocsSlugRouteImport } from './routes/_docs/docs.$slug'
 import { Route as DocsFoundationsSlugRouteImport } from './routes/_docs/foundations.$slug'
 import { Route as DocsTemplatesSlugRouteImport } from './routes/_docs/templates.$slug'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DocsRoute = DocsRouteImport.update({
   id: '/_docs',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsRoute,
 } as any)
 const DocsComponentsIndexRoute = DocsComponentsIndexRouteImport.update({
   id: '/components/',
@@ -53,7 +53,7 @@ const DocsTemplatesSlugRoute = DocsTemplatesSlugRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof DocsIndexRoute
   '/components/$slug': typeof DocsComponentsSlugRoute
   '/docs/$slug': typeof DocsDocsSlugRoute
   '/foundations/$slug': typeof DocsFoundationsSlugRoute
@@ -61,7 +61,7 @@ export interface FileRoutesByFullPath {
   '/components/': typeof DocsComponentsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof DocsIndexRoute
   '/components/$slug': typeof DocsComponentsSlugRoute
   '/docs/$slug': typeof DocsDocsSlugRoute
   '/foundations/$slug': typeof DocsFoundationsSlugRoute
@@ -70,8 +70,8 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_docs': typeof DocsRouteWithChildren
+  '/_docs/': typeof DocsIndexRoute
   '/_docs/components/$slug': typeof DocsComponentsSlugRoute
   '/_docs/docs/$slug': typeof DocsDocsSlugRoute
   '/_docs/foundations/$slug': typeof DocsFoundationsSlugRoute
@@ -97,8 +97,8 @@ export interface FileRouteTypes {
     | '/components'
   id:
     | '__root__'
-    | '/'
     | '/_docs'
+    | '/_docs/'
     | '/_docs/components/$slug'
     | '/_docs/docs/$slug'
     | '/_docs/foundations/$slug'
@@ -107,25 +107,24 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   DocsRoute: typeof DocsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_docs': {
       id: '/_docs'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_docs/': {
+      id: '/_docs/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof DocsRoute
     }
     '/_docs/components/': {
       id: '/_docs/components/'
@@ -166,6 +165,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface DocsRouteChildren {
+  DocsIndexRoute: typeof DocsIndexRoute
   DocsComponentsSlugRoute: typeof DocsComponentsSlugRoute
   DocsDocsSlugRoute: typeof DocsDocsSlugRoute
   DocsFoundationsSlugRoute: typeof DocsFoundationsSlugRoute
@@ -174,6 +174,7 @@ interface DocsRouteChildren {
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
+  DocsIndexRoute: DocsIndexRoute,
   DocsComponentsSlugRoute: DocsComponentsSlugRoute,
   DocsDocsSlugRoute: DocsDocsSlugRoute,
   DocsFoundationsSlugRoute: DocsFoundationsSlugRoute,
@@ -184,7 +185,6 @@ const DocsRouteChildren: DocsRouteChildren = {
 const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   DocsRoute: DocsRouteWithChildren,
 }
 export const routeTree = rootRouteImport

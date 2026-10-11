@@ -3,6 +3,7 @@ import { Select as BaseSelect } from "@base-ui/react/select";
 import { CaretDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { Fragment, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playOpenSound, playSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { FieldMessage, fieldLabelClass, fieldRootClass } from "./input";
 
@@ -104,7 +105,7 @@ export const selectedTickClass =
 export const menuGroupLabelClass = "px-2.5 pt-2 pb-1 text-caption text-ink-3";
 export const menuSeparatorClass = "-mx-1 my-1 h-px bg-line";
 export const menuDescriptionClass = "mt-px block text-caption text-ink-3";
-/** Right-aligned meta in an option row: a count, a speed, a type. */
+/** An option row's meta: a count, a speed, a type. Select sets it beside the label; menus and comboboxes, right-aligned. */
 export const menuMetaClass = "text-caption text-ink-3 tabular-nums";
 
 const triggerBase = cn(
@@ -116,26 +117,35 @@ const triggerBase = cn(
  *  about 4px closer to the edge than the text side (12/8, compact 10/6, xs 8/4). */
 const triggerDensity: Record<SelectDensity, string> = {
   default: cn(
-    "h-9 gap-2.5 rounded-control border-stroke border-border-control bg-surface ps-3 pe-2 data-lead:ps-2 text-control text-ink touch:h-11",
+    "h-9 gap-2.5 rounded-control border-stroke border-border-field bg-surface ps-3 pe-2 data-lead:ps-2 text-control text-ink touch:h-11",
     // Hover darkens the edge only when the field isn't focused or open.
-    "not-focus-visible:not-data-popup-open:hover:border-[color-mix(in_srgb,var(--border-control)_55%,var(--ink))]",
+    "not-focus-visible:not-data-popup-open:hover:border-border-control",
     // Like the text fields: focus and open show the one field focus line (field-focus).
     "focus-visible:field-focus data-popup-open:field-focus",
     "data-invalid:border-danger-line group-data-invalid/field:border-danger-line",
     "data-invalid:[--field-focus:var(--danger)] group-data-invalid/field:[--field-focus:var(--danger)]",
     "data-disabled:border-line-strong data-disabled:bg-sunken",
   ),
+  // Borderless pickers highlight like a nav row or a ghost button: --r-button, not the field's
+  // --r-control. In a 4px-inset box (the composer) that also keeps them concentric (8 − 4 = 4).
   compact: cn(
-    "min-h-7.5 gap-1.5 rounded-control border border-transparent bg-transparent ps-2.5 pe-1.5 data-lead:ps-1.5 text-small font-control text-ink-2",
+    "min-h-7.5 gap-1.5 rounded-button border border-transparent bg-transparent ps-2.5 pe-1.5 data-lead:ps-1.5 text-small font-control text-ink-2",
+    // Led by an avatar (a workspace switcher): the 24px tile sits 4px from every edge of a 32px row
+    // (3px padding + the 1px border), and the row takes the control radius so the corners are
+    // concentric (8 − 4 = 4). Stacked on data-lead so it outranks the icon lead's padding.
+    "has-[[data-avatar]]:min-h-8 has-[[data-avatar]]:gap-2 has-[[data-avatar]]:rounded-control data-lead:has-[[data-avatar]]:ps-[3px]",
     "hover:bg-hover hover:text-ink focus-visible:bg-hover focus-visible:text-ink data-popup-open:bg-pressed data-popup-open:text-ink",
     "data-disabled:bg-transparent data-disabled:text-ink-disabled",
   ),
   xs: cn(
-    "min-h-6.5 gap-1.5 rounded-control border border-transparent bg-transparent ps-2 pe-1 data-lead:ps-1 text-small font-control text-ink-2",
+    "min-h-6.5 gap-1.5 rounded-button border border-transparent bg-transparent ps-2 pe-1 data-lead:ps-1 text-small font-control text-ink-2",
     "hover:bg-hover hover:text-ink focus-visible:bg-hover focus-visible:text-ink data-popup-open:bg-pressed data-popup-open:text-ink",
     "data-disabled:bg-transparent data-disabled:text-ink-disabled",
   ),
 };
+
+/** The default trigger's look, for a demo that drives its own list (the landing page's key demo). */
+export const selectTriggerClass = cn(triggerBase, triggerDensity.default);
 
 /**
  * Select. Inside a Base UI Field like Input, so `name`, `required`, `error`, the hint and
@@ -181,8 +191,15 @@ export function Select<V extends string = string>({
     >
       <BaseSelect.Root<V>
         value={value}
-        onValueChange={(v) => v != null && onValueChange(v)}
-        onOpenChange={(open) => onOpenChange?.(open)}
+        onValueChange={(v) => {
+          if (v == null) return;
+          playSound("select");
+          onValueChange(v);
+        }}
+        onOpenChange={(open, d) => {
+          playOpenSound(open, d);
+          onOpenChange?.(open);
+        }}
         items={all.map((o) => ({ value: o.value, label: o.label }))}
         required={required}
         readOnly={readOnly}
@@ -249,12 +266,17 @@ function SelectItem<V extends string>({ option }: { option: SelectOption<V> }) {
       className={menuItemClass}
     >
       <span className="min-w-0">
-        <BaseSelect.ItemText className="block font-control">{option.label}</BaseSelect.ItemText>
+        {/* The meta rides beside the label, dimmed: it qualifies the option ("fast", "mid"), so it
+            reads with the name instead of floating mid-row against a two-line option. */}
+        <span className="flex min-w-0 items-baseline gap-1.5">
+          <BaseSelect.ItemText className="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap font-control">{option.label}</BaseSelect.ItemText>
+          {option.meta && <span className={cn(menuMetaClass, "flex-none")}>{option.meta}</span>}
+        </span>
         {option.description && (
           <span className={menuDescriptionClass}>{option.description}</span>
         )}
       </span>
-      {option.trail ?? (option.meta ? <span className={menuMetaClass}>{option.meta}</span> : <span />)}
+      {option.trail ?? <span />}
       <CheckIcon aria-hidden className={selectedTickClass} />
     </BaseSelect.Item>
   );

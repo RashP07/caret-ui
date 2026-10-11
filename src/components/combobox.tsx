@@ -3,6 +3,7 @@ import { Field as BaseField } from "@base-ui/react/field";
 import { CaretDownIcon, CheckIcon, XIcon } from "@phosphor-icons/react";
 import { useMemo, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playOpenSound, playSound } from "@/lib/sound";
 import { usePortalTheme } from "@/lib/theme";
 import { FieldMessage, fieldLabelClass, fieldRootClass, hintClass, wellClass, wellInputAfterLeadClass, wellInputClass, wellLeadClass } from "./input";
 import { keyboardInstant, menuDescriptionClass, menuItemClass, menuMetaClass, menuPopupClass, selectedTickClass, type SelectOption } from "./select";
@@ -132,8 +133,14 @@ export function Combobox<V extends string = string>({
       <BaseCombobox.Root
         items={items}
         value={value}
-        onValueChange={(v) => onValueChange((v as V | null) ?? null)}
-        onOpenChange={(open) => onOpenChange?.(open)}
+        onValueChange={(v) => {
+          playSound("select");
+          onValueChange((v as V | null) ?? null);
+        }}
+        onOpenChange={(open, d) => {
+          playOpenSound(open, d);
+          onOpenChange?.(open);
+        }}
         disabled={disabled}
         readOnly={readOnly}
       >
@@ -184,8 +191,14 @@ export function MultiCombobox<V extends string = string>({
         items={items}
         multiple
         value={value}
-        onValueChange={(v) => onValueChange(v as V[])}
-        onOpenChange={(open) => onOpenChange?.(open)}
+        onValueChange={(v) => {
+          playSound((v as V[]).length > value.length ? "check" : "uncheck");
+          onValueChange(v as V[]);
+        }}
+        onOpenChange={(open, d) => {
+          playOpenSound(open, d);
+          onOpenChange?.(open);
+        }}
         disabled={disabled}
         readOnly={readOnly}
       >

@@ -1,18 +1,23 @@
 import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { IconButton, Morph } from "./button";
 
 /* ---------- highlighting (token classes come from theme tokens) ---------- */
 
 const KW = "import|from|export|const|let|var|function|return|if|else|type|interface|default|new|await|async|true|false|null|as";
 const TOK = new RegExp(
-  String.raw`(\/\/.*$|\/\*[\s\S]*?\*\/)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|` +
+  String.raw`((?<!:)\/\/.*$|\/\*[\s\S]*?\*\/)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|` +
     "`(?:[^`\\\\]|\\\\.)*`" +
     String.raw`)|\b(${KW})\b|(#[0-9A-Fa-f]{3,8}\b|\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)(?=\()|(<\/?[A-Z][\w.]*|--[\w-]+)`,
   "gm",
 );
 const CLS = ["", "c", "s", "k", "n", "f", "t"];
+// `//` after a colon is a URL (http://…), not a comment.
+
+/** Prose in a code block (Markdown, a prompt) isn't code: its "from" and "if" aren't keywords. */
+const PLAIN = new Set(["MD", "TXT", "TEXT"]);
 
 /** Tokenize one line into spans with .tk-* classes. */
 export function highlight(src: string): ReactNode[] {
@@ -40,8 +45,11 @@ export function highlight(src: string): ReactNode[] {
 /** Language tag, e.g. "TSX". */
 export function Lang({ children }: { children: ReactNode }) {
   return (
-    // Sits on the sunken code head: a surface tag with a control-strength edge (≥ 3:1 on sunken in every theme).
-    <span className="mono rounded-inline border border-border-control bg-surface px-1.5 py-px text-caption font-heading text-ink">{children}</span>
+    // Supporting detail, so it stays quiet: a borderless chip one step darker than the sunken head
+    // (the pressed fill), so it reads apart from the file name without competing with it.
+    // 16px caption line + 2px top and bottom = 20px, so it sits 12px from the head's top, bottom
+    // and start edges alike.
+    <span className="mono flex-none rounded-inline bg-pressed px-1.5 py-0.5 text-caption text-ink-2">{children}</span>
   );
 }
 
@@ -79,6 +87,8 @@ export function useCopy(onCopy?: () => void) {
     } catch {
       /* clipboard blocked */
     }
+    // The copy sound confirms it landed on the clipboard (the button itself stays silent).
+    playSound(ok ? "copy" : "danger");
     if (ok) onCopy?.();
     setStatus(ok ? "copied" : "failed");
     clearTimeout(timer.current);
@@ -95,16 +105,32 @@ export function useCopy(onCopy?: () => void) {
 }
 
 /** Copy button whose tooltip and live region confirm the copy. */
-export function CopyButton({ text, label = "Copy code", className }: { text: () => string; label?: string; className?: string }) {
+export function CopyButton({
+  text,
+  label = "Copy code",
+  size,
+  className,
+}: {
+  text: () => string;
+  label?: string;
+  size?: "default" | "sm";
+  className?: string;
+}) {
   const { copied, message, copy, announcer } = useCopy();
   return (
     <>
       <IconButton
         label={label}
         tip={message || label}
+        size={size}
         className={className}
         // State is visible on the control: the icon morphs copy → check, then back.
-        icon={<Morph swapKey={copied ? "check" : "copy"}>{copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}</Morph>}
+        icon={
+          <Morph swapKey={copied ? "check" : "copy"}>
+            {copied ? <CheckIcon size={size === "sm" ? 14 : 16} /> : <CopyIcon size={size === "sm" ? 14 : 16} />}
+          </Morph>
+        }
+        sound={false}
         onClick={() => copy(text())}
       />
       {announcer}
@@ -130,13 +156,16 @@ export function Code({ lang, name, lines, start = 0, stat, className }: CodeProp
   return (
     <div className={cn("min-w-0 overflow-hidden rounded-card border border-line bg-surface", className)}>
       <CodeHead lang={lang} name={name} stat={stat} copy={() => lines.join("\n")} />
+      {/* 12px all round, measured to the ink: numbers sit 12px in, 12px before the code, and the first
+          line's digits 12px under the head. Paper Mono's figures top out 7.6px into a 24px line, and its
+          baseline sits 7.5px above the line's end, so the block pads 4px top and bottom. */}
       <pre
-        className="code-lines mono m-0 overflow-x-auto py-2.5 text-code leading-6 text-ink"
-        style={{ "--start": start } as React.CSSProperties}
+        className="code-lines mono m-0 overflow-x-auto py-1 text-code leading-6 text-ink"
+        style={{ "--start": start, "--digits": String(start + lines.length).length } as React.CSSProperties}
       >
         {lines.map((l, i) => (
           <span key={i} className="ln">
-            {highlight(l).length ? highlight(l) : " "}
+            {l === "" ? " " : PLAIN.has(lang.toUpperCase()) ? l : highlight(l)}
           </span>
         ))}
       </pre>
@@ -158,13 +187,15 @@ export function CodeHead({
   copyLabel?: string;
 }) {
   return (
-    // The copy button sits 8px in from the rounded corner, so its ring is never clipped.
-    <div className="flex h-12 flex-none items-center gap-2.5 border-b border-line bg-sunken pr-2 pl-3">
+    // One inset everywhere: the 20px tag sits 12px from the top, bottom and start, and 12px from the
+    // name. The face is 44px plus its 1px bottom hairline. The 28px copy button sits 8px from the top
+    // and end: 12px corner less 8px is its 4px radius (concentric), and its ring is never clipped.
+    <div className="flex h-[45px] flex-none items-center gap-3 border-b border-line bg-sunken pe-2 ps-3">
       <Lang>{lang}</Lang>
       <FilePath path={name} />
       {stat && <Diffstat {...stat} className="ml-auto" />}
       <span className={cn("flex", !stat && "ml-auto")}>
-        <CopyButton text={copy} label={copyLabel} />
+        <CopyButton text={copy} label={copyLabel} size="sm" />
       </span>
     </div>
   );
@@ -205,6 +236,7 @@ export interface DiffProps {
 export function Diff({ lang, path, lines, hunk, className }: DiffProps) {
   let o = 1;
   let n = 1;
+  const digits = String(lines.length).length;
   return (
     <div className={cn("flex min-h-0 min-w-0 flex-col overflow-hidden rounded-card border border-line bg-surface", className)}>
       <CodeHead
@@ -217,21 +249,23 @@ export function Diff({ lang, path, lines, hunk, className }: DiffProps) {
       <pre
         tabIndex={0}
         aria-label={`Diff of ${path}`}
-        className="mono m-0 min-h-0 flex-1 overflow-auto pt-2 pb-4 text-code leading-5.5 text-ink"
+        // As in Code: 12px to the ink. In a 22px line the figures top out 6.6px down, so 5px of padding.
+        className="mono m-0 min-h-0 flex-1 overflow-auto pt-[5px] pb-4 text-code leading-5.5 text-ink"
+        style={{ "--digits": digits } as React.CSSProperties}
       >
-        {hunk && <div className="mb-1 border-b border-line bg-sunken px-3.5 py-1.5 whitespace-pre text-ink-3">{hunk}</div>}
+        {hunk && <div className="mb-1 border-b border-line bg-sunken px-3 py-1.5 whitespace-pre text-ink-3">{hunk}</div>}
         {lines.map(([sign, text], i) => {
           const num = sign === "-" ? o++ : sign === "+" ? n++ : (o++, n++);
           return (
             <div
               key={i}
               className={cn(
-                "grid min-w-max grid-cols-[3em_1.6em_1fr] pr-3.5 whitespace-pre",
+                "grid min-w-max grid-cols-[calc(var(--digits)*1ch+12px)_calc(1ch+24px)_1fr] pe-3 whitespace-pre",
                 sign === "+" && "bg-success-soft",
                 sign === "-" && "bg-danger-soft",
               )}
             >
-              <span className="pr-[.4em] text-right text-ink-3 select-none">{num}</span>
+              <span className="text-right text-ink-3 select-none">{num}</span>
               <span
                 className={cn(
                   "text-center text-ink-3 select-none",

@@ -14,8 +14,10 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useId, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { playSound } from "@/lib/sound";
 import { IconButton, Morph } from "./button";
 import { useCopy } from "./code";
+import { panelContentClass, panelHeightClass } from "./collapsible";
 import { Tooltip, TooltipGroup } from "./tooltip";
 
 /*
@@ -26,6 +28,11 @@ import { Tooltip, TooltipGroup } from "./tooltip";
  *
  * Layout answers the column's own width, not the viewport: Messages is a
  * size container, so a chat in a narrow pane lays out like one on a phone.
+ *
+ * The look follows the rest of Caret: no bubbles. Your message is a plain block
+ * of the surface ground, with no edge; the agent's reply is text on the page.
+ * The composer is a field (--r-control) with its controls 4px in, so every
+ * 28px button inside is concentric with it (8 − 4 = 4).
  */
 
 /* ---------- messages ---------- */
@@ -45,7 +52,7 @@ export function Messages({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "@container flex flex-col gap-6",
+        "@container flex flex-col gap-5",
         "[&>*]:transition-[opacity,translate] [&>*]:duration-quick [&>*]:ease-out",
         "[&>*]:starting:translate-y-1 [&>*]:starting:opacity-0",
         entering && [
@@ -66,8 +73,8 @@ export function MsgUser({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "max-w-[min(78%,520px)] self-end rounded-[var(--r-card)_var(--r-card)_var(--r-inline)_var(--r-card)] border border-line bg-page px-3.5 py-2.5",
-        "text-body break-words whitespace-pre-wrap text-ink @max-[600px]:max-w-[90%]",
+        "max-w-[min(85%,560px)] self-end rounded-control bg-surface px-3 py-2",
+        "text-body break-words whitespace-pre-wrap text-ink @max-[600px]:max-w-[92%]",
         className,
       )}
       {...props}
@@ -79,7 +86,7 @@ export function MsgAgent({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "flex min-w-0 flex-col gap-3 text-body leading-6 text-ink",
+        "flex min-w-0 flex-col gap-2.5 text-body leading-6 text-ink",
         "[&_p]:m-0 [&_p]:max-w-[68ch]",
         "[&_p_code]:rounded-inline [&_p_code]:border [&_p_code]:border-line [&_p_code]:bg-sunken [&_p_code]:px-1 [&_p_code]:py-px [&_p_code]:text-caption",
         className,
@@ -124,10 +131,19 @@ export interface TraceProps {
   defaultOpen?: boolean;
 }
 
-/** What the agent did before answering. Collapses once the answer is done. */
+/**
+ * What the agent did before answering. Collapses once the answer is done. The steps open and close
+ * like any collapsible: height on ease-in-out, the list fading in just behind it. The rail starts
+ * right under the trigger, with no gap.
+ */
 export function Trace({ steps, live, summary, open, onOpenChange, defaultOpen }: TraceProps) {
   return (
-    <Collapsible.Root open={open} onOpenChange={(o) => onOpenChange?.(o)} defaultOpen={defaultOpen} className="flex flex-col gap-3">
+    <Collapsible.Root
+      open={open}
+      onOpenChange={(o) => {
+        playSound(o ? "open" : "close");
+        onOpenChange?.(o);
+      }} defaultOpen={defaultOpen} className="flex flex-col">
       <Collapsible.Trigger
         className={cn(
           "-ms-1 inline-flex min-h-6 items-center gap-1.5 self-start rounded-button border-0 bg-transparent ps-1 pe-2 text-small text-ink-3 touch:min-h-11",
@@ -144,29 +160,35 @@ export function Trace({ steps, live, summary, open, onOpenChange, defaultOpen }:
           <span>{summary}</span>
         )}
       </Collapsible.Trigger>
-      <Collapsible.Panel
-        render={<ol />}
-        className="m-0 flex list-none flex-col gap-1.5 border-l border-line py-0.5 pl-3 text-small text-ink-2"
-      >
-        {steps.map((s, i) => (
-          <li
-            key={i}
-            className={cn(
-              "flex items-start gap-2 transition-[opacity,translate] duration-quick ease-out",
-              // A new step rises into place as the agent reaches it.
-              "starting:translate-y-1 starting:opacity-0",
-              s.state === "now" && "text-ink",
-            )}
-          >
-            {s.state === "now" ? (
-              <CircleNotchIcon size={12} className="mt-1 flex-none animate-spin text-ink-3" aria-label="In progress" />
-            ) : (
-              <CheckIcon size={12} className="mt-1 flex-none text-success" aria-label="Done" />
-            )}
-            <span className="min-w-0 flex-1 break-words">{s.label}</span>
-            {s.time && <span className="flex-none text-caption leading-[inherit] text-ink-3 tabular-nums">{s.time}</span>}
-          </li>
-        ))}
+      <Collapsible.Panel className={cn(panelHeightClass, "h-(--collapsible-panel-height)")}>
+        <ol
+          // The rail hangs from the caret: 6px in puts the 1px line on the 14px caret's centre (a
+          // hairline may take the odd half). The steps keep their 13px inset: 6 + 1 + 6.
+          className={cn(
+            panelContentClass,
+            "m-0 ms-1.5 flex list-none flex-col gap-1.5 border-s border-line py-0.5 ps-1.5 text-small text-ink-2",
+          )}
+        >
+          {steps.map((s, i) => (
+            <li
+              key={i}
+              className={cn(
+                "flex items-start gap-2 transition-[opacity,translate] duration-quick ease-out",
+                // A new step rises into place as the agent reaches it.
+                "starting:translate-y-1 starting:opacity-0",
+                s.state === "now" && "text-ink",
+              )}
+            >
+              {s.state === "now" ? (
+                <CircleNotchIcon size={12} className="mt-1 flex-none animate-spin text-ink-3" aria-label="In progress" />
+              ) : (
+                <CheckIcon size={12} className="mt-1 flex-none text-success" aria-label="Done" />
+              )}
+              <span className="min-w-0 flex-1 break-words">{s.label}</span>
+              {s.time && <span className="flex-none text-caption leading-[inherit] text-ink-3 tabular-nums">{s.time}</span>}
+            </li>
+          ))}
+        </ol>
       </Collapsible.Panel>
     </Collapsible.Root>
   );
@@ -191,23 +213,27 @@ export function MsgActions({ vote, onVote, onCopy, copyText }: MsgActionsProps) 
   const pressed = "aria-pressed:[--bg:var(--pressed)]";
   return (
     <TooltipGroup>
-      <div className="-ms-1.5 flex gap-0.5">
+      <div className="-ms-1 flex gap-0.5">
         <ToggleGroup
           value={vote ? [vote] : []}
-          onValueChange={(v) => onVote?.((v[0] as Vote) ?? null)}
+          onValueChange={(v) => {
+            playSound(v.length ? "on" : "off");
+            onVote?.((v[0] as Vote) ?? null);
+          }}
           aria-label="Rate this response"
           className="flex gap-0.5"
         >
           <Toggle
             value="good"
-            render={<IconButton label="Good response" className={pressed} icon={<ThumbsUpIcon size={16} weight={vote === "good" ? "fill" : "regular"} />} />}
+            render={<IconButton label="Good response" size="sm" sound={false} className={pressed} icon={<ThumbsUpIcon size={16} weight={vote === "good" ? "fill" : "regular"} />} />}
           />
           <Toggle
             value="bad"
-            render={<IconButton label="Bad response" className={pressed} icon={<ThumbsDownIcon size={16} weight={vote === "bad" ? "fill" : "regular"} />} />}
+            render={<IconButton label="Bad response" size="sm" sound={false} className={pressed} icon={<ThumbsDownIcon size={16} weight={vote === "bad" ? "fill" : "regular"} />} />}
           />
         </ToggleGroup>
         <IconButton
+          size="sm"
           label="Copy response"
           tip={message || "Copy response"}
           icon={
@@ -215,6 +241,7 @@ export function MsgActions({ vote, onVote, onCopy, copyText }: MsgActionsProps) 
               {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
             </Morph>
           }
+          sound={false}
           onClick={() => copy(copyText?.() ?? "")}
         />
         {announcer}
@@ -303,20 +330,37 @@ export function Composer({
   const ta = useRef<HTMLTextAreaElement | null>(null);
   const id = useId();
 
-  // Grow with the text, up to 180px.
+  // Grow with the text, up to 180px; and again when the width changes, since the same text (or
+  // the placeholder) wraps to a different number of lines. A height set while the composer sat in
+  // a narrow column would otherwise stick after it widens.
   useEffect(() => {
     const el = ta.current;
     if (!el) return;
-    el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 180) + "px";
+    const grow = () => {
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 180) + "px";
+    };
+    grow();
+    let width = el.clientWidth;
+    const ro = new ResizeObserver(() => {
+      if (el.clientWidth === width) return;
+      width = el.clientWidth;
+      grow();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [text]);
 
   const canSend = !!text.trim();
 
   function fire() {
-    if (busy) return onStop?.();
+    if (busy) {
+      playSound("off");
+      return onStop?.();
+    }
     const t = text.trim();
     if (!t) return;
+    playSound("send");
     setText("");
     onChange?.("");
     onSend(t);
@@ -324,12 +368,13 @@ export function Composer({
 
   return (
     // The box wears the textarea's focus line (data-focus-proxy), on click too; Attach,
-    // the model picker, Dictate and Send keep their own. 12px outer = 4px buttons + 8px inset.
+    // the model picker, Dictate and Send keep their own. 8px outer = 4px buttons + 4px inset.
     <div
       data-focus-target
       className={cn(
-        "flex min-w-0 flex-col rounded-card border-stroke border-border-control bg-surface",
+        "flex min-w-0 flex-col rounded-control border-stroke border-border-field bg-surface",
         "transition-[border-color] duration-instant has-[[data-focus-proxy]:focus]:field-focus",
+        "not-has-[[data-focus-proxy]:focus]:hover:border-border-control",
         className,
       )}
     >
@@ -361,22 +406,25 @@ export function Composer({
             onStop?.();
           }
         }}
-        className="block max-h-[180px] min-h-12 w-full resize-none rounded-t-card border-0 bg-transparent px-3.5 pt-3 pb-1 text-input-touch text-ink placeholder:text-ink-3 sm:text-body"
+        className="block max-h-[180px] min-h-11 w-full resize-none rounded-t-control border-0 bg-transparent px-3 pt-2.5 pb-1 text-input-touch text-ink placeholder:text-ink-3 sm:text-body"
       />
       {/* One shared tooltip for the row: attach, dictate, send. */}
       <TooltipGroup>
         {/* Pickers in `controls` shrink first; buttons keep their size and Send never leaves the row. */}
-        <div className="flex min-w-0 items-center gap-1 px-2 pt-1.5 pb-2 [&>button]:flex-none">
+        <div className="flex min-w-0 items-center gap-0.5 p-1 pt-0.5 [&>button]:flex-none">
           {tools}
           <div className="min-w-0 flex-1" />
           <div className="flex min-w-0 items-center justify-end gap-1 [&>*]:min-w-0 [&>button]:flex-none">{controls}</div>
           <IconButton
             className="flex-none"
+            size="sm"
             variant="primary"
             label={busy ? "Stop" : "Send"}
             kbd={busy ? "Esc" : "↵"}
             icon={<Morph swapKey={busy ? "stop" : "send"}>{busy ? <StopIcon weight="fill" /> : <ArrowUpIcon weight="bold" />}</Morph>}
             disabled={!busy && !canSend}
+            // Send and Stop have their own sounds, played by fire(), so Enter in the box sounds the same.
+            sound={false}
             onClick={fire}
           />
         </div>
@@ -387,5 +435,5 @@ export function Composer({
 
 /** The row under a composer: branch, directory, mode, context. */
 export function ComposerFoot({ className, ...props }: ComponentProps<"div">) {
-  return <div className={cn("flex flex-wrap items-center gap-1 px-0.5 pt-2 text-small text-ink-3", className)} {...props} />;
+  return <div className={cn("flex flex-wrap items-center gap-1 pt-1.5 text-small text-ink-3", className)} {...props} />;
 }

@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import { llmsTxtPlugin } from "./scripts/llms-txt.ts";
 
 export default defineConfig({
   plugins: [
@@ -11,6 +12,8 @@ export default defineConfig({
     tanstackRouter({ target: "react", autoCodeSplitting: false }),
     react(),
     tailwindcss(),
+    // /llms.txt, /llms-full.txt and /agents.md, generated from the docs registry and DESIGN.md.
+    llmsTxtPlugin(),
   ],
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
